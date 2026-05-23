@@ -1,0 +1,2 @@
+"""Sample FastAPI app."""
+

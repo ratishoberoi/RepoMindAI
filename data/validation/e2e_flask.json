@@ -1,0 +1,437 @@
+{
+  "label": "flask",
+  "url": "https://github.com/pallets/flask",
+  "path": "/home/ratish/RepoMindAI/data/repositories/flask-353488decf",
+  "started_at": 1779526037.790863,
+  "ingest_seconds": "reused prior successful git clone",
+  "repo_id": "a6cef24fe5b340bf8f80af7e3109d167",
+  "analysis_seconds": 21.09,
+  "summary": {
+    "statistics": {
+      "files": 231,
+      "bytes": 1474917,
+      "functions": 1460,
+      "classes": 160,
+      "routes": 28,
+      "indexed_chunks": 857
+    },
+    "languages": {
+      "primary": "Text",
+      "all": {
+        "JSON": 2,
+        "Shell": 1,
+        "Text": 129,
+        "Markdown": 6,
+        "YAML": 8,
+        "Python": 83,
+        "SQL": 2
+      }
+    },
+    "stack": {
+      "frameworks": [
+        "Flask",
+        "SQL/database"
+      ],
+      "package_managers": [
+        "pip/uv"
+      ],
+      "build_tools": [],
+      "ci_cd": [
+        "GitHub Actions"
+      ],
+      "docker": false
+    },
+    "scores": {
+      "security": 20,
+      "maintainability": 37.3,
+      "production_readiness": 54.3,
+      "recruiter": 84.3,
+      "cto": 46.9,
+      "confidence": 95
+    },
+    "architecture": {
+      "style": "General software repository",
+      "top_level_directories": [
+        ".devcontainer",
+        ".github",
+        "docs",
+        "examples",
+        "src",
+        "tests"
+      ],
+      "important_files": [
+        "tests/test_basic.py",
+        "tests/test_blueprints.py",
+        "flask",
+        "tests/test_cli.py",
+        "src/flask/app.py",
+        "src/flask/cli.py",
+        "tests/test_templating.py",
+        "tests/test_helpers.py",
+        "src/flask/sansio/app.py",
+        "tests/test_user_error_handler.py"
+      ],
+      "route_files": [
+        "CHANGES.rst",
+        "docs/gevent.rst",
+        "docs/patterns/celery.rst",
+        "docs/patterns/javascript.rst",
+        "docs/patterns/streaming.rst",
+        "docs/quickstart.rst",
+        "docs/templating.rst",
+        "src/flask/app.py",
+        "src/flask/ctx.py",
+        "src/flask/debughelpers.py",
+        "src/flask/helpers.py",
+        "tests/test_appctx.py",
+        "tests/test_basic.py",
+        "tests/test_converters.py",
+        "tests/test_request.py",
+        "tests/test_session_interface.py",
+        "tests/test_testing.py"
+      ],
+      "summary": "Primary language is inferred as repository-local code with Flask, SQL/database. The dependency graph highlights 1706 code, module, and symbol nodes."
+    },
+    "security_findings": 1085,
+    "security_counts": {
+      "low": 1075,
+      "medium": 7,
+      "high": 3
+    },
+    "debt_items": 38,
+    "reports": {
+      "README.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/README.md",
+      "ARCHITECTURE.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/ARCHITECTURE.md",
+      "SECURITY_REPORT.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/SECURITY_REPORT.md",
+      "TECH_DEBT.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/TECH_DEBT.md",
+      "RECRUITER_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/RECRUITER_REVIEW.md",
+      "CTO_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/CTO_REVIEW.md",
+      "ROADMAP.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/ROADMAP.md",
+      "PROJECT_STATUS.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/PROJECT_STATUS.md",
+      "analysis-summary.json": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/analysis-summary.json"
+    }
+  },
+  "qa": [
+    {
+      "question": "What does this project do?",
+      "answer_seconds": 9.91,
+      "answer": "Okay, I need to figure out what the Flask project does based on the provided repository context. Let me start by looking at the README.md file since that's usually where project descriptions are found.\n\nThe README starts by stating that Flask is a lightweight WSGI web application framework. It mentions it's designed to make getting started quick and easy, and can scale up to complex applications. It also says Flask began as a simple wrapper around Werkzeug and Jinja. The project allows developers to choose their tools without enforcing dependencies, which suggests flexibility.\n\nLooking at the pyproject.toml, the description says it's a simple framework for building complex web applications. The dependencies listed include things like Jinja2 and Werkzeug, which align with the README's mention of those libraries. The optional dependencies like async and dotenv show additional functionalities that can be added, reinforcing the idea of being lightweight but extensible.",
+      "citations": [
+        {
+          "path": "README.md",
+          "line_start": 1,
+          "line_end": 54,
+          "score": 0.6957
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 1,
+          "line_end": 78,
+          "score": 0.4744
+        },
+        {
+          "path": "docs/tutorial/index.rst",
+          "line_start": 1,
+          "line_end": 57,
+          "score": 0.4443
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 70,
+          "line_end": 173,
+          "score": 0.3729
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 159,
+          "line_end": 225,
+          "score": 0.34
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 222,
+          "line_end": 277,
+          "score": 0.34
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "README.md",
+          "line_start": 1,
+          "line_end": 54,
+          "score": 0.6957,
+          "text": "<div align=\"center\"><img src=\"https://raw.githubusercontent.com/pallets/flask/refs/heads/stable/docs/_static/flask-name.svg\" alt=\"\" height=\"150\"></div>\n\n# Flask\n\nFlask is a lightweight [WSGI] web application framework. It is designed\nto make getting started quick and easy, with the ability to scale up to\ncomplex applications. It began as a simple wrapper around [Werkzeug]\nand [Jinja], and has become one of the most popular Python web\napplication frameworks.\n\nFlask offers suggestions, but doesn't enforce any dependencies or\nproject layout. It is up to the developer to choose the tools and\nlibraries they want to use. There are many extensions provided by the\ncommunity that make adding new functionality easy.\n\n[WSGI]: https://wsgi.readthedocs.io/\n[Werkzeug]: https://werkzeug.palletsprojects.com/\n[Jinja]: https://jinja.palletsprojects.com/\n\n## A Simple Example\n\n```python\n# save this as app.py\nfrom flask import Flask\n\napp = Flask(__name__)\n\n@app.route(\"/\")\ndef hello():\n    return \"Hello, Wo"
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 1,
+          "line_end": 78,
+          "score": 0.4744,
+          "text": "[project]\nname = \"Flask\"\nversion = \"3.2.0.dev\"\ndescription = \"A simple framework for building complex web applications.\"\nreadme = \"README.md\"\nlicense = \"BSD-3-Clause\"\nlicense-files = [\"LICENSE.txt\"]\nmaintainers = [{name = \"Pallets\", email = \"contact@palletsprojects.com\"}]\nclassifiers = [\n    \"Development Status :: 5 - Production/Stable\",\n    \"Environment :: Web Environment\",\n    \"Framework :: Flask\",\n    \"Intended Audience :: Developers\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python\",\n    \"Topic :: Internet :: WWW/HTTP :: Dynamic Content\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI :: Application\",\n    \"Topic :: Software Development :: Libraries :: Application Frameworks\",\n    \"Typing :: Typed\",\n]\nrequires-python = \">=3.10\"\ndependencies = [\n    \"blinker>=1.9.0\",\n    \"click>=8.1.3\",\n    \"itsdangerous>=2.2.0\",\n    \"jinja2>=3.1.2\",\n    \"markupsafe>=2.1.1\",\n    \"werkzeug>=3.1.0\",\n]\n\n[project.optional-dependencies"
+        },
+        {
+          "path": "docs/tutorial/index.rst",
+          "line_start": 1,
+          "line_end": 57,
+          "score": 0.4443,
+          "text": "Tutorial\n========\n\n.. toctree::\n    :caption: Contents:\n    :maxdepth: 1\n\n    layout\n    factory\n    database\n    views\n    templates\n    static\n    blog\n    install\n    tests\n    deploy\n    next\n\nThis tutorial will walk you through creating a basic blog application\ncalled Flaskr. Users will be able to register, log in, create posts,\nand edit or delete their own posts. You will be able to package and\ninstall the application on other computers.\n\n.. image:: flaskr_index.png\n    :align: center\n    :class: screenshot\n    :alt: screenshot of index page\n\nIt's assumed that you're already familiar with Python. The `official\ntutorial`_ in the Python docs is a great way to learn or review first.\n\n.. _official tutorial: https://docs.python.org/3/tutorial/\n\nWhile it's designed to give a good starting point, the tutorial doesn't\ncover all of Flask's features. Check out the :doc:`/quickstart` for an\noverview of what Flask can do, then dive into the docs to find out more.\nThe tutorial only uses what'"
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 70,
+          "line_end": 173,
+          "score": 0.3729,
+          "text": "tvars\",\n    \"types-dataclasses\",\n]\n\n[project.urls]\nDonate = \"https://palletsprojects.com/donate\"\nDocumentation = \"https://flask.palletsprojects.com/\"\nChanges = \"https://flask.palletsprojects.com/page/changes/\"\nSource = \"https://github.com/pallets/flask/\"\nChat = \"https://discord.gg/pallets\"\n\n[project.scripts]\nflask = \"flask.cli:main\"\n\n[build-system]\nrequires = [\"flit_core>=3.11,<4\"]\nbuild-backend = \"flit_core.buildapi\"\n\n[tool.flit.module]\nname = \"flask\"\n\n[tool.flit.sdist]\ninclude = [\n    \"docs/\",\n    \"examples/\",\n    \"tests/\",\n    \"CHANGES.rst\",\n    \"uv.lock\"\n]\nexclude = [\n    \"docs/_build/\",\n]\n\n[tool.uv]\ndefault-groups = [\"dev\", \"pre-commit\", \"tests\", \"typing\"]\n\n[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\nfilterwarnings = [\n    \"error\",\n]\n\n[tool.coverage.run]\nbranch = true\nsource = [\"flask\", \"tests\"]\n\n[tool.coverage.paths]\nsource = [\"src\", \"*/site-packages\"]\n\n[tool.coverage.report]\nexclude_also = [\n    \"if t.TYPE_CHECKING\",\n    \"raise NotImplementedError\",\n    \": \\\\.{3}\",\n]\n\n[tool."
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 159,
+          "line_end": 225,
+          "score": 0.34,
+          "text": "UP\",  # pyupgrade\n    \"W\",  # pycodestyle warning\n]\n\n[tool.ruff.lint.isort]\nforce-single-line = true\norder-by-type = false\n\n[tool.codespell]\nignore-words-list = \"te\"\n\n[tool.tox]\nenv_list = [\n    \"py3.14\", \"py3.14t\",\n    \"py3.13\", \"py3.12\", \"py3.11\", \"py3.10\",\n    \"pypy3.11\",\n    \"tests-min\", \"tests-dev\",\n    \"style\",\n    \"typing\",\n    \"docs\",\n]\n\n[tool.tox.env_run_base]\ndescription = \"pytest on latest dependency versions\"\nrunner = \"uv-venv-lock-runner\"\npackage = \"wheel\"\nwheel_build_env = \".pkg\"\nconstrain_package_deps = true\nuse_frozen_constraints = true\ndependency_groups = [\"tests\"]\nenv_tmp_dir = \"{toxworkdir}/tmp/{envname}\"\ncommands = [[\n    \"pytest\", \"-v\", \"--tb=short\", \"--basetemp={env_tmp_dir}\",\n    {replace = \"posargs\", default = [], extend = true},\n]]\n\n[tool.tox.env.tests-min]\ndescription = \"pytest on minimum dependency versions\"\nbase_python = [\"3.14\"]\ncommands = [\n    [\n        \"uv\", \"pip\", \"install\",\n        \"blinker==1.9.0\",\n        \"click==8.1.3\",\n        \"itsdangerous==2.2.0\""
+        }
+      ]
+    },
+    {
+      "question": "Where is authentication implemented?",
+      "answer_seconds": 11.37,
+      "answer": "Okay, I need to figure out where authentication is implemented in the Flask repository based on the provided context. Let me look through the given sources.\n\nFirst, the user is asking about authentication implementation. The context includes parts of the docs and some example code. Let me check the examples first since they often have concrete implementations.\n\nLooking at the 'examples/tutorial/flaskr/auth.py' file. The file starts with imports and setting up a Blueprint named \"auth\" with a URL prefix of \"/auth\". That's a good sign. There's a login_required decorator, which suggests handling user authentication. Then there's a load_logged_in_user function decorated with @bp.before_app_request. This function checks the session for a user ID and loads the user from the database into g.user. \n\nThe register and login routes are defined here. The register function handles user registration, checking for existing usernames and hashing the",
+      "citations": [
+        {
+          "path": "docs/web-security.rst",
+          "line_start": 1,
+          "line_end": 34,
+          "score": 0.4711
+        },
+        {
+          "path": "examples/tutorial/flaskr/auth.py",
+          "line_start": 1,
+          "line_end": 69,
+          "score": 0.4637
+        },
+        {
+          "path": "docs/web-security.rst",
+          "line_start": 223,
+          "line_end": 275,
+          "score": 0.4613
+        },
+        {
+          "path": "docs/web-security.rst",
+          "line_start": 101,
+          "line_end": 141,
+          "score": 0.4446
+        },
+        {
+          "path": "examples/tutorial/flaskr/auth.py",
+          "line_start": 64,
+          "line_end": 117,
+          "score": 0.4389
+        },
+        {
+          "path": "examples/tutorial/tests/test_auth.py",
+          "line_start": 1,
+          "line_end": 59,
+          "score": 0.4337
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "docs/web-security.rst",
+          "line_start": 1,
+          "line_end": 34,
+          "score": 0.4711,
+          "text": "Security Considerations\n=======================\n\nWeb applications face many types of potential security problems, and it can be\nhard to get everything right, or even to know what \"right\" is in general. Flask\ntries to solve a few of these things by default, but there are other parts you\nmay have to take care of yourself. Many of these solutions are tradeoffs, and\nwill depend on each application's specific needs and threat model. Many hosting\nplatforms may take care of certain types of problems without the need for the\nFlask application to handle them.\n\nResource Use\n------------\n\nA common category of attacks is \"Denial of Service\" (DoS or DDoS). This is a\nvery broad category, and different variants target different layers in a\ndeployed application. In general, something is done to increase how much\nprocessing time or memory is used to handle each request, to the point where\nthere are not enough resources to handle legitimate requests.\n\nFlask provides a few configuration options to handle"
+        },
+        {
+          "path": "examples/tutorial/flaskr/auth.py",
+          "line_start": 1,
+          "line_end": 69,
+          "score": 0.4637,
+          "text": "import functools\n\nfrom flask import Blueprint\nfrom flask import flash\nfrom flask import g\nfrom flask import redirect\nfrom flask import render_template\nfrom flask import request\nfrom flask import session\nfrom flask import url_for\nfrom werkzeug.security import check_password_hash\nfrom werkzeug.security import generate_password_hash\n\nfrom .db import get_db\n\nbp = Blueprint(\"auth\", __name__, url_prefix=\"/auth\")\n\n\ndef login_required(view):\n    \"\"\"View decorator that redirects anonymous users to the login page.\"\"\"\n\n    @functools.wraps(view)\n    def wrapped_view(**kwargs):\n        if g.user is None:\n            return redirect(url_for(\"auth.login\"))\n\n        return view(**kwargs)\n\n    return wrapped_view\n\n\n@bp.before_app_request\ndef load_logged_in_user():\n    \"\"\"If a user id is stored in the session, load the user object from\n    the database into ``g.user``.\"\"\"\n    user_id = session.get(\"user_id\")\n\n    if user_id is None:\n        g.user = None\n    else:\n        g.user = (\n            get_db("
+        },
+        {
+          "path": "docs/web-security.rst",
+          "line_start": 223,
+          "line_end": 275,
+          "score": 0.4613,
+          "text": "r ``'Strict'``.\n  ``Lax`` prevents sending cookies with CSRF-prone requests from\n  external sites, such as submitting a form. ``Strict`` prevents sending\n  cookies with all external requests, including following regular links.\n\n::\n\n    app.config.update(\n        SESSION_COOKIE_SECURE=True,\n        SESSION_COOKIE_HTTPONLY=True,\n        SESSION_COOKIE_SAMESITE='Lax',\n    )\n\n    response.set_cookie('username', 'flask', secure=True, httponly=True, samesite='Lax')\n\nSpecifying ``Expires`` or ``Max-Age`` options, will remove the cookie after\nthe given time, or the current time plus the age, respectively. If neither\noption is set, the cookie will be removed when the browser is closed. ::\n\n    # cookie expires after 10 minutes\n    response.set_cookie('snakes', '3', max_age=600)\n\nFor the session cookie, if :attr:`session.permanent <flask.session.permanent>`\nis set, then :data:`PERMANENT_SESSION_LIFETIME` is used to set the expiration.\nFlask's default cookie implementation validates that the cryp"
+        },
+        {
+          "path": "docs/web-security.rst",
+          "line_start": 101,
+          "line_end": 141,
+          "score": 0.4446,
+          "text": " to set the :ref:`security-csp` response header.\n\nCross-Site Request Forgery (CSRF)\n---------------------------------\n\nAnother big problem is CSRF.  This is a very complex topic and I won't\noutline it here in detail just mention what it is and how to theoretically\nprevent it.\n\nIf your authentication information is stored in cookies, you have implicit\nstate management.  The state of \"being logged in\" is controlled by a\ncookie, and that cookie is sent with each request to a page.\nUnfortunately that includes requests triggered by 3rd party sites.  If you\ndon't keep that in mind, some people might be able to trick your\napplication's users with social engineering to do stupid things without\nthem knowing.\n\nSay you have a specific URL that, when you sent ``POST`` requests to will\ndelete a user's profile (say ``http://example.com/user/delete``).  If an\nattacker now creates a page that sends a post request to that page with\nsome JavaScript they just have to trick some users to load that page an"
+        },
+        {
+          "path": "examples/tutorial/flaskr/auth.py",
+          "line_start": 64,
+          "line_end": 117,
+          "score": 0.4389,
+          "text": "       if error is None:\n            try:\n                db.execute(\n                    \"INSERT INTO user (username, password) VALUES (?, ?)\",\n                    (username, generate_password_hash(password)),\n                )\n                db.commit()\n            except db.IntegrityError:\n                # The username was already taken, which caused the\n                # commit to fail. Show a validation error.\n                error = f\"User {username} is already registered.\"\n            else:\n                # Success, go to the login page.\n                return redirect(url_for(\"auth.login\"))\n\n        flash(error)\n\n    return render_template(\"auth/register.html\")\n\n\n@bp.route(\"/login\", methods=(\"GET\", \"POST\"))\ndef login():\n    \"\"\"Log in a registered user by adding the user id to the session.\"\"\"\n    if request.method == \"POST\":\n        username = request.form[\"username\"]\n        password = request.form[\"password\"]\n        db = get_db()\n        error = None\n        user = db.exec"
+        }
+      ]
+    },
+    {
+      "question": "Which services talk to the database?",
+      "answer_seconds": 10.01,
+      "answer": "Okay, let's tackle the question: \"Which services talk to the database?\" using the provided repository context.\n\nFirst, I need to look through the given files and code snippets. The context mentions files like `flaskr/db.py`, `flaskr/schema.sql`, and parts of the documentation. \n\nIn the `docs/tutorial/database.rst`, there's a section about connecting to the database. The code block in `flaskr/db.py` defines `get_db()` and `close_db()`. These functions handle the database connection and closing. So, `get_db()` is used to access the database, which implies any service that calls this function would be talking to the database.\n\nAnother part in `docs/patterns/sqlite3.rst` shows similar functions: `get_db()` and a teardown function `close_connection()`. The example route uses `get_db()` to",
+      "citations": [
+        {
+          "path": "docs/tutorial/database.rst",
+          "line_start": 1,
+          "line_end": 63,
+          "score": 0.6826
+        },
+        {
+          "path": "docs/patterns/sqlite3.rst",
+          "line_start": 1,
+          "line_end": 57,
+          "score": 0.6483
+        },
+        {
+          "path": "docs/tutorial/database.rst",
+          "line_start": 92,
+          "line_end": 151,
+          "score": 0.6472
+        },
+        {
+          "path": "docs/patterns/sqlite3.rst",
+          "line_start": 52,
+          "line_end": 100,
+          "score": 0.6317
+        },
+        {
+          "path": "docs/tutorial/database.rst",
+          "line_start": 145,
+          "line_end": 204,
+          "score": 0.6291
+        },
+        {
+          "path": "docs/patterns/sqlite3.rst",
+          "line_start": 90,
+          "line_end": 144,
+          "score": 0.6048
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "docs/tutorial/database.rst",
+          "line_start": 1,
+          "line_end": 63,
+          "score": 0.6826,
+          "text": ".. currentmodule:: flask\n\nDefine and Access the Database\n==============================\n\nThe application will use a `SQLite`_ database to store users and posts.\nPython comes with built-in support for SQLite in the :mod:`sqlite3`\nmodule.\n\nSQLite is convenient because it doesn't require setting up a separate\ndatabase server and is built-in to Python. However, if concurrent\nrequests try to write to the database at the same time, they will slow\ndown as each write happens sequentially. Small applications won't notice\nthis. Once you become big, you may want to switch to a different\ndatabase.\n\nThe tutorial doesn't go into detail about SQL. If you are not familiar\nwith it, the SQLite docs describe the `language`_.\n\n.. _SQLite: https://sqlite.org/about.html\n.. _language: https://sqlite.org/lang.html\n\n\nConnect to the Database\n-----------------------\n\nThe first thing to do when working with a SQLite database (and most\nother Python database libraries) is to create a connection to it. Any\nqueries a"
+        },
+        {
+          "path": "docs/patterns/sqlite3.rst",
+          "line_start": 1,
+          "line_end": 57,
+          "score": 0.6483,
+          "text": "Using SQLite 3 with Flask\n=========================\n\nYou can implement a few functions to work with a SQLite connection during a\nrequest context. The connection is created the first time it's accessed,\nreused on subsequent access, until it is closed when the request context ends.\n\nHere is a simple example of how you can use SQLite 3 with Flask::\n\n    import sqlite3\n    from flask import g\n\n    DATABASE = '/path/to/database.db'\n\n    def get_db():\n        db = getattr(g, '_database', None)\n        if db is None:\n            db = g._database = sqlite3.connect(DATABASE)\n        return db\n\n    @app.teardown_appcontext\n    def close_connection(exception):\n        db = getattr(g, '_database', None)\n        if db is not None:\n            db.close()\n\nNow, to use the database, the application must either have an active\napplication context (which is always true if there is a request in flight)\nor create an application context itself.  At that point the ``get_db``\nfunction can be used to get the c"
+        },
+        {
+          "path": "docs/tutorial/database.rst",
+          "line_start": 92,
+          "line_end": 151,
+          "score": 0.6472,
+          "text": "ve data. Flaskr will store users\nin the ``user`` table, and posts in the ``post`` table. Create a file\nwith the SQL commands needed to create empty tables:\n\n.. code-block:: sql\n    :caption: ``flaskr/schema.sql``\n\n    DROP TABLE IF EXISTS user;\n    DROP TABLE IF EXISTS post;\n\n    CREATE TABLE user (\n      id INTEGER PRIMARY KEY AUTOINCREMENT,\n      username TEXT UNIQUE NOT NULL,\n      password TEXT NOT NULL\n    );\n\n    CREATE TABLE post (\n      id INTEGER PRIMARY KEY AUTOINCREMENT,\n      author_id INTEGER NOT NULL,\n      created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n      title TEXT NOT NULL,\n      body TEXT NOT NULL,\n      FOREIGN KEY (author_id) REFERENCES user (id)\n    );\n\nAdd the Python functions that will run these SQL commands to the\n``db.py`` file:\n\n.. code-block:: python\n    :caption: ``flaskr/db.py``\n\n    def init_db():\n        db = get_db()\n\n        with current_app.open_resource('schema.sql') as f:\n            db.executescript(f.read().decode('utf8'))\n\n\n    @click.co"
+        },
+        {
+          "path": "docs/patterns/sqlite3.rst",
+          "line_start": 52,
+          "line_end": 100,
+          "score": 0.6317,
+          "text": "only open the connection if truly necessary.  If you want to use this\ncode outside a request context you can use it in a Python shell by opening\nthe application context by hand::\n\n    with app.app_context():\n        # now you can use get_db()\n\n\nEasy Querying\n-------------\n\nNow in each request handling function you can access `get_db()` to get the\ncurrent open database connection.  To simplify working with SQLite, a\nrow factory function is useful.  It is executed for every result returned\nfrom the database to convert the result.  For instance, in order to get\ndictionaries instead of tuples, this could be inserted into the ``get_db``\nfunction we created above::\n\n    def make_dicts(cursor, row):\n        return dict((cursor.description[idx][0], value)\n                    for idx, value in enumerate(row))\n\n    db.row_factory = make_dicts\n\nThis will make the sqlite3 module return dicts for this database connection, which are much nicer to deal with. Even more simply, we could place this in `"
+        },
+        {
+          "path": "docs/tutorial/database.rst",
+          "line_start": 145,
+          "line_end": 204,
+          "score": 0.6291,
+          "text": "e.\n\n:func:`click.command` defines a command line command called ``init-db``\nthat calls the ``init_db`` function and shows a success message to the\nuser. You can read :doc:`/cli` to learn more about writing commands.\n\nThe call to :func:`sqlite3.register_converter` tells Python how to\ninterpret timestamp values in the database. We convert the value to a\n:class:`datetime.datetime`.\n\n\nRegister with the Application\n-----------------------------\n\nThe ``close_db`` and ``init_db_command`` functions need to be registered\nwith the application instance; otherwise, they won't be used by the\napplication. However, since you're using a factory function, that\ninstance isn't available when writing the functions. Instead, write a\nfunction that takes an application and does the registration.\n\n.. code-block:: python\n    :caption: ``flaskr/db.py``\n\n    def init_app(app):\n        app.teardown_appcontext(close_db)\n        app.cli.add_command(init_db_command)\n\n:meth:`app.teardown_appcontext() <Flask.teardown_"
+        }
+      ]
+    },
+    {
+      "question": "Where are API routes defined?",
+      "answer_seconds": 10.61,
+      "answer": "Okay, I need to figure out where API routes are defined in the Flask repository based on the provided context. Let me look through the given code snippets.\n\nFirst, in the src/flask/views.py file, there's a class called MethodView which is mentioned as useful for defining a REST API. The example code shows a CounterAPI class with get and post methods, and then app.add_url_rule is used with as_view. That suggests that routes are defined using MethodView subclasses and registered via add_url_rule.\n\nLooking at the test_views.py examples, like test_methods_var_inheritance, they define MethodView subclasses and use app.add_url_rule with as_view. The tests also show that the methods (like GET, POST) are handled by the corresponding methods in the class.\n\nThe View class's as_view method is key here. The documentation in views.py says that dispatch_request is called, and",
+      "citations": [
+        {
+          "path": "src/flask/views.py",
+          "line_start": 92,
+          "line_end": 132,
+          "score": 0.5178
+        },
+        {
+          "path": "src/flask/views.py",
+          "line_start": 127,
+          "line_end": 183,
+          "score": 0.5142
+        },
+        {
+          "path": "src/flask/views.py",
+          "line_start": 53,
+          "line_end": 95,
+          "score": 0.4936
+        },
+        {
+          "path": "tests/test_views.py",
+          "line_start": 179,
+          "line_end": 247,
+          "score": 0.4786
+        },
+        {
+          "path": "tests/test_views.py",
+          "line_start": 238,
+          "line_end": 273,
+          "score": 0.4705
+        },
+        {
+          "path": "src/flask/views.py",
+          "line_start": 1,
+          "line_end": 56,
+          "score": 0.4669
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "src/flask/views.py",
+          "line_start": 92,
+          "line_end": 132,
+          "score": 0.5178,
+          "text": "y default, the generated view will create a new instance of the\n        view class for every request and call its\n        :meth:`dispatch_request` method. If the view class sets\n        :attr:`init_every_request` to ``False``, the same instance will\n        be used for every request.\n\n        Except for ``name``, all other arguments passed to this method\n        are forwarded to the view class ``__init__`` method.\n\n        .. versionchanged:: 2.2\n            Added the ``init_every_request`` class attribute.\n        \"\"\"\n        if cls.init_every_request:\n\n            def view(**kwargs: t.Any) -> ft.ResponseReturnValue:\n                self = view.view_class(  # type: ignore[attr-defined]\n                    *class_args, **class_kwargs\n                )\n                return current_app.ensure_sync(self.dispatch_request)(**kwargs)  # type: ignore[no-any-return]\n\n        else:\n            self = cls(*class_args, **class_kwargs)  # pyright: ignore\n\n            def view(**kwargs: t.Any) ->"
+        },
+        {
+          "path": "src/flask/views.py",
+          "line_start": 127,
+          "line_end": 183,
+          "score": 0.5142,
+          "text": " you can actually replace it with something else\n        # for testing purposes and debugging.\n        view.view_class = cls  # type: ignore\n        view.__name__ = name\n        view.__doc__ = cls.__doc__\n        view.__module__ = cls.__module__\n        view.methods = cls.methods  # type: ignore\n        view.provide_automatic_options = cls.provide_automatic_options  # type: ignore\n        return view\n\n\nclass MethodView(View):\n    \"\"\"Dispatches request methods to the corresponding instance methods.\n    For example, if you implement a ``get`` method, it will be used to\n    handle ``GET`` requests.\n\n    This can be useful for defining a REST API.\n\n    :attr:`methods` is automatically set based on the methods defined on\n    the class.\n\n    See :doc:`views` for a detailed guide.\n\n    .. code-block:: python\n\n        class CounterAPI(MethodView):\n            def get(self):\n                return str(session.get(\"counter\", 0))\n\n            def post(self):\n                session[\"counter\"] = s"
+        },
+        {
+          "path": "src/flask/views.py",
+          "line_start": 53,
+          "line_end": 95,
+          "score": 0.4936,
+          "text": "    #: Control whether the ``OPTIONS`` method is handled automatically.\n    #: Uses the same default (``True``) as ``route`` and\n    #: ``add_url_rule`` by default.\n    provide_automatic_options: t.ClassVar[bool | None] = None\n\n    #: A list of decorators to apply, in order, to the generated view\n    #: function. Remember that ``@decorator`` syntax is applied bottom\n    #: to top, so the first decorator in the list would be the bottom\n    #: decorator.\n    #:\n    #: .. versionadded:: 0.8\n    decorators: t.ClassVar[list[t.Callable[..., t.Any]]] = []\n\n    #: Create a new instance of this view class for every request by\n    #: default. If a view subclass sets this to ``False``, the same\n    #: instance is used for every request.\n    #:\n    #: A single instance is more efficient, especially if complex setup\n    #: is done during init. However, storing data on ``self`` is no\n    #: longer safe across requests, and :data:`~flask.g` should be used\n    #: instead.\n    #:\n    #: .. versionadded"
+        },
+        {
+          "path": "tests/test_views.py",
+          "line_start": 179,
+          "line_end": 247,
+          "score": 0.4786,
+          "text": "ssert rv.data == b\"\"\n    assert rv.headers[\"X-Method\"] == \"HEAD\"\n\n\ndef test_endpoint_override(app):\n    app.debug = True\n\n    class Index(flask.views.View):\n        methods = [\"GET\", \"POST\"]\n\n        def dispatch_request(self):\n            return flask.request.method\n\n    app.add_url_rule(\"/\", view_func=Index.as_view(\"index\"))\n\n    with pytest.raises(AssertionError):\n        app.add_url_rule(\"/other\", view_func=Index.as_view(\"index\"))\n\n    # But these tests should still pass. We just log a warning.\n    common_test(app)\n\n\ndef test_methods_var_inheritance(app, client):\n    class BaseView(flask.views.MethodView):\n        methods = [\"GET\", \"PROPFIND\"]\n\n    class ChildView(BaseView):\n        def get(self):\n            return \"GET\"\n\n        def propfind(self):\n            return \"PROPFIND\"\n\n    app.add_url_rule(\"/\", view_func=ChildView.as_view(\"index\"))\n\n    assert client.get(\"/\").data == b\"GET\"\n    assert client.open(\"/\", method=\"PROPFIND\").data == b\"PROPFIND\"\n    assert ChildView.methods ="
+        },
+        {
+          "path": "tests/test_views.py",
+          "line_start": 238,
+          "line_end": 273,
+          "score": 0.4705,
+          "text": "pp, client):\n    class GetView(flask.views.MethodView):\n        def get(self):\n            return \"GET\"\n\n    class OtherView(flask.views.MethodView):\n        def post(self):\n            return \"POST\"\n\n    class View(GetView, OtherView):\n        methods = [\"GET\"]\n\n    app.add_url_rule(\"/\", view_func=View.as_view(\"index\"))\n\n    assert client.get(\"/\").data == b\"GET\"\n    assert client.post(\"/\").status_code == 405\n    assert sorted(View.methods) == [\"GET\"]\n\n\ndef test_init_once(app, client):\n    n = 0\n\n    class CountInit(flask.views.View):\n        init_every_request = False\n\n        def __init__(self):\n            nonlocal n\n            n += 1\n\n        def dispatch_request(self):\n            return str(n)\n\n    app.add_url_rule(\"/\", view_func=CountInit.as_view(\"index\"))\n    assert client.get(\"/\").data == b\"1\"\n    assert client.get(\"/\").data == b\"1\"\n"
+        }
+      ]
+    }
+  ],
+  "success": true
+}

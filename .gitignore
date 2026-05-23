@@ -1,0 +1,52 @@
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+dist/
+build/
+
+# Runtime data
+data/repositories/
+data/uploads/
+data/indexes/
+data/exports/
+data/chroma/
+data/*.sqlite3
+data/*.json
+
+# Reports
+reports/generated/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Models (extra safety)
+models/
+*.safetensors
+*.gguf
+*.bin
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Screenshots generated during testing (optional)
+playwright-report/
+test-results/

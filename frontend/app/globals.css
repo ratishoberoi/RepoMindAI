@@ -1,0 +1,162 @@
+@import "@xyflow/react/dist/style.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: #020617;
+  color: #e2e8f0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(103, 232, 249, 0.32);
+}
+
+.mermaid-svg svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-svg .node rect,
+.mermaid-svg .node polygon,
+.mermaid-svg .node circle {
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.28));
+}
+
+.react-flow {
+  --xy-background-color: #050814;
+  --xy-edge-stroke-default: rgba(125, 211, 252, 0.34);
+  --xy-node-border-default: rgba(255, 255, 255, 0.12);
+}
+
+.flow-node {
+  border: 0;
+  border-radius: 14px;
+  padding: 0;
+  font-size: 12px;
+}
+
+.flow-node-selected {
+  filter: drop-shadow(0 0 18px rgba(103, 232, 249, 0.36));
+}
+
+.flow-node-muted {
+  opacity: 0.32;
+}
+
+.flow-edge-muted {
+  opacity: 0.22;
+}
+
+.flow-edge-active {
+  filter: drop-shadow(0 0 8px rgba(103, 232, 249, 0.55));
+}
+
+.flow-controls,
+.flow-minimap {
+  background: rgba(15, 23, 42, 0.82) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #e2e8f0;
+}
+
+.flow-minimap svg {
+  background: rgba(2, 6, 23, 0.86) !important;
+}
+
+.flow-minimap .react-flow__minimap-mask {
+  fill: rgba(15, 23, 42, 0.62) !important;
+}
+
+.intelligence-node {
+  position: relative;
+  width: 246px;
+  min-height: 106px;
+  border: 1px solid color-mix(in srgb, var(--node-color) 62%, rgba(255, 255, 255, 0.16));
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--node-color) 18%, transparent), transparent 44%),
+    rgba(15, 23, 42, 0.94);
+  padding: 14px;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+}
+
+.intelligence-node:hover {
+  transform: translateY(-2px);
+  border-color: var(--node-color);
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.34), 0 0 0 1px color-mix(in srgb, var(--node-color) 40%, transparent);
+}
+
+.node-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--node-color);
+  background: color-mix(in srgb, var(--node-color) 14%, rgba(255, 255, 255, 0.05));
+  border: 1px solid color-mix(in srgb, var(--node-color) 34%, rgba(255, 255, 255, 0.08));
+}
+
+.node-badge {
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--node-color) 40%, rgba(255, 255, 255, 0.08));
+  border-radius: 999px;
+  padding: 2px 7px;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.node-hover-card {
+  pointer-events: none;
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: calc(100% + 10px);
+  z-index: 20;
+  display: grid;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.96);
+  padding: 10px;
+  color: #cbd5e1;
+  font-size: 11px;
+  line-height: 16px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 160ms ease, transform 160ms ease;
+  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.38);
+}
+
+.intelligence-node:hover .node-hover-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.flow-handle {
+  width: 8px !important;
+  height: 8px !important;
+  border: 1px solid rgba(226, 232, 240, 0.78) !important;
+  background: var(--node-color) !important;
+}

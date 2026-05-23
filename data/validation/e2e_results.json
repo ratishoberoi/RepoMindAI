@@ -1,0 +1,1949 @@
+[
+  {
+    "label": "fastapi",
+    "url": "https://github.com/fastapi/fastapi",
+    "path": "/home/ratish/RepoMindAI/data/repositories/fastapi-7dd7e8b0f2",
+    "started_at": 1779525859.4220688,
+    "ingest_seconds": "reused prior successful git clone",
+    "repo_id": "5573c69015954acf819291dd44ab5b71",
+    "analysis_seconds": 123.86,
+    "summary": {
+      "statistics": {
+        "files": 2785,
+        "bytes": 20847039,
+        "functions": 4571,
+        "classes": 692,
+        "routes": 1359,
+        "indexed_chunks": 11023
+      },
+      "languages": {
+        "primary": "Markdown",
+        "all": {
+          "YAML": 39,
+          "Text": 66,
+          "Markdown": 1552,
+          "JavaScript": 4,
+          "Python": 1118,
+          "Shell": 6
+        }
+      },
+      "stack": {
+        "frameworks": [
+          "FastAPI",
+          "Flask"
+        ],
+        "package_managers": [
+          "pip/uv"
+        ],
+        "build_tools": [],
+        "ci_cd": [
+          "GitHub Actions"
+        ],
+        "docker": false
+      },
+      "scores": {
+        "security": 20,
+        "maintainability": 67.8,
+        "production_readiness": 61.6,
+        "recruiter": 92.0,
+        "cto": 56.3,
+        "confidence": 95
+      },
+      "architecture": {
+        "style": "API service",
+        "top_level_directories": [
+          ".github",
+          "docs",
+          "docs_src",
+          "fastapi",
+          "fastapi-slim",
+          "scripts",
+          "tests"
+        ],
+        "important_files": [
+          "fastapi",
+          "fastapi/testclient.py",
+          "inline_snapshot",
+          "pytest",
+          "pydantic",
+          "typing",
+          "importlib",
+          "fastapi/routing.py",
+          "utils",
+          "tests/test_response_model_as_return_annotation.py"
+        ],
+        "route_files": [
+          ".github/DISCUSSION_TEMPLATE/questions.yml",
+          "README.md",
+          "docs/de/docs/alternatives.md",
+          "docs/de/docs/async.md",
+          "docs/de/docs/deployment/docker.md",
+          "docs/de/docs/index.md",
+          "docs/de/docs/tutorial/bigger-applications.md",
+          "docs/de/docs/tutorial/dependencies/index.md",
+          "docs/de/docs/tutorial/first-steps.md",
+          "docs/en/docs/alternatives.md",
+          "docs/en/docs/async.md",
+          "docs/en/docs/deployment/docker.md",
+          "docs/en/docs/index.md",
+          "docs/en/docs/reference/status.md",
+          "docs/en/docs/release-notes.md",
+          "docs/en/docs/tutorial/bigger-applications.md",
+          "docs/en/docs/tutorial/dependencies/index.md",
+          "docs/en/docs/tutorial/first-steps.md",
+          "docs/es/docs/alternatives.md",
+          "docs/es/docs/async.md",
+          "docs/es/docs/deployment/docker.md",
+          "docs/es/docs/index.md",
+          "docs/es/docs/tutorial/bigger-applications.md",
+          "docs/es/docs/tutorial/dependencies/index.md",
+          "docs/es/docs/tutorial/first-steps.md",
+          "docs/fr/docs/alternatives.md",
+          "docs/fr/docs/async.md",
+          "docs/fr/docs/deployment/docker.md",
+          "docs/fr/docs/index.md",
+          "docs/fr/docs/tutorial/bigger-applications.md",
+          "docs/fr/docs/tutorial/dependencies/index.md",
+          "docs/fr/docs/tutorial/first-steps.md",
+          "docs/ja/docs/alternatives.md",
+          "docs/ja/docs/async.md",
+          "docs/ja/docs/deployment/docker.md",
+          "docs/ja/docs/index.md",
+          "docs/ja/docs/tutorial/bigger-applications.md",
+          "docs/ja/docs/tutorial/dependencies/index.md",
+          "docs/ja/docs/tutorial/first-steps.md",
+          "docs/ko/docs/alternatives.md",
+          "docs/ko/docs/async.md",
+          "docs/ko/docs/deployment/docker.md",
+          "docs/ko/docs/index.md",
+          "docs/ko/docs/tutorial/bigger-applications.md",
+          "docs/ko/docs/tutorial/dependencies/index.md",
+          "docs/ko/docs/tutorial/first-steps.md",
+          "docs/pt/docs/alternatives.md",
+          "docs/pt/docs/async.md",
+          "docs/pt/docs/deployment/docker.md",
+          "docs/pt/docs/index.md",
+          "docs/pt/docs/tutorial/bigger-applications.md",
+          "docs/pt/docs/tutorial/dependencies/index.md",
+          "docs/pt/docs/tutorial/first-steps.md",
+          "docs/ru/docs/alternatives.md",
+          "docs/ru/docs/async.md",
+          "docs/ru/docs/deployment/docker.md",
+          "docs/ru/docs/index.md",
+          "docs/ru/docs/tutorial/bigger-applications.md",
+          "docs/ru/docs/tutorial/dependencies/index.md",
+          "docs/ru/docs/tutorial/first-steps.md",
+          "docs/tr/docs/alternatives.md",
+          "docs/tr/docs/async.md",
+          "docs/tr/docs/deployment/docker.md",
+          "docs/tr/docs/index.md",
+          "docs/tr/docs/tutorial/bigger-applications.md",
+          "docs/tr/docs/tutorial/dependencies/index.md",
+          "docs/tr/docs/tutorial/first-steps.md",
+          "docs/uk/docs/alternatives.md",
+          "docs/uk/docs/async.md",
+          "docs/uk/docs/deployment/docker.md",
+          "docs/uk/docs/index.md",
+          "docs/uk/docs/tutorial/bigger-applications.md",
+          "docs/uk/docs/tutorial/dependencies/index.md",
+          "docs/uk/docs/tutorial/first-steps.md",
+          "docs/zh-hant/docs/alternatives.md",
+          "docs/zh-hant/docs/async.md",
+          "docs/zh-hant/docs/deployment/docker.md",
+          "docs/zh-hant/docs/index.md",
+          "docs/zh-hant/docs/tutorial/bigger-applications.md",
+          "docs/zh-hant/docs/tutorial/dependencies/index.md",
+          "docs/zh-hant/docs/tutorial/first-steps.md",
+          "docs/zh/docs/alternatives.md",
+          "docs/zh/docs/async.md",
+          "docs/zh/docs/deployment/docker.md",
+          "docs/zh/docs/index.md",
+          "docs/zh/docs/tutorial/bigger-applications.md",
+          "docs/zh/docs/tutorial/dependencies/index.md",
+          "docs/zh/docs/tutorial/first-steps.md",
+          "docs_src/additional_responses/tutorial001_py310.py",
+          "docs_src/additional_responses/tutorial002_py310.py",
+          "docs_src/additional_responses/tutorial003_py310.py",
+          "docs_src/additional_responses/tutorial004_py310.py",
+          "docs_src/additional_status_codes/tutorial001_an_py310.py",
+          "docs_src/additional_status_codes/tutorial001_py310.py",
+          "docs_src/advanced_middleware/tutorial001_py310.py",
+          "docs_src/advanced_middleware/tutorial002_py310.py",
+          "docs_src/advanced_middleware/tutorial003_py310.py",
+          "docs_src/app_testing/app_a_py310/main.py",
+          "docs_src/app_testing/app_b_an_py310/main.py",
+          "docs_src/app_testing/app_b_py310/main.py",
+          "docs_src/app_testing/tutorial001_py310.py",
+          "docs_src/app_testing/tutorial002_py310.py",
+          "docs_src/app_testing/tutorial003_py310.py",
+          "docs_src/app_testing/tutorial004_py310.py",
+          "docs_src/async_tests/app_a_py310/main.py",
+          "docs_src/authentication_error_status_code/tutorial001_an_py310.py",
+          "docs_src/background_tasks/tutorial001_py310.py",
+          "docs_src/background_tasks/tutorial002_an_py310.py",
+          "docs_src/background_tasks/tutorial002_py310.py",
+          "docs_src/behind_a_proxy/tutorial001_01_py310.py",
+          "docs_src/behind_a_proxy/tutorial001_py310.py",
+          "docs_src/behind_a_proxy/tutorial002_py310.py",
+          "docs_src/behind_a_proxy/tutorial003_py310.py",
+          "docs_src/behind_a_proxy/tutorial004_py310.py",
+          "docs_src/bigger_applications/app_an_py310/internal/admin.py",
+          "docs_src/bigger_applications/app_an_py310/main.py",
+          "docs_src/bigger_applications/app_an_py310/routers/items.py",
+          "docs_src/bigger_applications/app_an_py310/routers/users.py",
+          "docs_src/body/tutorial001_py310.py",
+          "docs_src/body/tutorial002_py310.py",
+          "docs_src/body/tutorial003_py310.py",
+          "docs_src/body/tutorial004_py310.py",
+          "docs_src/body_fields/tutorial001_an_py310.py",
+          "docs_src/body_fields/tutorial001_py310.py",
+          "docs_src/body_multiple_params/tutorial001_an_py310.py",
+          "docs_src/body_multiple_params/tutorial001_py310.py",
+          "docs_src/body_multiple_params/tutorial002_py310.py",
+          "docs_src/body_multiple_params/tutorial003_an_py310.py",
+          "docs_src/body_multiple_params/tutorial003_py310.py",
+          "docs_src/body_multiple_params/tutorial004_an_py310.py",
+          "docs_src/body_multiple_params/tutorial004_py310.py",
+          "docs_src/body_multiple_params/tutorial005_an_py310.py",
+          "docs_src/body_multiple_params/tutorial005_py310.py",
+          "docs_src/body_nested_models/tutorial001_py310.py",
+          "docs_src/body_nested_models/tutorial002_py310.py",
+          "docs_src/body_nested_models/tutorial003_py310.py",
+          "docs_src/body_nested_models/tutorial004_py310.py",
+          "docs_src/body_nested_models/tutorial005_py310.py",
+          "docs_src/body_nested_models/tutorial006_py310.py",
+          "docs_src/body_nested_models/tutorial007_py310.py",
+          "docs_src/body_nested_models/tutorial008_py310.py",
+          "docs_src/body_nested_models/tutorial009_py310.py",
+          "docs_src/body_updates/tutorial001_py310.py",
+          "docs_src/body_updates/tutorial002_py310.py",
+          "docs_src/conditional_openapi/tutorial001_py310.py",
+          "docs_src/configure_swagger_ui/tutorial001_py310.py",
+          "docs_src/configure_swagger_ui/tutorial002_py310.py",
+          "docs_src/configure_swagger_ui/tutorial003_py310.py",
+          "docs_src/cookie_param_models/tutorial001_an_py310.py",
+          "docs_src/cookie_param_models/tutorial001_py310.py",
+          "docs_src/cookie_param_models/tutorial002_an_py310.py",
+          "docs_src/cookie_param_models/tutorial002_py310.py",
+          "docs_src/cookie_params/tutorial001_an_py310.py",
+          "docs_src/cookie_params/tutorial001_py310.py",
+          "docs_src/cors/tutorial001_py310.py",
+          "docs_src/custom_docs_ui/tutorial001_py310.py",
+          "docs_src/custom_docs_ui/tutorial002_py310.py",
+          "docs_src/custom_request_and_route/tutorial001_an_py310.py",
+          "docs_src/custom_request_and_route/tutorial001_py310.py",
+          "docs_src/custom_request_and_route/tutorial002_an_py310.py",
+          "docs_src/custom_request_and_route/tutorial002_py310.py",
+          "docs_src/custom_request_and_route/tutorial003_py310.py",
+          "docs_src/custom_response/tutorial001_py310.py",
+          "docs_src/custom_response/tutorial001b_py310.py",
+          "docs_src/custom_response/tutorial002_py310.py",
+          "docs_src/custom_response/tutorial003_py310.py",
+          "docs_src/custom_response/tutorial004_py310.py",
+          "docs_src/custom_response/tutorial005_py310.py",
+          "docs_src/custom_response/tutorial006_py310.py",
+          "docs_src/custom_response/tutorial006b_py310.py",
+          "docs_src/custom_response/tutorial006c_py310.py",
+          "docs_src/custom_response/tutorial007_py310.py",
+          "docs_src/custom_response/tutorial008_py310.py",
+          "docs_src/custom_response/tutorial009_py310.py",
+          "docs_src/custom_response/tutorial009b_py310.py",
+          "docs_src/custom_response/tutorial009c_py310.py",
+          "docs_src/custom_response/tutorial010_py310.py",
+          "docs_src/dataclasses_/tutorial001_py310.py",
+          "docs_src/dataclasses_/tutorial002_py310.py",
+          "docs_src/dataclasses_/tutorial003_py310.py",
+          "docs_src/debugging/tutorial001_py310.py",
+          "docs_src/dependencies/tutorial001_02_an_py310.py",
+          "docs_src/dependencies/tutorial001_an_py310.py",
+          "docs_src/dependencies/tutorial001_py310.py",
+          "docs_src/dependencies/tutorial002_an_py310.py",
+          "docs_src/dependencies/tutorial002_py310.py",
+          "docs_src/dependencies/tutorial003_an_py310.py",
+          "docs_src/dependencies/tutorial003_py310.py",
+          "docs_src/dependencies/tutorial004_an_py310.py",
+          "docs_src/dependencies/tutorial004_py310.py",
+          "docs_src/dependencies/tutorial005_an_py310.py",
+          "docs_src/dependencies/tutorial005_py310.py",
+          "docs_src/dependencies/tutorial006_an_py310.py",
+          "docs_src/dependencies/tutorial006_py310.py",
+          "docs_src/dependencies/tutorial008b_an_py310.py",
+          "docs_src/dependencies/tutorial008b_py310.py",
+          "docs_src/dependencies/tutorial008c_an_py310.py",
+          "docs_src/dependencies/tutorial008c_py310.py",
+          "docs_src/dependencies/tutorial008d_an_py310.py",
+          "docs_src/dependencies/tutorial008d_py310.py",
+          "docs_src/dependencies/tutorial008e_an_py310.py",
+          "docs_src/dependencies/tutorial008e_py310.py",
+          "docs_src/dependencies/tutorial011_an_py310.py",
+          "docs_src/dependencies/tutorial011_py310.py",
+          "docs_src/dependencies/tutorial012_an_py310.py",
+          "docs_src/dependencies/tutorial012_py310.py",
+          "docs_src/dependencies/tutorial013_an_py310.py",
+          "docs_src/dependencies/tutorial014_an_py310.py",
+          "docs_src/dependency_testing/tutorial001_an_py310.py",
+          "docs_src/dependency_testing/tutorial001_py310.py",
+          "docs_src/encoder/tutorial001_py310.py",
+          "docs_src/events/tutorial001_py310.py",
+          "docs_src/events/tutorial002_py310.py",
+          "docs_src/events/tutorial003_py310.py",
+          "docs_src/extending_openapi/tutorial001_py310.py",
+          "docs_src/extra_data_types/tutorial001_an_py310.py",
+          "docs_src/extra_data_types/tutorial001_py310.py",
+          "docs_src/extra_models/tutorial001_py310.py",
+          "docs_src/extra_models/tutorial002_py310.py",
+          "docs_src/extra_models/tutorial003_py310.py",
+          "docs_src/extra_models/tutorial004_py310.py",
+          "docs_src/extra_models/tutorial005_py310.py",
+          "docs_src/first_steps/tutorial001_py310.py",
+          "docs_src/first_steps/tutorial003_py310.py",
+          "docs_src/generate_clients/tutorial001_py310.py",
+          "docs_src/generate_clients/tutorial002_py310.py",
+          "docs_src/generate_clients/tutorial003_py310.py",
+          "docs_src/handling_errors/tutorial001_py310.py",
+          "docs_src/handling_errors/tutorial002_py310.py",
+          "docs_src/handling_errors/tutorial003_py310.py",
+          "docs_src/handling_errors/tutorial004_py310.py",
+          "docs_src/handling_errors/tutorial005_py310.py",
+          "docs_src/handling_errors/tutorial006_py310.py",
+          "docs_src/header_param_models/tutorial001_an_py310.py",
+          "docs_src/header_param_models/tutorial001_py310.py",
+          "docs_src/header_param_models/tutorial002_an_py310.py",
+          "docs_src/header_param_models/tutorial002_py310.py",
+          "docs_src/header_param_models/tutorial003_an_py310.py",
+          "docs_src/header_param_models/tutorial003_py310.py",
+          "docs_src/header_params/tutorial001_an_py310.py",
+          "docs_src/header_params/tutorial001_py310.py",
+          "docs_src/header_params/tutorial002_an_py310.py",
+          "docs_src/header_params/tutorial002_py310.py",
+          "docs_src/header_params/tutorial003_an_py310.py",
+          "docs_src/header_params/tutorial003_py310.py",
+          "docs_src/json_base64_bytes/tutorial001_py310.py",
+          "docs_src/metadata/tutorial001_1_py310.py",
+          "docs_src/metadata/tutorial001_py310.py",
+          "docs_src/metadata/tutorial002_py310.py",
+          "docs_src/metadata/tutorial003_py310.py",
+          "docs_src/metadata/tutorial004_py310.py",
+          "docs_src/openapi_callbacks/tutorial001_py310.py",
+          "docs_src/openapi_webhooks/tutorial001_py310.py",
+          "docs_src/path_operation_advanced_configuration/tutorial001_py310.py",
+          "docs_src/path_operation_advanced_configuration/tutorial002_py310.py",
+          "docs_src/path_operation_advanced_configuration/tutorial003_py310.py",
+          "docs_src/path_operation_advanced_configuration/tutorial004_py310.py",
+          "docs_src/path_operation_advanced_configuration/tutorial005_py310.py",
+          "docs_src/path_operation_advanced_configuration/tutorial006_py310.py",
+          "docs_src/path_operation_advanced_configuration/tutorial007_py310.py",
+          "docs_src/path_operation_configuration/tutorial001_py310.py",
+          "docs_src/path_operation_configuration/tutorial002_py310.py",
+          "docs_src/path_operation_configuration/tutorial002b_py310.py",
+          "docs_src/path_operation_configuration/tutorial003_py310.py",
+          "docs_src/path_operation_configuration/tutorial004_py310.py",
+          "docs_src/path_operation_configuration/tutorial005_py310.py",
+          "docs_src/path_operation_configuration/tutorial006_py310.py",
+          "docs_src/path_params/tutorial001_py310.py",
+          "docs_src/path_params/tutorial002_py310.py",
+          "docs_src/path_params/tutorial003_py310.py",
+          "docs_src/path_params/tutorial003b_py310.py",
+          "docs_src/path_params/tutorial004_py310.py",
+          "docs_src/path_params/tutorial005_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial001_an_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial001_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial002_an_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial002_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial003_an_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial003_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial004_an_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial004_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial005_an_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial005_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial006_an_py310.py",
+          "docs_src/path_params_numeric_validations/tutorial006_py310.py",
+          "docs_src/pydantic_v1_in_v2/tutorial002_an_py310.py",
+          "docs_src/pydantic_v1_in_v2/tutorial003_an_py310.py",
+          "docs_src/pydantic_v1_in_v2/tutorial004_an_py310.py",
+          "docs_src/query_param_models/tutorial001_an_py310.py",
+          "docs_src/query_param_models/tutorial001_py310.py",
+          "docs_src/query_param_models/tutorial002_an_py310.py",
+          "docs_src/query_param_models/tutorial002_py310.py",
+          "docs_src/query_params/tutorial001_py310.py",
+          "docs_src/query_params/tutorial002_py310.py",
+          "docs_src/query_params/tutorial003_py310.py",
+          "docs_src/query_params/tutorial004_py310.py",
+          "docs_src/query_params/tutorial005_py310.py",
+          "docs_src/query_params/tutorial006_py310.py",
+          "docs_src/query_params_str_validations/tutorial001_py310.py",
+          "docs_src/query_params_str_validations/tutorial002_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial002_py310.py",
+          "docs_src/query_params_str_validations/tutorial003_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial003_py310.py",
+          "docs_src/query_params_str_validations/tutorial004_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial004_py310.py",
+          "docs_src/query_params_str_validations/tutorial005_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial005_py310.py",
+          "docs_src/query_params_str_validations/tutorial006_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial006_py310.py",
+          "docs_src/query_params_str_validations/tutorial006c_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial006c_py310.py",
+          "docs_src/query_params_str_validations/tutorial007_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial007_py310.py",
+          "docs_src/query_params_str_validations/tutorial008_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial008_py310.py",
+          "docs_src/query_params_str_validations/tutorial009_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial009_py310.py",
+          "docs_src/query_params_str_validations/tutorial010_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial010_py310.py",
+          "docs_src/query_params_str_validations/tutorial011_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial011_py310.py",
+          "docs_src/query_params_str_validations/tutorial012_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial012_py310.py",
+          "docs_src/query_params_str_validations/tutorial013_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial013_py310.py",
+          "docs_src/query_params_str_validations/tutorial014_an_py310.py",
+          "docs_src/query_params_str_validations/tutorial014_py310.py",
+          "docs_src/query_params_str_validations/tutorial015_an_py310.py",
+          "docs_src/request_files/tutorial001_02_an_py310.py",
+          "docs_src/request_files/tutorial001_02_py310.py",
+          "docs_src/request_files/tutorial001_03_an_py310.py",
+          "docs_src/request_files/tutorial001_03_py310.py",
+          "docs_src/request_files/tutorial001_an_py310.py",
+          "docs_src/request_files/tutorial001_py310.py",
+          "docs_src/request_files/tutorial002_an_py310.py",
+          "docs_src/request_files/tutorial002_py310.py",
+          "docs_src/request_files/tutorial003_an_py310.py",
+          "docs_src/request_files/tutorial003_py310.py",
+          "docs_src/request_form_models/tutorial001_an_py310.py",
+          "docs_src/request_form_models/tutorial001_py310.py",
+          "docs_src/request_form_models/tutorial002_an_py310.py",
+          "docs_src/request_form_models/tutorial002_py310.py",
+          "docs_src/request_forms/tutorial001_an_py310.py",
+          "docs_src/request_forms/tutorial001_py310.py",
+          "docs_src/request_forms_and_files/tutorial001_an_py310.py",
+          "docs_src/request_forms_and_files/tutorial001_py310.py",
+          "docs_src/response_change_status_code/tutorial001_py310.py",
+          "docs_src/response_cookies/tutorial001_py310.py",
+          "docs_src/response_cookies/tutorial002_py310.py",
+          "docs_src/response_directly/tutorial001_py310.py",
+          "docs_src/response_directly/tutorial002_py310.py",
+          "docs_src/response_headers/tutorial001_py310.py",
+          "docs_src/response_headers/tutorial002_py310.py",
+          "docs_src/response_model/tutorial001_01_py310.py",
+          "docs_src/response_model/tutorial001_py310.py",
+          "docs_src/response_model/tutorial002_py310.py",
+          "docs_src/response_model/tutorial003_01_py310.py",
+          "docs_src/response_model/tutorial003_02_py310.py",
+          "docs_src/response_model/tutorial003_03_py310.py",
+          "docs_src/response_model/tutorial003_04_py310.py",
+          "docs_src/response_model/tutorial003_05_py310.py",
+          "docs_src/response_model/tutorial003_py310.py",
+          "docs_src/response_model/tutorial004_py310.py",
+          "docs_src/response_model/tutorial005_py310.py",
+          "docs_src/response_model/tutorial006_py310.py",
+          "docs_src/response_status_code/tutorial001_py310.py",
+          "docs_src/response_status_code/tutorial002_py310.py",
+          "docs_src/schema_extra_example/tutorial001_py310.py",
+          "docs_src/schema_extra_example/tutorial002_py310.py",
+          "docs_src/schema_extra_example/tutorial003_an_py310.py",
+          "docs_src/schema_extra_example/tutorial003_py310.py",
+          "docs_src/schema_extra_example/tutorial004_an_py310.py",
+          "docs_src/schema_extra_example/tutorial004_py310.py",
+          "docs_src/schema_extra_example/tutorial005_an_py310.py",
+          "docs_src/schema_extra_example/tutorial005_py310.py",
+          "docs_src/security/tutorial001_an_py310.py",
+          "docs_src/security/tutorial001_py310.py",
+          "docs_src/security/tutorial002_an_py310.py",
+          "docs_src/security/tutorial002_py310.py",
+          "docs_src/security/tutorial003_an_py310.py",
+          "docs_src/security/tutorial003_py310.py",
+          "docs_src/security/tutorial004_an_py310.py",
+          "docs_src/security/tutorial004_py310.py",
+          "docs_src/security/tutorial005_an_py310.py",
+          "docs_src/security/tutorial005_py310.py",
+          "docs_src/security/tutorial006_an_py310.py",
+          "docs_src/security/tutorial006_py310.py",
+          "docs_src/security/tutorial007_an_py310.py",
+          "docs_src/security/tutorial007_py310.py",
+          "docs_src/separate_openapi_schemas/tutorial001_py310.py",
+          "docs_src/separate_openapi_schemas/tutorial002_py310.py",
+          "docs_src/server_sent_events/tutorial001_py310.py",
+          "docs_src/server_sent_events/tutorial002_py310.py",
+          "docs_src/server_sent_events/tutorial003_py310.py",
+          "docs_src/server_sent_events/tutorial004_py310.py",
+          "docs_src/server_sent_events/tutorial005_py310.py",
+          "docs_src/settings/app01_py310/main.py",
+          "docs_src/settings/app02_an_py310/main.py",
+          "docs_src/settings/app02_py310/main.py",
+          "docs_src/settings/app03_an_py310/main.py",
+          "docs_src/settings/app03_py310/main.py",
+          "docs_src/settings/tutorial001_py310.py",
+          "docs_src/sql_databases/tutorial001_an_py310.py",
+          "docs_src/sql_databases/tutorial001_py310.py",
+          "docs_src/sql_databases/tutorial002_an_py310.py",
+          "docs_src/sql_databases/tutorial002_py310.py",
+          "docs_src/stream_data/tutorial001_py310.py",
+          "docs_src/stream_data/tutorial002_py310.py",
+          "docs_src/stream_json_lines/tutorial001_py310.py",
+          "docs_src/strict_content_type/tutorial001_py310.py",
+          "docs_src/sub_applications/tutorial001_py310.py",
+          "docs_src/templates/tutorial001_py310.py",
+          "docs_src/using_request_directly/tutorial001_py310.py",
+          "docs_src/websockets_/tutorial001_py310.py",
+          "docs_src/websockets_/tutorial002_an_py310.py",
+          "docs_src/websockets_/tutorial002_py310.py",
+          "docs_src/websockets_/tutorial003_py310.py",
+          "docs_src/wsgi/tutorial001_py310.py",
+          "fastapi/.agents/skills/fastapi/SKILL.md",
+          "fastapi/.agents/skills/fastapi/references/dependencies.md",
+          "fastapi/.agents/skills/fastapi/references/other-tools.md",
+          "fastapi/.agents/skills/fastapi/references/streaming.md",
+          "fastapi/applications.py",
+          "fastapi/background.py",
+          "fastapi/datastructures.py",
+          "fastapi/exceptions.py",
+          "fastapi/param_functions.py",
+          "fastapi/routing.py",
+          "fastapi/security/api_key.py",
+          "fastapi/security/http.py",
+          "fastapi/security/oauth2.py",
+          "tests/benchmarks/test_general_performance.py",
+          "tests/main.py",
+          "tests/test_additional_properties.py",
+          "tests/test_additional_properties_bool.py",
+          "tests/test_additional_response_extra.py",
+          "tests/test_additional_responses_bad.py",
+          "tests/test_additional_responses_custom_model_in_callback.py",
+          "tests/test_additional_responses_custom_validationerror.py",
+          "tests/test_additional_responses_default_validationerror.py",
+          "tests/test_additional_responses_response_class.py",
+          "tests/test_additional_responses_router.py",
+          "tests/test_additional_responses_union_duplicate_anyof.py",
+          "tests/test_allow_inf_nan_in_enforcing.py",
+          "tests/test_ambiguous_params.py",
+          "tests/test_annotated.py",
+          "tests/test_arbitrary_types.py",
+          "tests/test_callable_endpoint.py",
+          "tests/test_compat.py",
+          "tests/test_computed_fields.py",
+          "tests/test_custom_middleware_exception.py",
+          "tests/test_custom_schema_fields.py",
+          "tests/test_custom_swagger_ui_redirect.py",
+          "tests/test_datastructures.py",
+          "tests/test_datetime_custom_encoder.py",
+          "tests/test_default_response_class.py",
+          "tests/test_default_response_class_router.py",
+          "tests/test_dependency_after_yield_raise.py",
+          "tests/test_dependency_after_yield_streaming.py",
+          "tests/test_dependency_cache.py",
+          "tests/test_dependency_class.py",
+          "tests/test_dependency_contextmanager.py",
+          "tests/test_dependency_contextvars.py",
+          "tests/test_dependency_duplicates.py",
+          "tests/test_dependency_overrides.py",
+          "tests/test_dependency_paramless.py",
+          "tests/test_dependency_partial.py",
+          "tests/test_dependency_pep695.py",
+          "tests/test_dependency_security_overrides.py",
+          "tests/test_dependency_wrapped.py",
+          "tests/test_dependency_yield_except_httpexception.py",
+          "tests/test_dependency_yield_scope.py",
+          "tests/test_deprecated_openapi_prefix.py",
+          "tests/test_deprecated_responses.py",
+          "tests/test_dump_json_fast_path.py",
+          "tests/test_duplicate_models_openapi.py",
+          "tests/test_empty_router.py",
+          "tests/test_enforce_once_required_parameter.py",
+          "tests/test_exception_handlers.py",
+          "tests/test_extra_routes.py",
+          "tests/test_file_and_form_order_issue_9116.py",
+          "tests/test_filter_pydantic_sub_model_pv2.py",
+          "tests/test_form_default.py",
+          "tests/test_forms_from_non_typing_sequences.py",
+          "tests/test_forms_single_model.py",
+          "tests/test_forms_single_param.py",
+          "tests/test_generate_unique_id_function.py",
+          "tests/test_generic_parameterless_depends.py",
+          "tests/test_get_model_definitions_formfeed_escape.py",
+          "tests/test_get_request_body.py",
+          "tests/test_http_connection_injection.py",
+          "tests/test_include_router_defaults_overrides.py",
+          "tests/test_infer_param_optionality.py",
+          "tests/test_inherited_custom_class.py",
+          "tests/test_invalid_path_param.py",
+          "tests/test_invalid_sequence_param.py",
+          "tests/test_json_type.py",
+          "tests/test_list_bytes_file_order_preserved_issue_14811.py",
+          "tests/test_modules_same_name_body/app/a.py",
+          "tests/test_modules_same_name_body/app/b.py",
+          "tests/test_multi_body_errors.py",
+          "tests/test_multi_query_errors.py",
+          "tests/test_multipart_installation.py",
+          "tests/test_no_schema_split.py",
+          "tests/test_no_swagger_ui_redirect.py",
+          "tests/test_openapi_cache_root_path.py",
+          "tests/test_openapi_examples.py",
+          "tests/test_openapi_model_description_trim_on_formfeed.py",
+          "tests/test_openapi_query_parameter_extension.py",
+          "tests/test_openapi_route_extensions.py",
+          "tests/test_openapi_separate_input_output_schemas.py",
+          "tests/test_openapi_servers.py",
+          "tests/test_optional_file_list.py",
+          "tests/test_orjson_response_class.py",
+          "tests/test_param_class.py",
+          "tests/test_param_in_path_and_dependency.py",
+          "tests/test_param_include_in_schema.py",
+          "tests/test_put_no_body.py",
+          "tests/test_pydantic_v1_error.py",
+          "tests/test_pydanticv2_dataclasses_uuid_stringified_annotations.py",
+          "tests/test_query_cookie_header_model_extra_params.py",
+          "tests/test_read_with_orm_mode.py",
+          "tests/test_regex_deprecated_body.py",
+          "tests/test_regex_deprecated_params.py",
+          "tests/test_repeated_cookie_headers.py",
+          "tests/test_repeated_dependency_schema.py",
+          "tests/test_repeated_parameter_alias.py",
+          "tests/test_request_body_parameters_media_type.py",
+          "tests/test_request_param_model_by_alias.py",
+          "tests/test_request_params/test_body/test_list.py",
+          "tests/test_request_params/test_body/test_optional_list.py",
+          "tests/test_request_params/test_body/test_optional_str.py",
+          "tests/test_request_params/test_body/test_required_str.py",
+          "tests/test_request_params/test_cookie/test_optional_str.py",
+          "tests/test_request_params/test_cookie/test_required_str.py",
+          "tests/test_request_params/test_file/test_list.py",
+          "tests/test_request_params/test_file/test_optional.py",
+          "tests/test_request_params/test_file/test_optional_list.py",
+          "tests/test_request_params/test_file/test_required.py",
+          "tests/test_request_params/test_form/test_list.py",
+          "tests/test_request_params/test_form/test_optional_list.py",
+          "tests/test_request_params/test_form/test_optional_str.py",
+          "tests/test_request_params/test_form/test_required_str.py",
+          "tests/test_request_params/test_header/test_list.py",
+          "tests/test_request_params/test_header/test_optional_list.py",
+          "tests/test_request_params/test_header/test_optional_str.py",
+          "tests/test_request_params/test_header/test_required_str.py",
+          "tests/test_request_params/test_path/test_required_str.py",
+          "tests/test_request_params/test_query/test_list.py",
+          "tests/test_request_params/test_query/test_optional_list.py",
+          "tests/test_request_params/test_query/test_optional_str.py",
+          "tests/test_request_params/test_query/test_required_str.py",
+          "tests/test_required_noneable.py",
+          "tests/test_response_by_alias.py",
+          "tests/test_response_change_status_code.py",
+          "tests/test_response_class_no_mediatype.py",
+          "tests/test_response_code_no_body.py",
+          "tests/test_response_dependency.py",
+          "tests/test_response_model_as_return_annotation.py",
+          "tests/test_response_model_data_filter.py",
+          "tests/test_response_model_data_filter_no_inheritance.py",
+          "tests/test_response_model_default_factory.py",
+          "tests/test_response_model_include_exclude.py",
+          "tests/test_response_model_invalid.py",
+          "tests/test_response_model_sub_types.py",
+          "tests/test_response_set_response_code_empty.py",
+          "tests/test_return_none_stringified_annotations.py",
+          "tests/test_route_scope.py",
+          "tests/test_router_events.py",
+          "tests/test_router_prefix_with_template.py",
+          "tests/test_router_redirect_slashes.py",
+          "tests/test_schema_compat_pydantic_v2.py",
+          "tests/test_schema_extra_examples.py",
+          "tests/test_schema_ref_pydantic_v2.py",
+          "tests/test_security_api_key_cookie.py",
+          "tests/test_security_api_key_cookie_description.py",
+          "tests/test_security_api_key_cookie_optional.py",
+          "tests/test_security_api_key_header.py",
+          "tests/test_security_api_key_header_description.py",
+          "tests/test_security_api_key_header_optional.py",
+          "tests/test_security_api_key_query.py",
+          "tests/test_security_api_key_query_description.py",
+          "tests/test_security_api_key_query_optional.py",
+          "tests/test_security_http_base.py",
+          "tests/test_security_http_base_description.py",
+          "tests/test_security_http_base_optional.py",
+          "tests/test_security_http_basic_optional.py",
+          "tests/test_security_http_basic_realm.py",
+          "tests/test_security_http_basic_realm_description.py",
+          "tests/test_security_http_bearer.py",
+          "tests/test_security_http_bearer_description.py",
+          "tests/test_security_http_bearer_optional.py",
+          "tests/test_security_http_digest.py",
+          "tests/test_security_http_digest_description.py",
+          "tests/test_security_http_digest_optional.py",
+          "tests/test_security_oauth2.py",
+          "tests/test_security_oauth2_authorization_code_bearer.py",
+          "tests/test_security_oauth2_authorization_code_bearer_description.py",
+          "tests/test_security_oauth2_authorization_code_bearer_scopes_openapi.py",
+          "tests/test_security_oauth2_authorization_code_bearer_scopes_openapi_simple.py",
+          "tests/test_security_oauth2_optional.py",
+          "tests/test_security_oauth2_optional_description.py",
+          "tests/test_security_oauth2_password_bearer_optional.py",
+          "tests/test_security_oauth2_password_bearer_optional_description.py",
+          "tests/test_security_openid_connect.py",
+          "tests/test_security_openid_connect_description.py",
+          "tests/test_security_openid_connect_optional.py",
+          "tests/test_security_scopes.py",
+          "tests/test_security_scopes_dont_propagate.py",
+          "tests/test_security_scopes_sub_dependency.py",
+          "tests/test_serialize_response.py",
+          "tests/test_serialize_response_dataclass.py",
+          "tests/test_serialize_response_model.py",
+          "tests/test_skip_defaults.py",
+          "tests/test_sse.py",
+          "tests/test_starlette_exception.py",
+          "tests/test_starlette_urlconvertors.py",
+          "tests/test_stream_bare_type.py",
+          "tests/test_stream_cancellation.py",
+          "tests/test_stream_json_validation_error.py",
+          "tests/test_stringified_annotation_dependency.py",
+          "tests/test_stringified_annotation_dependency_py314.py",
+          "tests/test_stringified_annotations_simple.py",
+          "tests/test_sub_callbacks.py",
+          "tests/test_swagger_ui_init_oauth.py",
+          "tests/test_top_level_security_scheme_in_openapi.py",
+          "tests/test_tuples.py",
+          "tests/test_tutorial/test_advanced_middleware/test_tutorial003.py",
+          "tests/test_tutorial/test_custom_request_and_route/test_tutorial001.py",
+          "tests/test_tutorial/test_dependencies/test_tutorial008.py",
+          "tests/test_tutorial/test_dependencies/test_tutorial010.py",
+          "tests/test_typing_python39.py",
+          "tests/test_union_body.py",
+          "tests/test_union_body_discriminator.py",
+          "tests/test_union_body_discriminator_annotated.py",
+          "tests/test_union_forms.py",
+          "tests/test_union_inherited_body.py",
+          "tests/test_validate_response.py",
+          "tests/test_validate_response_dataclass.py",
+          "tests/test_validate_response_recursive/app.py",
+          "tests/test_validation_error_context.py",
+          "tests/test_wrapped_method_forward_reference.py"
+        ],
+        "summary": "Primary language is inferred as repository-local code with FastAPI, Flask. The dependency graph highlights 8051 code, module, and symbol nodes."
+      },
+      "security_findings": 4771,
+      "security_counts": {
+        "high": 3,
+        "low": 4762,
+        "medium": 6
+      },
+      "debt_items": 54,
+      "reports": {
+        "README.md": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/README.md",
+        "ARCHITECTURE.md": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/ARCHITECTURE.md",
+        "SECURITY_REPORT.md": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/SECURITY_REPORT.md",
+        "TECH_DEBT.md": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/TECH_DEBT.md",
+        "RECRUITER_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/RECRUITER_REVIEW.md",
+        "CTO_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/CTO_REVIEW.md",
+        "ROADMAP.md": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/ROADMAP.md",
+        "PROJECT_STATUS.md": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/PROJECT_STATUS.md",
+        "analysis-summary.json": "/home/ratish/RepoMindAI/reports/generated/5573c69015954acf819291dd44ab5b71/analysis-summary.json"
+      }
+    },
+    "qa": [
+      {
+        "question": "What does this project do?",
+        "answer_seconds": 15.61,
+        "answer": "Okay, I need to figure out what the FastAPI project does based on the provided context. Let me start by looking through the given files.\n\nFirst, the README.md in the fastapi-slim directory mentions that FastAPI is a modern, fast web framework for building APIs with Python using type hints. It also says that fastapi-slim is deprecated and users should install the main fastapi package instead. That's a key point.\n\nLooking at the pyproject.toml file, the project description states it's a high-performance, easy-to-learn framework ready for production. The dependencies include Starlette and Pydantic, which I know are key for web frameworks and data validation.\n\nAnother part of the README.md mentions that FastAPI is designed for building APIs quickly and efficiently, with features like easy learning curve and type hints. There's also a mention of being suitable for production, which align",
+        "citations": [
+          {
+            "path": "fastapi-slim/README.md",
+            "line_start": 1,
+            "line_end": 40,
+            "score": 0.4742
+          },
+          {
+            "path": "fastapi-slim/README.md",
+            "line_start": 36,
+            "line_end": 55,
+            "score": 0.4711
+          },
+          {
+            "path": "README.md",
+            "line_start": 514,
+            "line_end": 543,
+            "score": 0.4163
+          },
+          {
+            "path": "pyproject.toml",
+            "line_start": 1,
+            "line_end": 55,
+            "score": 0.4152
+          },
+          {
+            "path": "README.md",
+            "line_start": 103,
+            "line_end": 135,
+            "score": 0.3594
+          },
+          {
+            "path": "pyproject.toml",
+            "line_start": 244,
+            "line_end": 292,
+            "score": 0.3542
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "fastapi-slim/README.md",
+            "line_start": 1,
+            "line_end": 40,
+            "score": 0.4742,
+            "text": "<p align=\"center\">\n  <a href=\"https://fastapi.tiangolo.com\"><img src=\"https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png\" alt=\"FastAPI\"></a>\n</p>\n<p align=\"center\">\n    <em>FastAPI framework, high performance, easy to learn, fast to code, ready for production</em>\n</p>\n<p align=\"center\">\n<a href=\"https://github.com/fastapi/fastapi/actions?query=workflow%3ATest+event%3Apush+branch%3Amaster\" target=\"_blank\">\n    <img src=\"https://github.com/fastapi/fastapi/actions/workflows/test.yml/badge.svg?event=push&branch=master\" alt=\"Test\">\n</a>\n<a href=\"https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/fastapi\" target=\"_blank\">\n    <img src=\"https://coverage-badge.samuelcolvin.workers.dev/fastapi/fastapi.svg\" alt=\"Coverage\">\n</a>\n<a href=\"https://pypi.org/project/fastapi\" target=\"_blank\">\n    <img src=\"https://img.shields.io/pypi/v/fastapi?color=%2334D058&label=pypi%20package\" alt=\"Package version\">\n</a>\n<a href=\"https://pypi.org/project/fastapi\" target=\"_blank\">\n    <img sr"
+          },
+          {
+            "path": "fastapi-slim/README.md",
+            "line_start": 36,
+            "line_end": 55,
+            "score": 0.4711,
+            "text": "er than depend on `fastapi`.\n\nAll the functionality has been integrated into `fastapi`.\n\nThe only reason this package exists is as a migration path for old projects that used to depend on `fastapi-slim`, so that they can get the latest version of `fastapi`.\n\nYou **should not** install this package.\n\nInstall instead:\n\n```bash\npip install fastapi\n```\n\nThis package is deprecated and will stop receiving any updates and published versions.\n\n## License\n\nThis project is licensed under the terms of the MIT license.\n"
+          },
+          {
+            "path": "README.md",
+            "line_start": 514,
+            "line_end": 543,
+            "score": 0.4163,
+            "text": "s `uvicorn[standard]`, which includes some dependencies (e.g. `uvloop`) needed for high performance serving.\n* `fastapi-cli[standard]` - to provide the `fastapi` command.\n    * This includes `fastapi-cloud-cli`, which allows you to deploy your FastAPI application to [FastAPI Cloud](https://fastapicloud.com).\n\n### Without `standard` Dependencies\n\nIf you don't want to include the `standard` optional dependencies, you can install with `pip install fastapi` instead of `pip install \"fastapi[standard]\"`.\n\n### Without `fastapi-cloud-cli`\n\nIf you want to install FastAPI with the standard dependencies but without the `fastapi-cloud-cli`, you can install with `pip install \"fastapi[standard-no-fastapi-cloud-cli]\"`.\n\n### Additional Optional Dependencies\n\nThere are some additional dependencies you might want to install.\n\nAdditional optional Pydantic dependencies:\n\n* [`pydantic-settings`](https://docs.pydantic.dev/latest/usage/pydantic_settings/) - for settings management.\n* [`pydantic-extra-types`]"
+          },
+          {
+            "path": "pyproject.toml",
+            "line_start": 1,
+            "line_end": 55,
+            "score": 0.4152,
+            "text": "[build-system]\nrequires = [\"pdm-backend\"]\nbuild-backend = \"pdm.backend\"\n\n[project]\nname = \"fastapi\"\ndynamic = [\"version\"]\ndescription = \"FastAPI framework, high performance, easy to learn, fast to code, ready for production\"\nreadme = \"README.md\"\nlicense = \"MIT\"\nlicense-files = [\"LICENSE\"]\nrequires-python = \">=3.10\"\nauthors = [\n    { name = \"Sebasti\u00e1n Ram\u00edrez\", email = \"tiangolo@gmail.com\" },\n]\nclassifiers = [\n    \"Intended Audience :: Information Technology\",\n    \"Intended Audience :: System Administrators\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python :: 3\",\n    \"Programming Language :: Python\",\n    \"Topic :: Internet\",\n    \"Topic :: Software Development :: Libraries :: Application Frameworks\",\n    \"Topic :: Software Development :: Libraries :: Python Modules\",\n    \"Topic :: Software Development :: Libraries\",\n    \"Topic :: Software Development\",\n    \"Typing :: Typed\",\n    \"Development Status :: 4 - Beta\",\n    \"Environment :: Web Environment\",\n    \"Fra"
+          },
+          {
+            "path": "README.md",
+            "line_start": 103,
+            "line_end": 135,
+            "score": 0.3594,
+            "text": "one is looking to build a production Python API, I would highly recommend **FastAPI**. It is **beautifully designed**, **simple to use** and **highly scalable**, it has become a **key component** in our API first development strategy and is driving many automations and services such as our Virtual TAC Engineer._\"\n\n<div style=\"text-align: right; margin-right: 10%;\">Deon Pillsbury - <strong>Cisco</strong> <a href=\"https://www.linkedin.com/posts/deonpillsbury_cisco-cx-python-activity-6963242628536487936-trAp/\"><small>(ref)</small></a></div>\n\n---\n\n</div>\n\n## FastAPI Conf\n\n[**FastAPI Conf '26**](https://fastapiconf.com) is happening on **October 28, 2026** in **Amsterdam, NL**. All about FastAPI, right from the source. \ud83c\udfa4\n\n<a class=\"fastapi-feature-banner\" href=\"https://fastapiconf.com\"><img src=\"https://fastapi.tiangolo.com/img/fastapi-conf.jpeg\" alt=\"FastAPI Conf '26 - October 28, 2026 - Amsterdam, NL\"></a>\n\n## FastAPI mini documentary\n\nThere's a [FastAPI mini documentary](https://www.yout"
+          }
+        ]
+      },
+      {
+        "question": "Where is authentication implemented?",
+        "answer_seconds": 10.39,
+        "answer": "Okay, I need to figure out where authentication is implemented in the FastAPI repository based on the provided context. Let me start by looking through the given code snippets and documentation excerpts.\n\nFirst, the context from docs/en/docs/tutorial/security/index.md mentions that authentication can be handled using OAuth2 flows like the password flow, which uses a Bearer token. It also refers to the fastapi.security module as having tools for these schemes. The mention of OAuth2PasswordBearer suggests that's a key class here.\n\nLooking at the docs/en/docs/tutorial/security/first-steps.md, there's a section explaining how OAuth2PasswordBearer is used. It describes the flow where the client sends a username and password to a token URL, and the server responds with a Bearer token. The example uses the OAuth2PasswordBearer class from FastAPI's security module. The tokenUrl parameter points to the endpoint where",
+        "citations": [
+          {
+            "path": "docs/en/docs/tutorial/security/index.md",
+            "line_start": 81,
+            "line_end": 107,
+            "score": 0.5139
+          },
+          {
+            "path": "docs/en/docs/tutorial/security/first-steps.md",
+            "line_start": 101,
+            "line_end": 129,
+            "score": 0.5085
+          },
+          {
+            "path": "fastapi/security/http.py",
+            "line_start": 167,
+            "line_end": 211,
+            "score": 0.5044
+          },
+          {
+            "path": "fastapi/security/oauth2.py",
+            "line_start": 480,
+            "line_end": 536,
+            "score": 0.5026
+          },
+          {
+            "path": "fastapi/security/oauth2.py",
+            "line_start": 584,
+            "line_end": 637,
+            "score": 0.5004
+          },
+          {
+            "path": "fastapi/security/open_id_connect_url.py",
+            "line_start": 56,
+            "line_end": 95,
+            "score": 0.5004
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/en/docs/tutorial/security/index.md",
+            "line_start": 81,
+            "line_end": 107,
+            "score": 0.5139,
+            "text": "security (called \"flows\").\n    * Several of these flows are appropriate for building an OAuth 2.0 authentication provider (like Google, Facebook, X (Twitter), GitHub, etc):\n        * `implicit`\n        * `clientCredentials`\n        * `authorizationCode`\n    * But there is one specific \"flow\" that can be perfectly used for handling authentication in the same application directly:\n        * `password`: some next chapters will cover examples of this.\n* `openIdConnect`: has a way to define how to discover OAuth2 authentication data automatically.\n    * This automatic discovery is what is defined in the OpenID Connect specification.\n\n\n/// tip\n\nIntegrating other authentication/authorization providers like Google, Facebook, X (Twitter), GitHub, etc. is also possible and relatively easy.\n\nThe most complex problem is building an authentication/authorization provider like those, but **FastAPI** gives you the tools to do it easily, while doing the heavy lifting for you.\n\n///\n\n## **FastAPI** utili"
+          },
+          {
+            "path": "docs/en/docs/tutorial/security/first-steps.md",
+            "line_start": 101,
+            "line_end": 129,
+            "score": 0.5085,
+            "text": "pes the `username` and `password` in the frontend, and hits `Enter`.\n* The frontend (running in the user's browser) sends that `username` and `password` to a specific URL in our API (declared with `tokenUrl=\"token\"`).\n* The API checks that `username` and `password`, and responds with a \"token\" (we haven't implemented any of this yet).\n    * A \"token\" is just a string with some content that we can use later to verify this user.\n    * Normally, a token is set to expire after some time.\n        * So, the user will have to log in again at some point later.\n        * And if the token is stolen, the risk is less. It is not like a permanent key that will work forever (in most of the cases).\n* The frontend stores that token temporarily somewhere.\n* The user clicks in the frontend to go to another section of the frontend web app.\n* The frontend needs to fetch some more data from the API.\n    * But it needs authentication for that specific endpoint.\n    * So, to authenticate with our API, it sen"
+          },
+          {
+            "path": "fastapi/security/http.py",
+            "line_start": 167,
+            "line_end": 211,
+            "score": 0.5044,
+            "text": "    It will be included in the generated OpenAPI (e.g. visible at `/docs`).\n                \"\"\"\n            ),\n        ] = None,\n        auto_error: Annotated[\n            bool,\n            Doc(\n                \"\"\"\n                By default, if the HTTP Basic authentication is not provided (a\n                header), `HTTPBasic` will automatically cancel the request and send the\n                client an error.\n\n                If `auto_error` is set to `False`, when the HTTP Basic authentication\n                is not available, instead of erroring out, the dependency result will\n                be `None`.\n\n                This is useful when you want to have optional authentication.\n\n                It is also useful when you want to have authentication that can be\n                provided in one of multiple optional ways (for example, in HTTP Basic\n                authentication or in an HTTP Bearer token).\n                \"\"\"\n            ),\n        ] = True,\n    ):\n        self.mo"
+          },
+          {
+            "path": "fastapi/security/oauth2.py",
+            "line_start": 480,
+            "line_end": 536,
+            "score": 0.5026,
+            "text": "  Doc(\n                \"\"\"\n                Security scheme description.\n\n                It will be included in the generated OpenAPI (e.g. visible at `/docs`).\n                \"\"\"\n            ),\n        ] = None,\n        auto_error: Annotated[\n            bool,\n            Doc(\n                \"\"\"\n                By default, if no HTTP Authorization header is provided, required for\n                OAuth2 authentication, it will automatically cancel the request and\n                send the client an error.\n\n                If `auto_error` is set to `False`, when the HTTP Authorization header\n                is not available, instead of erroring out, the dependency result will\n                be `None`.\n\n                This is useful when you want to have optional authentication.\n\n                It is also useful when you want to have authentication that can be\n                provided in one of multiple optional ways (for example, with OAuth2\n                or in a cookie).\n        "
+          },
+          {
+            "path": "fastapi/security/oauth2.py",
+            "line_start": 584,
+            "line_end": 637,
+            "score": 0.5004,
+            "text": "           Doc(\n                \"\"\"\n                The OAuth2 scopes that would be required by the *path operations* that\n                use this dependency.\n                \"\"\"\n            ),\n        ] = None,\n        description: Annotated[\n            str | None,\n            Doc(\n                \"\"\"\n                Security scheme description.\n\n                It will be included in the generated OpenAPI (e.g. visible at `/docs`).\n                \"\"\"\n            ),\n        ] = None,\n        auto_error: Annotated[\n            bool,\n            Doc(\n                \"\"\"\n                By default, if no HTTP Authorization header is provided, required for\n                OAuth2 authentication, it will automatically cancel the request and\n                send the client an error.\n\n                If `auto_error` is set to `False`, when the HTTP Authorization header\n                is not available, instead of erroring out, the dependency result will\n                be `None`.\n\n        "
+          }
+        ]
+      },
+      {
+        "question": "Which services talk to the database?",
+        "answer_seconds": 12.27,
+        "answer": "Okay, let's tackle the question: \"Which services talk to the database?\" using the provided context from the FastAPI repository.\n\nFirst, I need to look through the given context snippets. The main sources are from the sql-databases.md and response-model.md documents. \n\nLooking at the sql-databases.md sections, there's a lot about interacting with SQL databases using SQLModel. The key parts mention creating heroes, reading heroes, reading one hero, and deleting a hero. Each of these operations involves database interactions. \n\nIn the context, under the \"Create a Hero\" section, they use a SessionDep dependency to add the hero to the database. The \"Read Heroes\" and \"Read One Hero\" sections use select() to retrieve data. The \"Delete a Hero\" section uses Session to delete. \n\nThe \"Create a Session Dependency\" part explains that the Session is used per request",
+        "citations": [
+          {
+            "path": "docs/en/docs/tutorial/sql-databases.md",
+            "line_start": 128,
+            "line_end": 176,
+            "score": 0.6515
+          },
+          {
+            "path": "docs/en/docs/tutorial/response-model.md",
+            "line_start": 1,
+            "line_end": 29,
+            "score": 0.6396
+          },
+          {
+            "path": "docs/en/docs/tutorial/sql-databases.md",
+            "line_start": 68,
+            "line_end": 96,
+            "score": 0.6386
+          },
+          {
+            "path": "docs/en/docs/tutorial/sql-databases.md",
+            "line_start": 94,
+            "line_end": 132,
+            "score": 0.616
+          },
+          {
+            "path": "docs/en/docs/tutorial/sql-databases.md",
+            "line_start": 319,
+            "line_end": 358,
+            "score": 0.6108
+          },
+          {
+            "path": "docs/en/docs/tutorial/response-model.md",
+            "line_start": 135,
+            "line_end": 159,
+            "score": 0.6052
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/en/docs/tutorial/sql-databases.md",
+            "line_start": 128,
+            "line_end": 176,
+            "score": 0.6515,
+            "text": "nDep` dependency (a `Session`) to add the new `Hero` to the `Session` instance, commit the changes to the database, refresh the data in the `hero`, and then return it.\n\n### Read Heroes { #read-heroes }\n\nWe can **read** `Hero`s from the database using a `select()`. We can include a `limit` and `offset` to paginate the results.\n\n{* ../../docs_src/sql_databases/tutorial001_an_py310.py ln[48:55] hl[51:52,54] *}\n\n### Read One Hero { #read-one-hero }\n\nWe can **read** a single `Hero`.\n\n{* ../../docs_src/sql_databases/tutorial001_an_py310.py ln[58:63] hl[60] *}\n\n### Delete a Hero { #delete-a-hero }\n\nWe can also **delete** a `Hero`.\n\n{* ../../docs_src/sql_databases/tutorial001_an_py310.py ln[66:73] hl[71] *}\n\n### Run the App { #run-the-app }\n\nYou can run the app:\n\n<div class=\"termy\">\n\n```console\n$ fastapi dev\n\n<span style=\"color: green;\">INFO</span>:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)\n```\n\n</div>\n\nThen go to the `/docs` UI, you will see that **FastAPI** is using"
+          },
+          {
+            "path": "docs/en/docs/tutorial/response-model.md",
+            "line_start": 1,
+            "line_end": 29,
+            "score": 0.6396,
+            "text": "# Response Model - Return Type { #response-model-return-type }\n\nYou can declare the type used for the response by annotating the *path operation function* **return type**.\n\nYou can use **type annotations** the same way you would for input data in function **parameters**, you can use Pydantic models, lists, dictionaries, scalar values like integers, booleans, etc.\n\n{* ../../docs_src/response_model/tutorial001_01_py310.py hl[16,21] *}\n\nFastAPI will use this return type to:\n\n* **Validate** the returned data.\n    * If the data is invalid (e.g. you are missing a field), it means that *your* app code is broken, not returning what it should, and it will return a server error instead of returning incorrect data. This way you and your clients can be certain that they will receive the data and the data shape expected.\n* Add a **JSON Schema** for the response, in the OpenAPI *path operation*.\n    * This will be used by the **automatic docs**.\n    * It will also be used by automatic client code ge"
+          },
+          {
+            "path": "docs/en/docs/tutorial/sql-databases.md",
+            "line_start": 68,
+            "line_end": 96,
+            "score": 0.6386,
+            "text": "`INTEGER`* in the database schema. See [SQLModel docs on primary keys](https://sqlmodel.tiangolo.com/tutorial/create-db-and-table/#primary-key-id) for details.\n\n* `Field(index=True)` tells SQLModel that it should create a **SQL index** for this column, that would allow faster lookups in the database when reading data filtered by this column.\n\n    SQLModel will know that something declared as `str` will be a SQL column of type `TEXT` (or `VARCHAR`, depending on the database).\n\n### Create an Engine { #create-an-engine }\n\nA SQLModel `engine` (underneath it's actually a SQLAlchemy `engine`) is what **holds the connections** to the database.\n\nYou would have **one single `engine` object** for all your code to connect to the same database.\n\n{* ../../docs_src/sql_databases/tutorial001_an_py310.py ln[14:18] hl[14:15,17:18] *}\n\nUsing `check_same_thread=False` allows FastAPI to use the same SQLite database in different threads. This is necessary as **one single request** could use **more than one"
+          },
+          {
+            "path": "docs/en/docs/tutorial/sql-databases.md",
+            "line_start": 94,
+            "line_end": 132,
+            "score": 0.616,
+            "text": "res the **objects in memory** and keeps track of any changes needed in the data, then it **uses the `engine`** to communicate with the database.\n\nWe will create a FastAPI **dependency** with `yield` that will provide a new `Session` for each request. This is what ensures that we use a single session per request. \ud83e\udd13\n\nThen we create an `Annotated` dependency `SessionDep` to simplify the rest of the code that will use this dependency.\n\n{* ../../docs_src/sql_databases/tutorial001_an_py310.py ln[25:30]  hl[25:27,30] *}\n\n### Create Database Tables on Startup { #create-database-tables-on-startup }\n\nWe will create the database tables when the application starts.\n\n{* ../../docs_src/sql_databases/tutorial001_an_py310.py ln[32:37] hl[35:37] *}\n\nHere we create the tables on an application startup event.\n\nFor production you would probably use a migration script that runs before you start your app. \ud83e\udd13\n\n/// tip\n\nSQLModel will have migration utilities wrapping Alembic, but for now, you can use [Alembic]"
+          },
+          {
+            "path": "docs/en/docs/tutorial/sql-databases.md",
+            "line_start": 319,
+            "line_end": 358,
+            "score": 0.6108,
+            "text": "nly the data sent by the client**, excluding any values that would be there just for being the default values. To do it we use `exclude_unset=True`. This is the main trick. \ud83e\ude84\n\nThen we use `hero_db.sqlmodel_update(hero_data)` to update the `hero_db` with the data from `hero_data`.\n\n{* ../../docs_src/sql_databases/tutorial002_an_py310.py ln[83:93] hl[83:84,88:89] *}\n\n### Delete a Hero Again { #delete-a-hero-again }\n\n**Deleting** a hero stays pretty much the same.\n\nWe won't satisfy the desire to refactor everything in this one. \ud83d\ude05\n\n{* ../../docs_src/sql_databases/tutorial002_an_py310.py ln[96:103] hl[101] *}\n\n### Run the App Again { #run-the-app-again }\n\nYou can run the app again:\n\n<div class=\"termy\">\n\n```console\n$ fastapi dev\n\n<span style=\"color: green;\">INFO</span>:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)\n```\n\n</div>\n\nIf you go to the `/docs` API UI, you will see that it is now updated, and it won't expect to receive the `id` from the client when creating a he"
+          }
+        ]
+      },
+      {
+        "question": "Where are API routes defined?",
+        "answer_seconds": 14.08,
+        "answer": "Okay, the user is asking where API routes are defined in the FastAPI repository. Let me look through the provided context.\n\nThe context includes several documentation files in different languages. The key part seems to be in the 'extending-openapi.md' file under the 'en' docs. There's a section about the normal process where it mentions that the FastAPI instance's .openapi() method generates the schema. It also says that the routes are taken from app.routes. \n\nAnother part in the same file explains that the utility function fastapi.openapi.utils.get_openapi uses the 'routes' parameter, which are from app.routes. This suggests that the routes are defined via the app's route registrations, typically when you use @app.get etc. \n\nLooking at the other context files like the openapi-callbacks.md, they mention defining path operations with decorators, which are part of how",
+        "citations": [
+          {
+            "path": "docs/uk/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 34,
+            "score": 0.5234
+          },
+          {
+            "path": "docs/zh/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 83,
+            "score": 0.5187
+          },
+          {
+            "path": "docs/ru/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 32,
+            "score": 0.5173
+          },
+          {
+            "path": "docs/zh-hant/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 75,
+            "score": 0.5127
+          },
+          {
+            "path": "docs/ja/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 61,
+            "score": 0.5115
+          },
+          {
+            "path": "docs/en/docs/how-to/extending-openapi.md",
+            "line_start": 1,
+            "line_end": 40,
+            "score": 0.5079
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/uk/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 34,
+            "score": 0.5234,
+            "text": "# \u0417\u0432\u043e\u0440\u043e\u0442\u043d\u0456 \u0432\u0438\u043a\u043b\u0438\u043a\u0438 OpenAPI { #openapi-callbacks }\n\n\u0412\u0438 \u043c\u043e\u0436\u0435\u0442\u0435 \u0441\u0442\u0432\u043e\u0440\u0438\u0442\u0438 API \u0437 \u043e\u043f\u0435\u0440\u0430\u0446\u0456\u0454\u044e \u0448\u043b\u044f\u0445\u0443, \u044f\u043a\u0430 \u0456\u043d\u0456\u0446\u0456\u044e\u0432\u0430\u0442\u0438\u043c\u0435 \u0437\u0430\u043f\u0438\u0442 \u0434\u043e \u0437\u043e\u0432\u043d\u0456\u0448\u043d\u044c\u043e\u0433\u043e API, \u0441\u0442\u0432\u043e\u0440\u0435\u043d\u043e\u0433\u043e \u043a\u0438\u043c\u043e\u0441\u044c \u0456\u043d\u0448\u0438\u043c (\u0439\u043c\u043e\u0432\u0456\u0440\u043d\u043e \u0442\u0438\u043c \u0441\u0430\u043c\u0438\u043c \u0440\u043e\u0437\u0440\u043e\u0431\u043d\u0438\u043a\u043e\u043c, \u044f\u043a\u0438\u0439 \u0431\u0443\u0434\u0435 \u0432\u0438\u043a\u043e\u0440\u0438\u0441\u0442\u043e\u0432\u0443\u0432\u0430\u0442\u0438 \u0432\u0430\u0448 API).\n\n\u041f\u0440\u043e\u0446\u0435\u0441, \u0449\u043e \u0432\u0456\u0434\u0431\u0443\u0432\u0430\u0454\u0442\u044c\u0441\u044f, \u043a\u043e\u043b\u0438 \u0432\u0430\u0448 \u0437\u0430\u0441\u0442\u043e\u0441\u0443\u043d\u043e\u043a API \u0432\u0438\u043a\u043b\u0438\u043a\u0430\u0454 \u0437\u043e\u0432\u043d\u0456\u0448\u043d\u0456\u0439 API, \u043d\u0430\u0437\u0438\u0432\u0430\u0454\u0442\u044c\u0441\u044f \u00ab\u0437\u0432\u043e\u0440\u043e\u0442\u043d\u0438\u0439 \u0432\u0438\u043a\u043b\u0438\u043a\u00bb. \u0422\u043e\u043c\u0443 \u0449\u043e \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u043d\u0435 \u0437\u0430\u0431\u0435\u0437\u043f\u0435\u0447\u0435\u043d\u043d\u044f, \u043d\u0430\u043f\u0438\u0441\u0430\u043d\u0435 \u0437\u043e\u0432\u043d\u0456\u0448\u043d\u0456\u043c \u0440\u043e\u0437\u0440\u043e\u0431\u043d\u0438\u043a\u043e\u043c, \u043d\u0430\u0434\u0441\u0438\u043b\u0430\u0454 \u0437\u0430\u043f\u0438\u0442 \u0434\u043e \u0432\u0430\u0448\u043e\u0433\u043e API, \u0430 \u043f\u043e\u0442\u0456\u043c \u0432\u0430\u0448 API \u0432\u0438\u043a\u043e\u043d\u0443\u0454 \u0437\u0432\u043e\u0440\u043e\u0442\u043d\u0438\u0439 \u0432\u0438\u043a\u043b\u0438\u043a, \u043d\u0430\u0434\u0441\u0438\u043b\u0430\u044e\u0447\u0438 \u0437\u0430\u043f\u0438\u0442 \u0434\u043e \u0437\u043e\u0432\u043d\u0456\u0448\u043d\u044c\u043e\u0433\u043e API (\u0439\u043e\u0433\u043e, \u0439\u043c\u043e\u0432\u0456\u0440\u043d\u043e, \u0442\u0430\u043a\u043e\u0436 \u0441\u0442\u0432\u043e\u0440\u0438\u0432 \u0442\u043e\u0439 \u0441\u0430\u043c\u0438\u0439 \u0440\u043e\u0437\u0440\u043e\u0431\u043d\u0438\u043a).\n\n\u0423 \u0442\u0430\u043a\u043e\u043c\u0443 \u0432\u0438\u043f\u0430\u0434\u043a\u0443 \u0432\u0430\u043c \u043c\u043e\u0436\u0435 \u0437\u043d\u0430\u0434\u043e\u0431\u0438\u0442\u0438\u0441\u044f \u0437\u0430\u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u0443\u0432\u0430\u0442\u0438, \u044f\u043a\u0438\u043c \u043c\u0430\u0454 \u0431\u0443\u0442\u0438 \u0442\u043e\u0439 \u0437\u043e\u0432\u043d\u0456\u0448\u043d\u0456\u0439 API: \u044f\u043a\u0456 \u043e\u043f\u0435\u0440\u0430\u0446\u0456\u0457 \u0448\u043b\u044f\u0445\u0443 \u0432\u0456\u043d \u043c\u0430\u0454 \u043c\u0430\u0442\u0438, \u044f\u043a\u0435 \u0442\u0456\u043b\u043e \u043e\u0447\u0456\u043a\u0443\u0432\u0430\u0442\u0438, \u044f\u043a\u0443 \u0432\u0456\u0434\u043f\u043e\u0432\u0456\u0434\u044c \u043f\u043e\u0432\u0435\u0440\u0442\u0430\u0442\u0438 \u0442\u043e\u0449\u043e.\n\n## \u0417\u0430\u0441\u0442\u043e\u0441\u0443\u043d\u043e\u043a \u0437\u0456 \u0437\u0432\u043e\u0440\u043e\u0442\u043d\u0438\u043c\u0438 \u0432\u0438\u043a\u043b\u0438\u043a\u0430\u043c\u0438 { #an-app-with-callbacks }\n\n\u0420\u043e\u0437\u0433\u043b\u044f\u043d\u044c\u043c\u043e \u0446\u0435 \u043d\u0430 \u043f\u0440\u0438\u043a\u043b\u0430\u0434\u0456.\n\n\u0423\u044f\u0432\u0456\u043c\u043e, \u0449\u043e \u0432\u0438 \u0440\u043e\u0437\u0440\u043e\u0431\u043b\u044f\u0454\u0442\u0435 \u0437\u0430\u0441\u0442\u043e\u0441\u0443\u043d\u043e\u043a \u0434\u043b\u044f \u0441\u0442\u0432\u043e\u0440\u0435\u043d\u043d\u044f \u0440\u0430\u0445\u0443\u043d\u043a\u0456\u0432.\n\n\u0426\u0456 \u0440\u0430\u0445\u0443\u043d\u043a\u0438 \u043c\u0430\u0442\u0438\u043c\u0443\u0442\u044c `id`, `title` (\u043d\u0435\u043e\u0431\u043e\u0432'\u044f\u0437\u043a\u043e\u0432\u043e), `customer` \u0456 `total`.\n\n\u041a\u043e\u0440\u0438\u0441\u0442\u0443\u0432\u0430\u0447 \u0432\u0430\u0448\u043e\u0433\u043e API (\u0437\u043e\u0432\u043d\u0456\u0448\u043d\u0456\u0439 \u0440\u043e\u0437\u0440"
+          },
+          {
+            "path": "docs/zh/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 83,
+            "score": 0.5187,
+            "text": "# OpenAPI \u56de\u8c03 { #openapi-callbacks }\n\n\u60a8\u53ef\u4ee5\u521b\u5efa\u4e00\u4e2a\u5305\u542b*\u8def\u5f84\u64cd\u4f5c*\u7684 API\uff0c\u5b83\u4f1a\u89e6\u53d1\u5bf9\u522b\u4eba\u521b\u5efa\u7684*\u5916\u90e8 API*\u7684\u8bf7\u6c42\uff08\u5f88\u53ef\u80fd\u5c31\u662f\u90a3\u4e2a\u4f1a\u201c\u4f7f\u7528\u201d\u60a8 API \u7684\u540c\u4e00\u4e2a\u5f00\u53d1\u8005\uff09\u3002\n\n\u5f53\u60a8\u7684 API \u5e94\u7528\u8c03\u7528*\u5916\u90e8 API*\u65f6\uff0c\u8fd9\u4e2a\u8fc7\u7a0b\u88ab\u79f0\u4e3a\u201c\u56de\u8c03\u201d\u3002\u56e0\u4e3a\u5916\u90e8\u5f00\u53d1\u8005\u7f16\u5199\u7684\u8f6f\u4ef6\u4f1a\u5148\u5411\u60a8\u7684 API \u53d1\u9001\u8bf7\u6c42\uff0c\u7136\u540e\u60a8\u7684 API \u518d\u8fdb\u884c*\u56de\u8c03*\uff0c\u5411*\u5916\u90e8 API*\u53d1\u9001\u8bf7\u6c42\uff08\u5f88\u53ef\u80fd\u4e5f\u662f\u8be5\u5f00\u53d1\u8005\u521b\u5efa\u7684\uff09\u3002\n\n\u6b64\u65f6\uff0c\u6211\u4eec\u9700\u8981\u5b58\u6863\u5916\u90e8 API \u7684*\u4fe1\u606f*\uff0c\u6bd4\u5982\u5e94\u8be5\u6709\u54ea\u4e9b*\u8def\u5f84\u64cd\u4f5c*\uff0c\u8bf7\u6c42\u4f53\u5e94\u8be5\u662f\u4ec0\u4e48\uff0c\u5e94\u8be5\u8fd4\u56de\u4ec0\u4e48\u54cd\u5e94\u7b49\u3002\n\n## \u4f7f\u7528\u56de\u8c03\u7684\u5e94\u7528 { #an-app-with-callbacks }\n\n\u793a\u4f8b\u5982\u4e0b\u3002\n\n\u5047\u8bbe\u8981\u5f00\u53d1\u4e00\u4e2a\u521b\u5efa\u53d1\u7968\u7684\u5e94\u7528\u3002\n\n\u53d1\u7968\u5305\u62ec `id`\u3001`title`\uff08\u53ef\u9009\uff09\u3001`customer`\u3001`total` \u7b49\u5c5e\u6027\u3002\n\nAPI \u7684\u7528\u6237\uff08\u5916\u90e8\u5f00\u53d1\u8005\uff09\u8981\u5728\u60a8\u7684 API \u5185\u4f7f\u7528 POST \u8bf7\u6c42\u521b\u5efa\u4e00\u6761\u53d1\u7968\u8bb0\u5f55\u3002\n\n\uff08\u5047\u8bbe\uff09\u60a8\u7684 API \u5c06\uff1a\n\n* \u628a\u53d1\u7968\u53d1\u9001\u81f3\u5916\u90e8\u5f00\u53d1\u8005\u7684\u6d88\u8d39\u8005\n* \u5f52\u96c6\u73b0\u91d1\n* \u628a\u901a\u77e5\u53d1\u9001\u81f3 API \u7684\u7528\u6237\uff08\u5916\u90e8\u5f00\u53d1\u8005\uff09\n    * \u901a\u8fc7\uff08\u4ece\u60a8\u7684 API\uff09\u53d1\u9001 POST \u8bf7\u6c42\u81f3\u5916\u90e8 API\uff08\u5373**\u56de\u8c03**\uff09\u6765\u5b8c\u6210\n\n## \u5e38\u89c4 **FastAPI** \u5e94\u7528 { #the-normal-fastapi-app }\n\n\u6dfb\u52a0\u56de\u8c03\u524d\uff0c\u9996\u5148\u770b\u4e0b\u5e38\u89c4 API \u5e94\u7528\u662f\u4ec0\u4e48\u6837\u5b50\u3002\n\n\u5e38\u89c4 API \u5e94\u7528\u5305\u542b\u63a5\u6536 `Invoice` \u8bf7\u6c42\u4f53\u7684*\u8def\u5f84\u64cd\u4f5c*\uff0c\u8fd8\u6709\u5305\u542b\u56de\u8c03 URL \u7684\u67e5\u8be2\u53c2\u6570 `callback_url`\u3002\n\n\u8fd9\u90e8\u5206\u4ee3\u7801\u5f88\u5e38\u89c4\uff0c\u60a8\u5bf9\u7edd\u5927\u591a\u6570\u4ee3\u7801\u5e94\u8be5\u90fd\u6bd4\u8f83\u719f\u6089\u4e86\uff1a\n\n{* ../../docs_src/openapi_callbacks/tutorial001_py310.py hl[7:11,34:51] *}\n\n/// tip | \u63d0\u793a\n\n`callback_url` \u67e5\u8be2\u53c2\u6570\u4f7f\u7528 Pydantic \u7684 [Url](https://docs.pydantic.dev/latest/api/networks/) \u7c7b\u578b\u3002\n\n///\n\n\u6b64\u5904\u552f\u4e00\u6bd4\u8f83\u65b0\u7684\u5185\u5bb9\u662f*\u8def\u5f84\u64cd\u4f5c\u88c5\u9970\u5668*\u4e2d\u7684 `callbacks=invoices_callback_router.routes` \u53c2\u6570\uff0c\u4e0b\u6587\u4ecb\u7ecd\u3002\n\n## \u5b58\u6863\u56de\u8c03 { #documentin"
+          },
+          {
+            "path": "docs/ru/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 32,
+            "score": 0.5173,
+            "text": "# \u041e\u0431\u0440\u0430\u0442\u043d\u044b\u0435 \u0432\u044b\u0437\u043e\u0432\u044b \u0432 OpenAPI { #openapi-callbacks }\n\n\u0412\u044b \u043c\u043e\u0436\u0435\u0442\u0435 \u0441\u043e\u0437\u0434\u0430\u0442\u044c API \u0441 *\u043e\u043f\u0435\u0440\u0430\u0446\u0438\u0435\u0439 \u043f\u0443\u0442\u0438* (\u043e\u0431\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u043e\u043c \u043f\u0443\u0442\u0438), \u043a\u043e\u0442\u043e\u0440\u0430\u044f \u0431\u0443\u0434\u0435\u0442 \u0438\u043d\u0438\u0446\u0438\u0438\u0440\u043e\u0432\u0430\u0442\u044c HTTP-\u0437\u0430\u043f\u0440\u043e\u0441 \u043a *\u0432\u043d\u0435\u0448\u043d\u0435\u043c\u0443 API*, \u0441\u043e\u0437\u0434\u0430\u043d\u043d\u043e\u043c\u0443 \u043a\u0435\u043c-\u0442\u043e \u0434\u0440\u0443\u0433\u0438\u043c (\u0441\u043a\u043e\u0440\u0435\u0435 \u0432\u0441\u0435\u0433\u043e \u0442\u0435\u043c \u0436\u0435 \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u043e\u043c, \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u0431\u0443\u0434\u0435\u0442 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u044c \u0432\u0430\u0448 API).\n\n\u041f\u0440\u043e\u0446\u0435\u0441\u0441, \u043f\u0440\u043e\u0438\u0441\u0445\u043e\u0434\u044f\u0449\u0438\u0439, \u043a\u043e\u0433\u0434\u0430 \u0432\u0430\u0448\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435 API \u043e\u0431\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044f \u043a *\u0432\u043d\u0435\u0448\u043d\u0435\u043c\u0443 API*, \u043d\u0430\u0437\u044b\u0432\u0430\u0435\u0442\u0441\u044f \u00abcallback\u00bb (\u043e\u0431\u0440\u0430\u0442\u043d\u044b\u0439 \u0432\u044b\u0437\u043e\u0432). \u041f\u0440\u043e\u0433\u0440\u0430\u043c\u043c\u043d\u043e\u0435 \u043e\u0431\u0435\u0441\u043f\u0435\u0447\u0435\u043d\u0438\u0435, \u043d\u0430\u043f\u0438\u0441\u0430\u043d\u043d\u043e\u0435 \u0432\u043d\u0435\u0448\u043d\u0438\u043c \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u043e\u043c, \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u044f\u0435\u0442 HTTP-\u0437\u0430\u043f\u0440\u043e\u0441 \u0432\u0430\u0448\u0435\u043c\u0443 API, \u0430 \u0437\u0430\u0442\u0435\u043c \u0432\u0430\u0448 API \u0432\u044b\u043f\u043e\u043b\u043d\u044f\u0435\u0442 \u043e\u0431\u0440\u0430\u0442\u043d\u044b\u0439 \u0432\u044b\u0437\u043e\u0432, \u043e\u0442\u043f\u0440\u0430\u0432\u043b\u044f\u044f HTTP-\u0437\u0430\u043f\u0440\u043e\u0441 \u0432\u043e *\u0432\u043d\u0435\u0448\u043d\u0438\u0439 API* (\u043a\u043e\u0442\u043e\u0440\u044b\u0439, \u0432\u0435\u0440\u043e\u044f\u0442\u043d\u043e, \u0442\u043e\u0436\u0435 \u0441\u043e\u0437\u0434\u0430\u043b \u0442\u043e\u0442 \u0436\u0435 \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a).\n\n\u0412 \u044d\u0442\u043e\u043c \u0441\u043b\u0443\u0447\u0430\u0435 \u0432\u0430\u043c \u043c\u043e\u0436\u0435\u0442 \u043f\u043e\u043d\u0430\u0434\u043e\u0431\u0438\u0442\u044c\u0441\u044f \u0437\u0430\u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c, \u043a\u0430\u043a \u0434\u043e\u043b\u0436\u043d\u043e \u0432\u044b\u0433\u043b\u044f\u0434\u0435\u0442\u044c \u044d\u0442\u043e \u0432\u043d\u0435\u0448\u043d\u0435\u0435 API: \u043a\u0430\u043a\u0443\u044e *\u043e\u043f\u0435\u0440\u0430\u0446\u0438\u044e \u043f\u0443\u0442\u0438* \u043e\u043d\u043e \u0434\u043e\u043b\u0436\u043d\u043e \u0438\u043c\u0435\u0442\u044c, \u043a\u0430\u043a\u043e\u0435 \u0442\u0435\u043b\u043e \u0437\u0430\u043f\u0440\u043e\u0441\u0430 \u043e\u0436\u0438\u0434\u0430\u0442\u044c, \u043a\u0430\u043a\u043e\u0439 \u043e\u0442\u0432\u0435\u0442 \u0432\u043e\u0437\u0432\u0440\u0430\u0449\u0430\u0442\u044c \u0438 \u0442.\u0434.\n\n## \u041f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435 \u0441 \u043e\u0431\u0440\u0430\u0442\u043d\u044b\u043c\u0438 \u0432\u044b\u0437\u043e\u0432\u0430\u043c\u0438 { #an-app-with-callbacks }\n\n\u0414\u0430\u0432\u0430\u0439\u0442\u0435 \u0440\u0430\u0441\u0441\u043c\u043e\u0442\u0440\u0438\u043c \u044d\u0442\u043e \u043d\u0430 \u043f\u0440\u0438\u043c\u0435\u0440\u0435.\n\n\u041f\u0440\u0435\u0434\u0441\u0442\u0430\u0432\u044c\u0442\u0435, \u0447\u0442\u043e \u0432\u044b \u0440\u0430\u0437\u0440\u0430\u0431\u0430\u0442\u044b\u0432\u0430\u0435\u0442\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435, \u043f\u043e\u0437\u0432\u043e\u043b\u044f\u044e\u0449\u0435\u0435 \u0441\u043e\u0437\u0434\u0430\u0432\u0430\u0442\u044c \u0441\u0447\u0435\u0442\u0430.\n\n\u042d\u0442\u0438 \u0441\u0447\u0435\u0442\u0430 \u0431\u0443\u0434\u0443"
+          },
+          {
+            "path": "docs/zh-hant/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 75,
+            "score": 0.5127,
+            "text": "# OpenAPI \u56de\u547c { #openapi-callbacks }\n\n\u4f60\u53ef\u4ee5\u5efa\u7acb\u4e00\u500b\u542b\u6709\u300c\u8def\u5f91\u64cd\u4f5c\uff08path operation\uff09\u300d\u7684 API\uff0c\u8a72\u64cd\u4f5c\u6703\u89f8\u767c\u5c0d\u67d0\u500b\u300c\u5916\u90e8 API\uff08external API\uff09\u300d\u7684\u8acb\u6c42\uff08\u901a\u5e38\u7531\u4f7f\u7528\u4f60 API \u7684\u540c\u4e00\u4f4d\u958b\u767c\u8005\u63d0\u4f9b\uff09\u3002\n\n\u7576\u4f60\u7684 API \u61c9\u7528\u547c\u53eb\u300c\u5916\u90e8 API\u300d\u6642\u767c\u751f\u7684\u904e\u7a0b\u7a31\u70ba\u300c\u56de\u547c\uff08callback\uff09\u300d\u3002\u56e0\u70ba\u5916\u90e8\u958b\u767c\u8005\u64b0\u5beb\u7684\u8edf\u9ad4\u6703\u5148\u5411\u4f60\u7684 API \u767c\u51fa\u8acb\u6c42\uff0c\u63a5\u8457\u4f60\u7684 API \u518d\u300c\u56de\u547c\u300d\uff0c\u4e5f\u5c31\u662f\u5411\uff08\u53ef\u80fd\u540c\u4e00\u4f4d\u958b\u767c\u8005\u5efa\u7acb\u7684\uff09\u5916\u90e8 API \u767c\u9001\u8acb\u6c42\u3002\n\n\u5728\u9019\u7a2e\u60c5\u6cc1\u4e0b\uff0c\u4f60\u53ef\u80fd\u60f3\u8981\u6587\u4ef6\u5316\u8aaa\u660e\u8a72\u5916\u90e8 API \u61c9\u8a72\u9577\u4ec0\u9ebc\u6a23\u5b50\u3002\u5b83\u61c9\u8a72\u6709\u54ea\u4e9b\u300c\u8def\u5f91\u64cd\u4f5c\u300d\u3001\u61c9\u8a72\u63a5\u53d7\u4ec0\u9ebc body\u3001\u61c9\u8a72\u56de\u50b3\u4ec0\u9ebc response\uff0c\u7b49\u7b49\u3002\n\n## \u5e36\u6709\u56de\u547c\u7684\u61c9\u7528 { #an-app-with-callbacks }\n\n\u6211\u5011\u7528\u4e00\u500b\u4f8b\u5b50\u4f86\u770b\u3002\n\n\u60f3\u50cf\u4f60\u958b\u767c\u4e86\u4e00\u500b\u5141\u8a31\u5efa\u7acb\u767c\u7968\u7684\u61c9\u7528\u3002\n\n\u9019\u4e9b\u767c\u7968\u6703\u6709 `id`\u3001`title`\uff08\u53ef\u9078\uff09\u3001`customer` \u548c `total`\u3002\n\n\u4f60\u7684 API \u7684\u4f7f\u7528\u8005\uff08\u5916\u90e8\u958b\u767c\u8005\uff09\u6703\u900f\u904e\u4e00\u500b POST \u8acb\u6c42\u5728\u4f60\u7684 API \u4e2d\u5efa\u7acb\u4e00\u5f35\u767c\u7968\u3002\n\n\u7136\u5f8c\u4f60\u7684 API \u6703\uff08\u8b93\u6211\u5011\u60f3\u50cf\uff09\uff1a\n\n* \u5c07\u767c\u7968\u5bc4\u7d66\u8a72\u5916\u90e8\u958b\u767c\u8005\u7684\u67d0\u4f4d\u5ba2\u6236\u3002\n* \u4ee3\u6536\u6b3e\u9805\u3002\n* \u518d\u628a\u901a\u77e5\u56de\u50b3\u7d66 API \u4f7f\u7528\u8005\uff08\u5916\u90e8\u958b\u767c\u8005\uff09\u3002\n    * \u9019\u6703\u900f\u904e\u5f9e\u300c\u4f60\u7684 API\u300d\u5411\u8a72\u5916\u90e8\u958b\u767c\u8005\u63d0\u4f9b\u7684\u300c\u5916\u90e8 API\u300d\u9001\u51fa POST \u8acb\u6c42\u5b8c\u6210\uff08\u9019\u5c31\u662f\u300c\u56de\u547c\u300d\uff09\u3002\n\n## \u4e00\u822c\u7684 **FastAPI** \u61c9\u7528 { #the-normal-fastapi-app }\n\n\u5148\u770b\u770b\u5728\u52a0\u5165\u56de\u547c\u4e4b\u524d\uff0c\u4e00\u500b\u4e00\u822c\u7684 API \u61c9\u7528\u6703\u9577\u4ec0\u9ebc\u6a23\u5b50\u3002\n\n\u5b83\u6703\u6709\u4e00\u500b\u63a5\u6536 `Invoice` body \u7684\u300c\u8def\u5f91\u64cd\u4f5c\u300d\uff0c\u4ee5\u53ca\u4e00\u500b\u67e5\u8a62\u53c3\u6578 `callback_url`\uff0c\u5176\u4e2d\u5305\u542b\u7528\u65bc\u56de\u547c\u7684 URL\u3002\n\n\u9019\u90e8\u5206\u5f88\u6b63\u5e38\uff0c\u591a\u6578\u7a0b\u5f0f\u78bc\u4f60\u61c9\u8a72\u5df2\u7d93\u5f88\u719f\u6089\u4e86\uff1a\n\n{* ../../docs_src/openapi_callbacks/tutorial001_py310.py hl[7:11,34:51] *}\n\n/// tip\n\n`callback_url` \u67e5\u8a62\u53c3\u6578\u4f7f\u7528\u7684\u662f Pydantic \u7684 [Url](https://docs.pydantic.dev/latest/api/networks/) \u578b\u5225\u3002\n\n///\n\n\u552f\u4e00\u65b0\u7684\u5730\u65b9\u662f\u5728"
+          },
+          {
+            "path": "docs/ja/docs/advanced/openapi-callbacks.md",
+            "line_start": 1,
+            "line_end": 61,
+            "score": 0.5115,
+            "text": "# OpenAPI \u30b3\u30fc\u30eb\u30d0\u30c3\u30af { #openapi-callbacks }\n\n\u3042\u306a\u305f\u306f\u3001*path operation* \u3092\u6301\u3064 API \u3092\u4f5c\u6210\u3057\u3001\u4ed6\u8005\uff08\u591a\u304f\u306e\u5834\u5408\u3001\u3042\u306a\u305f\u306e API \u3092\u300c\u5229\u7528\u3059\u308b\u300d\u540c\u4e00\u306e\u958b\u767a\u8005\uff09\u304c\u4f5c\u6210\u3057\u305f *\u5916\u90e8 API* \u3078\u30ea\u30af\u30a8\u30b9\u30c8\u3092\u30c8\u30ea\u30ac\u30fc\u3067\u304d\u308b\u3088\u3046\u306b\u3067\u304d\u307e\u3059\u3002\n\n\u3042\u306a\u305f\u306e API \u30a2\u30d7\u30ea\u304c *\u5916\u90e8 API* \u3092\u547c\u3073\u51fa\u3059\u3068\u304d\u306b\u8d77\u304d\u308b\u51e6\u7406\u306f\u300c\u30b3\u30fc\u30eb\u30d0\u30c3\u30af\u300d\u3068\u547c\u3070\u308c\u307e\u3059\u3002\u306a\u305c\u306a\u3089\u3001\u5916\u90e8\u958b\u767a\u8005\u304c\u4f5c\u6210\u3057\u305f\u30bd\u30d5\u30c8\u30a6\u30a7\u30a2\u304c\u3042\u306a\u305f\u306e API \u306b\u30ea\u30af\u30a8\u30b9\u30c8\u3092\u9001\u308a\u3001\u305d\u306e\u5f8c\u3067\u3042\u306a\u305f\u306e API \u304c\u300c\u547c\u3073\u8fd4\u3057\u300d\u3001*\u5916\u90e8 API*\uff08\u304a\u305d\u3089\u304f\u540c\u3058\u958b\u767a\u8005\u304c\u4f5c\u6210\uff09\u3078\u30ea\u30af\u30a8\u30b9\u30c8\u3092\u9001\u308b\u305f\u3081\u3067\u3059\u3002\n\n\u3053\u306e\u5834\u5408\u3001\u305d\u306e *\u5916\u90e8 API* \u304c\u3069\u306e\u3088\u3046\u3067\u3042\u308b\u300c\u3079\u304d\u300d\u304b\u3092\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\u5316\u3057\u305f\u304f\u306a\u308b\u3067\u3057\u3087\u3046\u3002\u3069\u3093\u306a *path operation* \u3092\u6301\u3061\u3001\u3069\u3093\u306a\u30dc\u30c7\u30a3\u3092\u53d7\u3051\u53d6\u308a\u3001\u3069\u3093\u306a\u30ec\u30b9\u30dd\u30f3\u30b9\u3092\u8fd4\u3059\u304b\u3001\u306a\u3069\u3067\u3059\u3002\n\n## \u30b3\u30fc\u30eb\u30d0\u30c3\u30af\u306e\u3042\u308b\u30a2\u30d7\u30ea { #an-app-with-callbacks }\n\n\u4f8b\u3067\u898b\u3066\u3044\u304d\u307e\u3059\u3002\n\n\u3042\u306a\u305f\u304c\u8acb\u6c42\u66f8\u3092\u4f5c\u6210\u3067\u304d\u308b\u30a2\u30d7\u30ea\u3092\u958b\u767a\u3057\u3066\u3044\u308b\u3068\u60f3\u50cf\u3057\u3066\u304f\u3060\u3055\u3044\u3002\n\n\u3053\u308c\u3089\u306e\u8acb\u6c42\u66f8\u306f `id`\u3001`title`\uff08\u4efb\u610f\uff09\u3001`customer`\u3001`total` \u3092\u6301\u3061\u307e\u3059\u3002\n\n\u3042\u306a\u305f\u306e API \u306e\u5229\u7528\u8005\uff08\u5916\u90e8\u958b\u767a\u8005\uff09\u306f\u3001POST \u30ea\u30af\u30a8\u30b9\u30c8\u3067\u3042\u306a\u305f\u306e API \u306b\u8acb\u6c42\u66f8\u3092\u4f5c\u6210\u3057\u307e\u3059\u3002\n\n\u305d\u306e\u5f8c\u3001\u3042\u306a\u305f\u306e API \u306f\uff08\u4eee\u306b\u3053\u3046\u3057\u307e\u3057\u3087\u3046\uff09:\n\n* \u5916\u90e8\u958b\u767a\u8005\u306e\u9867\u5ba2\u306b\u8acb\u6c42\u66f8\u3092\u9001\u308a\u307e\u3059\u3002\n* \u4ee3\u91d1\u3092\u56de\u53ce\u3057\u307e\u3059\u3002\n* API \u5229\u7528\u8005\uff08\u5916\u90e8\u958b\u767a\u8005\uff09\u306b\u901a\u77e5\u3092\u9001\u308a\u8fd4\u3057\u307e\u3059\u3002\n    * \u3053\u308c\u306f\uff08\u3042\u306a\u305f\u306e API \u304b\u3089\uff09\u5916\u90e8\u958b\u767a\u8005\u304c\u63d0\u4f9b\u3059\u308b *\u5916\u90e8 API* \u306b POST \u30ea\u30af\u30a8\u30b9\u30c8\u3092\u9001\u308b\u3053\u3068\u3067\u884c\u308f\u308c\u307e\u3059\uff08\u3053\u308c\u304c\u300c\u30b3\u30fc\u30eb\u30d0\u30c3\u30af\u300d\u3067\u3059\uff09\u3002\n\n## \u901a\u5e38\u306e FastAPI \u30a2\u30d7\u30ea { #the-normal-fastapi-app }\n\n\u307e\u305a\u3001\u30b3\u30fc\u30eb\u30d0\u30c3\u30af\u3092\u8ffd\u52a0\u3059\u308b\u524d\u306e\u901a\u5e38\u306e API \u30a2\u30d7\u30ea\u304c\u3069\u3046\u306a\u308b\u304b\u898b\u3066\u307f\u307e\u3057\u3087\u3046\u3002\n\n`Invoice` \u30dc\u30c7\u30a3\u3092\u53d7\u3051\u53d6\u308a\u3001\u30af\u30a8\u30ea\u30d1\u30e9\u30e1\u30fc\u30bf `callback_url` \u306b\u30b3\u30fc\u30eb\u30d0\u30c3\u30af\u7528\u306e URL \u3092\u542b\u3081\u308b *path operation* \u3092\u6301\u3061\u307e\u3059\u3002\n\n\u3053\u306e\u90e8\u5206\u306f\u3068\u3066\u3082\u666e\u901a\u3067\u3001\u307b\u3068\u3093\u3069\u306e\u30b3\u30fc\u30c9\u306f\u3059\u3067\u306b\u898b\u899a\u3048\u304c\u3042\u308b\u306f\u305a\u3067\u3059:\n\n{* ../../do"
+          }
+        ]
+      }
+    ],
+    "success": true
+  },
+  {
+    "label": "flask",
+    "url": "https://github.com/pallets/flask",
+    "path": "/home/ratish/RepoMindAI/data/repositories/flask-353488decf",
+    "started_at": 1779526037.790863,
+    "ingest_seconds": "reused prior successful git clone",
+    "repo_id": "a6cef24fe5b340bf8f80af7e3109d167",
+    "analysis_seconds": 21.09,
+    "summary": {
+      "statistics": {
+        "files": 231,
+        "bytes": 1474917,
+        "functions": 1460,
+        "classes": 160,
+        "routes": 28,
+        "indexed_chunks": 857
+      },
+      "languages": {
+        "primary": "Text",
+        "all": {
+          "JSON": 2,
+          "Shell": 1,
+          "Text": 129,
+          "Markdown": 6,
+          "YAML": 8,
+          "Python": 83,
+          "SQL": 2
+        }
+      },
+      "stack": {
+        "frameworks": [
+          "Flask",
+          "SQL/database"
+        ],
+        "package_managers": [
+          "pip/uv"
+        ],
+        "build_tools": [],
+        "ci_cd": [
+          "GitHub Actions"
+        ],
+        "docker": false
+      },
+      "scores": {
+        "security": 20,
+        "maintainability": 37.3,
+        "production_readiness": 54.3,
+        "recruiter": 84.3,
+        "cto": 46.9,
+        "confidence": 95
+      },
+      "architecture": {
+        "style": "General software repository",
+        "top_level_directories": [
+          ".devcontainer",
+          ".github",
+          "docs",
+          "examples",
+          "src",
+          "tests"
+        ],
+        "important_files": [
+          "tests/test_basic.py",
+          "tests/test_blueprints.py",
+          "flask",
+          "tests/test_cli.py",
+          "src/flask/app.py",
+          "src/flask/cli.py",
+          "tests/test_templating.py",
+          "tests/test_helpers.py",
+          "src/flask/sansio/app.py",
+          "tests/test_user_error_handler.py"
+        ],
+        "route_files": [
+          "CHANGES.rst",
+          "docs/gevent.rst",
+          "docs/patterns/celery.rst",
+          "docs/patterns/javascript.rst",
+          "docs/patterns/streaming.rst",
+          "docs/quickstart.rst",
+          "docs/templating.rst",
+          "src/flask/app.py",
+          "src/flask/ctx.py",
+          "src/flask/debughelpers.py",
+          "src/flask/helpers.py",
+          "tests/test_appctx.py",
+          "tests/test_basic.py",
+          "tests/test_converters.py",
+          "tests/test_request.py",
+          "tests/test_session_interface.py",
+          "tests/test_testing.py"
+        ],
+        "summary": "Primary language is inferred as repository-local code with Flask, SQL/database. The dependency graph highlights 1706 code, module, and symbol nodes."
+      },
+      "security_findings": 1085,
+      "security_counts": {
+        "low": 1075,
+        "medium": 7,
+        "high": 3
+      },
+      "debt_items": 38,
+      "reports": {
+        "README.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/README.md",
+        "ARCHITECTURE.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/ARCHITECTURE.md",
+        "SECURITY_REPORT.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/SECURITY_REPORT.md",
+        "TECH_DEBT.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/TECH_DEBT.md",
+        "RECRUITER_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/RECRUITER_REVIEW.md",
+        "CTO_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/CTO_REVIEW.md",
+        "ROADMAP.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/ROADMAP.md",
+        "PROJECT_STATUS.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/PROJECT_STATUS.md",
+        "analysis-summary.json": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/analysis-summary.json"
+      }
+    },
+    "qa": [
+      {
+        "question": "What does this project do?",
+        "answer_seconds": 11.9,
+        "answer": "Okay, I need to figure out what the Flask project does based on the provided context. Let me start by looking through the given sources.\n\nFirst, the README.md says Flask is a lightweight WSGI web application framework. It mentions it's designed to make getting started quick and easy, scaling up to complex apps. It started as a simple wrapper around Werkzeug and Jinja. So that's a key point: it's a web framework using WSGI, easy to start with, can handle complex apps.\n\nThe tutorial index.rst talks about creating a blog app called Flaskr where users can register, log in, create posts, and manage their posts. The tutorial is a guide to building that, but the project itself (Flask) is the tool enabling that. The README also says Flask doesn't enforce dependencies or layout, giving developers flexibility. \n\nThe pyproject.toml file",
+        "citations": [
+          {
+            "path": "docs/tutorial/index.rst",
+            "line_start": 1,
+            "line_end": 57,
+            "score": 0.4443
+          },
+          {
+            "path": "README.md",
+            "line_start": 1,
+            "line_end": 54,
+            "score": 0.4257
+          },
+          {
+            "path": "src/flask/sansio/README.md",
+            "line_start": 1,
+            "line_end": 7,
+            "score": 0.4227
+          },
+          {
+            "path": "pyproject.toml",
+            "line_start": 1,
+            "line_end": 78,
+            "score": 0.4144
+          },
+          {
+            "path": "examples/celery/README.md",
+            "line_start": 1,
+            "line_end": 28,
+            "score": 0.3611
+          },
+          {
+            "path": "docs/tutorial/index.rst",
+            "line_start": 51,
+            "line_end": 65,
+            "score": 0.338
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/tutorial/index.rst",
+            "line_start": 1,
+            "line_end": 57,
+            "score": 0.4443,
+            "text": "Tutorial\n========\n\n.. toctree::\n    :caption: Contents:\n    :maxdepth: 1\n\n    layout\n    factory\n    database\n    views\n    templates\n    static\n    blog\n    install\n    tests\n    deploy\n    next\n\nThis tutorial will walk you through creating a basic blog application\ncalled Flaskr. Users will be able to register, log in, create posts,\nand edit or delete their own posts. You will be able to package and\ninstall the application on other computers.\n\n.. image:: flaskr_index.png\n    :align: center\n    :class: screenshot\n    :alt: screenshot of index page\n\nIt's assumed that you're already familiar with Python. The `official\ntutorial`_ in the Python docs is a great way to learn or review first.\n\n.. _official tutorial: https://docs.python.org/3/tutorial/\n\nWhile it's designed to give a good starting point, the tutorial doesn't\ncover all of Flask's features. Check out the :doc:`/quickstart` for an\noverview of what Flask can do, then dive into the docs to find out more.\nThe tutorial only uses what'"
+          },
+          {
+            "path": "README.md",
+            "line_start": 1,
+            "line_end": 54,
+            "score": 0.4257,
+            "text": "<div align=\"center\"><img src=\"https://raw.githubusercontent.com/pallets/flask/refs/heads/stable/docs/_static/flask-name.svg\" alt=\"\" height=\"150\"></div>\n\n# Flask\n\nFlask is a lightweight [WSGI] web application framework. It is designed\nto make getting started quick and easy, with the ability to scale up to\ncomplex applications. It began as a simple wrapper around [Werkzeug]\nand [Jinja], and has become one of the most popular Python web\napplication frameworks.\n\nFlask offers suggestions, but doesn't enforce any dependencies or\nproject layout. It is up to the developer to choose the tools and\nlibraries they want to use. There are many extensions provided by the\ncommunity that make adding new functionality easy.\n\n[WSGI]: https://wsgi.readthedocs.io/\n[Werkzeug]: https://werkzeug.palletsprojects.com/\n[Jinja]: https://jinja.palletsprojects.com/\n\n## A Simple Example\n\n```python\n# save this as app.py\nfrom flask import Flask\n\napp = Flask(__name__)\n\n@app.route(\"/\")\ndef hello():\n    return \"Hello, Wo"
+          },
+          {
+            "path": "src/flask/sansio/README.md",
+            "line_start": 1,
+            "line_end": 7,
+            "score": 0.4227,
+            "text": "# Sansio\n\nThis folder contains code that can be used by alternative Flask\nimplementations, for example Quart. The code therefore cannot do any\nIO, nor be part of a likely IO path. Finally this code cannot use the\nFlask globals.\n"
+          },
+          {
+            "path": "pyproject.toml",
+            "line_start": 1,
+            "line_end": 78,
+            "score": 0.4144,
+            "text": "[project]\nname = \"Flask\"\nversion = \"3.2.0.dev\"\ndescription = \"A simple framework for building complex web applications.\"\nreadme = \"README.md\"\nlicense = \"BSD-3-Clause\"\nlicense-files = [\"LICENSE.txt\"]\nmaintainers = [{name = \"Pallets\", email = \"contact@palletsprojects.com\"}]\nclassifiers = [\n    \"Development Status :: 5 - Production/Stable\",\n    \"Environment :: Web Environment\",\n    \"Framework :: Flask\",\n    \"Intended Audience :: Developers\",\n    \"Operating System :: OS Independent\",\n    \"Programming Language :: Python\",\n    \"Topic :: Internet :: WWW/HTTP :: Dynamic Content\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI\",\n    \"Topic :: Internet :: WWW/HTTP :: WSGI :: Application\",\n    \"Topic :: Software Development :: Libraries :: Application Frameworks\",\n    \"Typing :: Typed\",\n]\nrequires-python = \">=3.10\"\ndependencies = [\n    \"blinker>=1.9.0\",\n    \"click>=8.1.3\",\n    \"itsdangerous>=2.2.0\",\n    \"jinja2>=3.1.2\",\n    \"markupsafe>=2.1.1\",\n    \"werkzeug>=3.1.0\",\n]\n\n[project.optional-dependencies"
+          },
+          {
+            "path": "examples/celery/README.md",
+            "line_start": 1,
+            "line_end": 28,
+            "score": 0.3611,
+            "text": "Background Tasks with Celery\n============================\n\nThis example shows how to configure Celery with Flask, how to set up an API for\nsubmitting tasks and polling results, and how to use that API with JavaScript. See\n[Flask's documentation about Celery](https://flask.palletsprojects.com/patterns/celery/).\n\nFrom this directory, create a virtualenv and install the application into it. Then run a\nCelery worker.\n\n```shell\n$ python3 -m venv .venv\n$ . ./.venv/bin/activate\n$ pip install -r requirements.txt && pip install -e .\n$ celery -A make_celery worker --loglevel INFO\n```\n\nIn a separate terminal, activate the virtualenv and run the Flask development server.\n\n```shell\n$ . ./.venv/bin/activate\n$ flask -A task_app run --debug\n```\n\nGo to http://localhost:5000/ and use the forms to submit tasks. You can see the polling\nrequests in the browser dev tools and the Flask logs. You can see the tasks submitting\nand completing in the Celery logs.\n"
+          }
+        ]
+      },
+      {
+        "question": "Where is authentication implemented?",
+        "answer_seconds": 13.73,
+        "answer": "Okay, I need to figure out where authentication is implemented in the Flask repository based on the provided context. Let me look through the given sources.\n\nFirst, the user is asking about authentication implementation. The context includes parts of the docs and some example code. Let me check the examples first since they often have concrete implementations.\n\nLooking at the 'examples/tutorial/flaskr/auth.py' file. The file starts with imports and setting up a Blueprint named \"auth\" with a URL prefix of \"/auth\". That's a good sign. There's a login_required decorator, which suggests handling user authentication. Then there's a load_logged_in_user function decorated with @bp.before_app_request. This function checks the session for a user ID and loads the user from the database into g.user. \n\nThe register and login routes are defined here. The register function handles user registration, checking for username and password, hashing",
+        "citations": [
+          {
+            "path": "docs/web-security.rst",
+            "line_start": 1,
+            "line_end": 34,
+            "score": 0.4711
+          },
+          {
+            "path": "examples/tutorial/flaskr/auth.py",
+            "line_start": 1,
+            "line_end": 69,
+            "score": 0.4637
+          },
+          {
+            "path": "docs/web-security.rst",
+            "line_start": 223,
+            "line_end": 275,
+            "score": 0.4613
+          },
+          {
+            "path": "docs/web-security.rst",
+            "line_start": 101,
+            "line_end": 141,
+            "score": 0.4446
+          },
+          {
+            "path": "examples/tutorial/flaskr/auth.py",
+            "line_start": 64,
+            "line_end": 117,
+            "score": 0.4389
+          },
+          {
+            "path": "examples/tutorial/tests/test_auth.py",
+            "line_start": 1,
+            "line_end": 59,
+            "score": 0.4337
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/web-security.rst",
+            "line_start": 1,
+            "line_end": 34,
+            "score": 0.4711,
+            "text": "Security Considerations\n=======================\n\nWeb applications face many types of potential security problems, and it can be\nhard to get everything right, or even to know what \"right\" is in general. Flask\ntries to solve a few of these things by default, but there are other parts you\nmay have to take care of yourself. Many of these solutions are tradeoffs, and\nwill depend on each application's specific needs and threat model. Many hosting\nplatforms may take care of certain types of problems without the need for the\nFlask application to handle them.\n\nResource Use\n------------\n\nA common category of attacks is \"Denial of Service\" (DoS or DDoS). This is a\nvery broad category, and different variants target different layers in a\ndeployed application. In general, something is done to increase how much\nprocessing time or memory is used to handle each request, to the point where\nthere are not enough resources to handle legitimate requests.\n\nFlask provides a few configuration options to handle"
+          },
+          {
+            "path": "examples/tutorial/flaskr/auth.py",
+            "line_start": 1,
+            "line_end": 69,
+            "score": 0.4637,
+            "text": "import functools\n\nfrom flask import Blueprint\nfrom flask import flash\nfrom flask import g\nfrom flask import redirect\nfrom flask import render_template\nfrom flask import request\nfrom flask import session\nfrom flask import url_for\nfrom werkzeug.security import check_password_hash\nfrom werkzeug.security import generate_password_hash\n\nfrom .db import get_db\n\nbp = Blueprint(\"auth\", __name__, url_prefix=\"/auth\")\n\n\ndef login_required(view):\n    \"\"\"View decorator that redirects anonymous users to the login page.\"\"\"\n\n    @functools.wraps(view)\n    def wrapped_view(**kwargs):\n        if g.user is None:\n            return redirect(url_for(\"auth.login\"))\n\n        return view(**kwargs)\n\n    return wrapped_view\n\n\n@bp.before_app_request\ndef load_logged_in_user():\n    \"\"\"If a user id is stored in the session, load the user object from\n    the database into ``g.user``.\"\"\"\n    user_id = session.get(\"user_id\")\n\n    if user_id is None:\n        g.user = None\n    else:\n        g.user = (\n            get_db("
+          },
+          {
+            "path": "docs/web-security.rst",
+            "line_start": 223,
+            "line_end": 275,
+            "score": 0.4613,
+            "text": "r ``'Strict'``.\n  ``Lax`` prevents sending cookies with CSRF-prone requests from\n  external sites, such as submitting a form. ``Strict`` prevents sending\n  cookies with all external requests, including following regular links.\n\n::\n\n    app.config.update(\n        SESSION_COOKIE_SECURE=True,\n        SESSION_COOKIE_HTTPONLY=True,\n        SESSION_COOKIE_SAMESITE='Lax',\n    )\n\n    response.set_cookie('username', 'flask', secure=True, httponly=True, samesite='Lax')\n\nSpecifying ``Expires`` or ``Max-Age`` options, will remove the cookie after\nthe given time, or the current time plus the age, respectively. If neither\noption is set, the cookie will be removed when the browser is closed. ::\n\n    # cookie expires after 10 minutes\n    response.set_cookie('snakes', '3', max_age=600)\n\nFor the session cookie, if :attr:`session.permanent <flask.session.permanent>`\nis set, then :data:`PERMANENT_SESSION_LIFETIME` is used to set the expiration.\nFlask's default cookie implementation validates that the cryp"
+          },
+          {
+            "path": "docs/web-security.rst",
+            "line_start": 101,
+            "line_end": 141,
+            "score": 0.4446,
+            "text": " to set the :ref:`security-csp` response header.\n\nCross-Site Request Forgery (CSRF)\n---------------------------------\n\nAnother big problem is CSRF.  This is a very complex topic and I won't\noutline it here in detail just mention what it is and how to theoretically\nprevent it.\n\nIf your authentication information is stored in cookies, you have implicit\nstate management.  The state of \"being logged in\" is controlled by a\ncookie, and that cookie is sent with each request to a page.\nUnfortunately that includes requests triggered by 3rd party sites.  If you\ndon't keep that in mind, some people might be able to trick your\napplication's users with social engineering to do stupid things without\nthem knowing.\n\nSay you have a specific URL that, when you sent ``POST`` requests to will\ndelete a user's profile (say ``http://example.com/user/delete``).  If an\nattacker now creates a page that sends a post request to that page with\nsome JavaScript they just have to trick some users to load that page an"
+          },
+          {
+            "path": "examples/tutorial/flaskr/auth.py",
+            "line_start": 64,
+            "line_end": 117,
+            "score": 0.4389,
+            "text": "       if error is None:\n            try:\n                db.execute(\n                    \"INSERT INTO user (username, password) VALUES (?, ?)\",\n                    (username, generate_password_hash(password)),\n                )\n                db.commit()\n            except db.IntegrityError:\n                # The username was already taken, which caused the\n                # commit to fail. Show a validation error.\n                error = f\"User {username} is already registered.\"\n            else:\n                # Success, go to the login page.\n                return redirect(url_for(\"auth.login\"))\n\n        flash(error)\n\n    return render_template(\"auth/register.html\")\n\n\n@bp.route(\"/login\", methods=(\"GET\", \"POST\"))\ndef login():\n    \"\"\"Log in a registered user by adding the user id to the session.\"\"\"\n    if request.method == \"POST\":\n        username = request.form[\"username\"]\n        password = request.form[\"password\"]\n        db = get_db()\n        error = None\n        user = db.exec"
+          }
+        ]
+      },
+      {
+        "question": "Which services talk to the database?",
+        "answer_seconds": 12.12,
+        "answer": "Okay, let's tackle the question: \"Which services talk to the database?\" using the provided repository context.\n\nFirst, I need to look through the given files and code snippets. The context mentions files like `flaskr/db.py`, `flaskr/schema.sql`, and parts of the documentation. \n\nIn the `docs/tutorial/database.rst`, there's a section about connecting to the database. The code block in `flaskr/db.py` defines `get_db()` and `close_db()`. These functions handle the database connection and closing. So, `get_db()` is used to access the database, which implies any service that calls this function would be talking to the database.\n\nAnother part in `docs/patterns/sqlite3.rst` shows similar functions: `get_db()` and a teardown function `close_connection()`. The example route uses `get_db()` to",
+        "citations": [
+          {
+            "path": "docs/tutorial/database.rst",
+            "line_start": 1,
+            "line_end": 63,
+            "score": 0.6826
+          },
+          {
+            "path": "docs/patterns/sqlite3.rst",
+            "line_start": 1,
+            "line_end": 57,
+            "score": 0.6483
+          },
+          {
+            "path": "docs/tutorial/database.rst",
+            "line_start": 92,
+            "line_end": 151,
+            "score": 0.6472
+          },
+          {
+            "path": "docs/patterns/sqlite3.rst",
+            "line_start": 52,
+            "line_end": 100,
+            "score": 0.6317
+          },
+          {
+            "path": "docs/tutorial/database.rst",
+            "line_start": 145,
+            "line_end": 204,
+            "score": 0.6291
+          },
+          {
+            "path": "docs/patterns/sqlite3.rst",
+            "line_start": 90,
+            "line_end": 144,
+            "score": 0.6048
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/tutorial/database.rst",
+            "line_start": 1,
+            "line_end": 63,
+            "score": 0.6826,
+            "text": ".. currentmodule:: flask\n\nDefine and Access the Database\n==============================\n\nThe application will use a `SQLite`_ database to store users and posts.\nPython comes with built-in support for SQLite in the :mod:`sqlite3`\nmodule.\n\nSQLite is convenient because it doesn't require setting up a separate\ndatabase server and is built-in to Python. However, if concurrent\nrequests try to write to the database at the same time, they will slow\ndown as each write happens sequentially. Small applications won't notice\nthis. Once you become big, you may want to switch to a different\ndatabase.\n\nThe tutorial doesn't go into detail about SQL. If you are not familiar\nwith it, the SQLite docs describe the `language`_.\n\n.. _SQLite: https://sqlite.org/about.html\n.. _language: https://sqlite.org/lang.html\n\n\nConnect to the Database\n-----------------------\n\nThe first thing to do when working with a SQLite database (and most\nother Python database libraries) is to create a connection to it. Any\nqueries a"
+          },
+          {
+            "path": "docs/patterns/sqlite3.rst",
+            "line_start": 1,
+            "line_end": 57,
+            "score": 0.6483,
+            "text": "Using SQLite 3 with Flask\n=========================\n\nYou can implement a few functions to work with a SQLite connection during a\nrequest context. The connection is created the first time it's accessed,\nreused on subsequent access, until it is closed when the request context ends.\n\nHere is a simple example of how you can use SQLite 3 with Flask::\n\n    import sqlite3\n    from flask import g\n\n    DATABASE = '/path/to/database.db'\n\n    def get_db():\n        db = getattr(g, '_database', None)\n        if db is None:\n            db = g._database = sqlite3.connect(DATABASE)\n        return db\n\n    @app.teardown_appcontext\n    def close_connection(exception):\n        db = getattr(g, '_database', None)\n        if db is not None:\n            db.close()\n\nNow, to use the database, the application must either have an active\napplication context (which is always true if there is a request in flight)\nor create an application context itself.  At that point the ``get_db``\nfunction can be used to get the c"
+          },
+          {
+            "path": "docs/tutorial/database.rst",
+            "line_start": 92,
+            "line_end": 151,
+            "score": 0.6472,
+            "text": "ve data. Flaskr will store users\nin the ``user`` table, and posts in the ``post`` table. Create a file\nwith the SQL commands needed to create empty tables:\n\n.. code-block:: sql\n    :caption: ``flaskr/schema.sql``\n\n    DROP TABLE IF EXISTS user;\n    DROP TABLE IF EXISTS post;\n\n    CREATE TABLE user (\n      id INTEGER PRIMARY KEY AUTOINCREMENT,\n      username TEXT UNIQUE NOT NULL,\n      password TEXT NOT NULL\n    );\n\n    CREATE TABLE post (\n      id INTEGER PRIMARY KEY AUTOINCREMENT,\n      author_id INTEGER NOT NULL,\n      created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n      title TEXT NOT NULL,\n      body TEXT NOT NULL,\n      FOREIGN KEY (author_id) REFERENCES user (id)\n    );\n\nAdd the Python functions that will run these SQL commands to the\n``db.py`` file:\n\n.. code-block:: python\n    :caption: ``flaskr/db.py``\n\n    def init_db():\n        db = get_db()\n\n        with current_app.open_resource('schema.sql') as f:\n            db.executescript(f.read().decode('utf8'))\n\n\n    @click.co"
+          },
+          {
+            "path": "docs/patterns/sqlite3.rst",
+            "line_start": 52,
+            "line_end": 100,
+            "score": 0.6317,
+            "text": "only open the connection if truly necessary.  If you want to use this\ncode outside a request context you can use it in a Python shell by opening\nthe application context by hand::\n\n    with app.app_context():\n        # now you can use get_db()\n\n\nEasy Querying\n-------------\n\nNow in each request handling function you can access `get_db()` to get the\ncurrent open database connection.  To simplify working with SQLite, a\nrow factory function is useful.  It is executed for every result returned\nfrom the database to convert the result.  For instance, in order to get\ndictionaries instead of tuples, this could be inserted into the ``get_db``\nfunction we created above::\n\n    def make_dicts(cursor, row):\n        return dict((cursor.description[idx][0], value)\n                    for idx, value in enumerate(row))\n\n    db.row_factory = make_dicts\n\nThis will make the sqlite3 module return dicts for this database connection, which are much nicer to deal with. Even more simply, we could place this in `"
+          },
+          {
+            "path": "docs/tutorial/database.rst",
+            "line_start": 145,
+            "line_end": 204,
+            "score": 0.6291,
+            "text": "e.\n\n:func:`click.command` defines a command line command called ``init-db``\nthat calls the ``init_db`` function and shows a success message to the\nuser. You can read :doc:`/cli` to learn more about writing commands.\n\nThe call to :func:`sqlite3.register_converter` tells Python how to\ninterpret timestamp values in the database. We convert the value to a\n:class:`datetime.datetime`.\n\n\nRegister with the Application\n-----------------------------\n\nThe ``close_db`` and ``init_db_command`` functions need to be registered\nwith the application instance; otherwise, they won't be used by the\napplication. However, since you're using a factory function, that\ninstance isn't available when writing the functions. Instead, write a\nfunction that takes an application and does the registration.\n\n.. code-block:: python\n    :caption: ``flaskr/db.py``\n\n    def init_app(app):\n        app.teardown_appcontext(close_db)\n        app.cli.add_command(init_db_command)\n\n:meth:`app.teardown_appcontext() <Flask.teardown_"
+          }
+        ]
+      },
+      {
+        "question": "Where are API routes defined?",
+        "answer_seconds": 13.38,
+        "answer": "Okay, I need to figure out where API routes are defined in the Flask repository based on the provided context. Let me look through the given sources.\n\nFirst, the docs/tutorial/views.rst mentions blueprints and views. It shows an example in auth.py where a Blueprint is created with the name 'auth' and a url_prefix of '/auth'. The Blueprint is used to organize views, and routes are associated with it. But the actual routes themselves, like endpoints for login or signup, might be defined using the route decorator on functions within the blueprint.\n\nThen, the docs/api.rst section on URL Route Registrations explains that routes can be defined using the @app.route decorator, the add_url_rule function, or directly via the url_map. The examples show using @app.route to decorate view functions, which is the common method. The auth.py example in the tutorial uses Blueprint, so routes",
+        "citations": [
+          {
+            "path": "docs/tutorial/views.rst",
+            "line_start": 1,
+            "line_end": 48,
+            "score": 0.4474
+          },
+          {
+            "path": "docs/api.rst",
+            "line_start": 521,
+            "line_end": 578,
+            "score": 0.4214
+          },
+          {
+            "path": "docs/api.rst",
+            "line_start": 573,
+            "line_end": 616,
+            "score": 0.4015
+          },
+          {
+            "path": "docs/views.rst",
+            "line_start": 1,
+            "line_end": 55,
+            "score": 0.3944
+          },
+          {
+            "path": "docs/tutorial/views.rst",
+            "line_start": 175,
+            "line_end": 219,
+            "score": 0.3624
+          },
+          {
+            "path": "docs/api.rst",
+            "line_start": 1,
+            "line_end": 75,
+            "score": 0.3443
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/tutorial/views.rst",
+            "line_start": 1,
+            "line_end": 48,
+            "score": 0.4474,
+            "text": ".. currentmodule:: flask\n\nBlueprints and Views\n====================\n\nA view function is the code you write to respond to requests to your\napplication. Flask uses patterns to match the incoming request URL to\nthe view that should handle it. The view returns data that Flask turns\ninto an outgoing response. Flask can also go the other direction and\ngenerate a URL to a view based on its name and arguments.\n\n\nCreate a Blueprint\n------------------\n\nA :class:`Blueprint` is a way to organize a group of related views and\nother code. Rather than registering views and other code directly with\nan application, they are registered with a blueprint. Then the blueprint\nis registered with the application when it is available in the factory\nfunction.\n\nFlaskr will have two blueprints, one for authentication functions and\none for the blog posts functions. The code for each blueprint will go\nin a separate module. Since the blog needs to know about authentication,\nyou'll write the authentication one first.\n"
+          },
+          {
+            "path": "docs/api.rst",
+            "line_start": 521,
+            "line_end": 578,
+            "score": 0.4214,
+            "text": ". autoclass:: flask.views.View\n   :members:\n\n.. autoclass:: flask.views.MethodView\n   :members:\n\n.. _url-route-registrations:\n\nURL Route Registrations\n-----------------------\n\nGenerally there are three ways to define rules for the routing system:\n\n1.  You can use the :meth:`flask.Flask.route` decorator.\n2.  You can use the :meth:`flask.Flask.add_url_rule` function.\n3.  You can directly access the underlying Werkzeug routing system\n    which is exposed as :attr:`flask.Flask.url_map`.\n\nVariable parts in the route can be specified with angular brackets\n(``/user/<username>``). By default a variable part in the URL accepts any\nstring without a slash however a different converter can be specified as\nwell by using ``<converter:name>``.\n\nVariable parts are passed to the view function as keyword arguments.\n\nThe following converters are available:\n\n=========== ===============================================\n`string`    accepts any text without a slash (the default)\n`int`       accepts integers\n`"
+          },
+          {
+            "path": "docs/api.rst",
+            "line_start": 573,
+            "line_end": 616,
+            "score": 0.4015,
+            "text": " is how Flask deals with trailing\nslashes. The idea is to keep each URL unique so the following rules\napply:\n\n1. If a rule ends with a slash and is requested without a slash by the\n   user, the user is automatically redirected to the same page with a\n   trailing slash attached.\n2. If a rule does not end with a trailing slash and the user requests the\n   page with a trailing slash, a 404 not found is raised.\n\nThis is consistent with how web servers deal with static files. This\nalso makes it possible to use relative link targets safely.\n\nYou can also define multiple rules for the same function. They have to be\nunique however. Defaults can also be specified. Here for example is a\ndefinition for a URL that accepts an optional page::\n\n    @app.route('/users/', defaults={'page': 1})\n    @app.route('/users/page/<int:page>')\n    def show_users(page):\n        pass\n\nThis specifies that ``/users/`` will be the URL for page one and\n``/users/page/N`` will be the URL for page ``N``.\n\nIf a URL contai"
+          },
+          {
+            "path": "docs/views.rst",
+            "line_start": 1,
+            "line_end": 55,
+            "score": 0.3944,
+            "text": "Class-based Views\n=================\n\n.. currentmodule:: flask.views\n\nThis page introduces using the :class:`View` and :class:`MethodView`\nclasses to write class-based views.\n\nA class-based view is a class that acts as a view function. Because it\nis a class, different instances of the class can be created with\ndifferent arguments, to change the behavior of the view. This is also\nknown as generic, reusable, or pluggable views.\n\nAn example of where this is useful is defining a class that creates an\nAPI based on the database model it is initialized with.\n\nFor more complex API behavior and customization, look into the various\nAPI extensions for Flask.\n\n\nBasic Reusable View\n-------------------\n\nLet's walk through an example converting a view function to a view\nclass. We start with a view function that queries a list of users then\nrenders a template to show the list.\n\n.. code-block:: python\n\n    @app.route(\"/users/\")\n    def user_list():\n        users = User.query.all()\n        return render_"
+          },
+          {
+            "path": "docs/tutorial/views.rst",
+            "line_start": 175,
+            "line_end": 219,
+            "score": 0.3624,
+            "text": "   if request.method == 'POST':\n            username = request.form['username']\n            password = request.form['password']\n            db = get_db()\n            error = None\n            user = db.execute(\n                'SELECT * FROM user WHERE username = ?', (username,)\n            ).fetchone()\n\n            if user is None:\n                error = 'Incorrect username.'\n            elif not check_password_hash(user['password'], password):\n                error = 'Incorrect password.'\n\n            if error is None:\n                session.clear()\n                session['user_id'] = user['id']\n                return redirect(url_for('index'))\n\n            flash(error)\n\n        return render_template('auth/login.html')\n\nThere are a few differences from the ``register`` view:\n\n#.  The user is queried first and stored in a variable for later use.\n\n    :meth:`~sqlite3.Cursor.fetchone` returns one row from the query.\n    If the query returned no results, it returns ``None``. Later,\n  "
+          }
+        ]
+      }
+    ],
+    "success": true
+  },
+  {
+    "label": "nextjs",
+    "url": "https://github.com/vercel/next.js",
+    "path": "/home/ratish/RepoMindAI/data/repositories/next-5278503056",
+    "started_at": 1779526112.5268407,
+    "ingest_seconds": "reused prior successful git clone",
+    "repo_id": "3adf6f64bbaa496b808dbca91f5de88a",
+    "analysis_seconds": 31.85,
+    "summary": {
+      "statistics": {
+        "files": 25048,
+        "bytes": 57675268,
+        "functions": 13718,
+        "classes": 623,
+        "routes": 5,
+        "indexed_chunks": 51020
+      },
+      "languages": {
+        "primary": "TypeScript",
+        "all": {
+          "Markdown": 479,
+          "Text": 3622,
+          "JSON": 1081,
+          "Shell": 28,
+          "YAML": 109,
+          "TypeScript": 9815,
+          "Dockerfile": 12,
+          "JavaScript": 8926,
+          "Rust": 974,
+          "SQL": 1,
+          "Python": 1
+        }
+      },
+      "stack": {
+        "frameworks": [
+          "Express",
+          "Next.js",
+          "React",
+          "SQL/database"
+        ],
+        "package_managers": [
+          "npm",
+          "pnpm"
+        ],
+        "build_tools": [
+          "Docker"
+        ],
+        "ci_cd": [
+          "GitHub Actions"
+        ],
+        "docker": true
+      },
+      "scores": {
+        "security": 92.4,
+        "maintainability": 38.9,
+        "production_readiness": 82.2,
+        "recruiter": 84.7,
+        "cto": 77.9,
+        "confidence": 95
+      },
+      "architecture": {
+        "style": "Monorepo",
+        "top_level_directories": [
+          ".agents",
+          ".cargo",
+          ".claude-plugin",
+          ".conductor",
+          ".config",
+          ".cursor",
+          ".devcontainer",
+          ".github",
+          ".husky",
+          "apps",
+          "bench",
+          "contributing",
+          "crates",
+          "docs",
+          "errors",
+          "evals",
+          "examples",
+          "packages",
+          "patches",
+          "rspack"
+        ],
+        "important_files": [
+          "react",
+          "e2e-utils",
+          "next/link",
+          "turbopack/crates/turbopack-ecmascript/tests/benches/react-dom-client.development.js",
+          "next/server",
+          "path",
+          "next-test-utils",
+          "next",
+          "next/navigation",
+          "next/router"
+        ],
+        "route_files": [
+          "examples/with-joi/pages/api/people.js",
+          "examples/with-joi/pages/api/people/[id].js",
+          "packages/next/src/server/dev/hot-reloader-turbopack.ts",
+          "turbopack/crates/turbopack-tracing/tests/node-file-trace/integration/express-template-engine.js",
+          "turbopack/crates/turbopack-tracing/tests/node-file-trace/integration/express-template.js"
+        ],
+        "summary": "Primary language is inferred as repository-local code with Express, Next.js, React, SQL/database. The dependency graph highlights 44138 code, module, and symbol nodes."
+      },
+      "security_findings": 2696,
+      "security_counts": {
+        "medium": 295,
+        "high": 4,
+        "low": 2397
+      },
+      "debt_items": 0,
+      "reports": {
+        "README.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/README.md",
+        "ARCHITECTURE.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/ARCHITECTURE.md",
+        "SECURITY_REPORT.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/SECURITY_REPORT.md",
+        "TECH_DEBT.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/TECH_DEBT.md",
+        "RECRUITER_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/RECRUITER_REVIEW.md",
+        "CTO_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/CTO_REVIEW.md",
+        "ROADMAP.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/ROADMAP.md",
+        "PROJECT_STATUS.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/PROJECT_STATUS.md",
+        "analysis-summary.json": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/analysis-summary.json"
+      }
+    },
+    "qa": [
+      {
+        "question": "What does this project do?",
+        "answer_seconds": 15.35,
+        "answer": "Okay, I need to figure out what the Next.js project does based on the provided repository context. Let me look through the given files.\n\nFirst, the examples/cms-umbraco/README.md mentions setting up a project that uses Umbraco as a CMS. It talks about running Next.js in development mode and using Preview Mode to see unpublished changes. So the project integrates Next.js with Umbraco, allowing content editing and previewing without publishing.\n\nThen, the .claude-plugin/plugins/cache-components/README.md refers to Cache Components and Partial Prerendering (PPR), which are features for optimizing performance in Next.js. This suggests the project might involve caching strategies and efficient rendering.\n\nLooking at examples/cms-kontent-ai/README.md and examples/cms-prismic/README.md, similar setups with other CMSs like Kontent AI and Prismic are described. The common theme is integrating",
+        "citations": [
+          {
+            "path": "examples/cms-umbraco/README.md",
+            "line_start": 117,
+            "line_end": 168,
+            "score": 0.6048
+          },
+          {
+            "path": ".claude-plugin/plugins/cache-components/README.md",
+            "line_start": 1,
+            "line_end": 68,
+            "score": 0.5913
+          },
+          {
+            "path": ".agents/skills/README.md",
+            "line_start": 1,
+            "line_end": 48,
+            "score": 0.5828
+          },
+          {
+            "path": "examples/cms-kontent-ai/README.md",
+            "line_start": 185,
+            "line_end": 221,
+            "score": 0.5635
+          },
+          {
+            "path": ".claude-plugin/plugins/README.md",
+            "line_start": 1,
+            "line_end": 98,
+            "score": 0.5528
+          },
+          {
+            "path": "examples/cms-prismic/README.md",
+            "line_start": 131,
+            "line_end": 149,
+            "score": 0.5463
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "examples/cms-umbraco/README.md",
+            "line_start": 117,
+            "line_end": 168,
+            "score": 0.6048,
+            "text": " to test Preview Mode.\n\nThe file should end up looking something like this:\n\n```\nNODE_TLS_REJECT_UNAUTHORIZED=0\nUMBRACO_SERVER_URL = 'https://localhost:12345'\nUMBRACO_DELIVERY_API_KEY = 'my-secret-api-key'\nUMBRACO_PREVIEW_SECRET = 'my-preview-secret'\n```\n\nNotice the `NODE_TLS_REJECT_UNAUTHORIZED=0` setting. When running a .NET website locally, a self-signed SSL certificate is created to allow HTTPS bindings. Node.js does not trust self-signed SSL certificates, so you need to bypass the SSL/TLS certificate verification with this setting. Do not use this workaround in production.\n\n### Step 7. Run Next.js in development mode\n\nIn the `umbraco-app` project folder, run:\n\n```bash\nnpm install\nnpm run dev\n\n# or\n\nyarn install\nyarn dev\n```\n\nYour blog should be up and running on [http://localhost:3000](http://localhost:3000)! If it doesn't work, post on [GitHub discussions](https://github.com/vercel/next.js/discussions).\n\n### Step 8. Try Preview Mode\n\nIf you edit a post in Umbraco without publishi"
+          },
+          {
+            "path": ".claude-plugin/plugins/cache-components/README.md",
+            "line_start": 1,
+            "line_end": 68,
+            "score": 0.5913,
+            "text": "# Cache Components Plugin for Claude Code\n\nExpert guidance for Next.js Cache Components and Partial Prerendering (PPR).\n\n## Features\n\nThis plugin provides a comprehensive skill that:\n\n- **Proactively activates** in projects with `cacheComponents: true`\n- Teaches the `'use cache'` directive, `cacheLife()`, `cacheTag()`, and invalidation APIs\n- Explains **parameter permutation rendering** and subshell generation\n- Covers migration from deprecated `revalidate`/`dynamic` segment configs\n- Provides build-time error solutions and debugging guidance\n\n## Installation\n\n### Step 1: Add the Next.js Marketplace\n\n```\n/plugin marketplace add vercel/next.js\n```\n\n### Step 2: Install the Plugin\n\n```\n/plugin install cache-components@nextjs\n```\n\nOr install via CLI:\n\n```bash\nclaude plugin install cache-components@nextjs\n```\n\n### Step 3 (Optional): Enable for Your Team\n\nAdd to your project's `.claude/settings.json` to auto-enable for all team members:\n\n```json\n{\n  \"enabledPlugins\": {\n    \"cache-components@"
+          },
+          {
+            "path": ".agents/skills/README.md",
+            "line_start": 1,
+            "line_end": 48,
+            "score": 0.5828,
+            "text": "# Skills Authoring Guide\n\nSkills are on-demand context files that Claude loads when relevant. They extend `AGENTS.md` with deep-dive workflows, code templates, and verification steps.\n\n## When to Create a Skill\n\nCreate a skill when content is:\n- **Too detailed for AGENTS.md** (code templates, multi-step workflows, diagnostic procedures)\n- **Only relevant for specific tasks** (not every session needs it)\n- **Self-contained enough to load independently**\n\nDo NOT create a skill for:\n- One-liner rules or guardrails (keep those in AGENTS.md)\n- Content every agent session needs (that's what AGENTS.md is for)\n- Simple facts without actionable steps\n\n## File Structure\n\n```\n.agents/skills/\n\u251c\u2500\u2500 my-skill/\n\u2502   \u2514\u2500\u2500 SKILL.md          # Required: frontmatter + content\n\u2502   \u2514\u2500\u2500 workflow.md        # Optional: supplementary files\n\u2502   \u2514\u2500\u2500 examples.md        # Optional: referenced from SKILL.md\n\u2514\u2500\u2500 README.md              # This file\n```\n\n## SKILL.md Format\n\n```yaml\n---\nname: my-skill\ndescription: >\n  What "
+          },
+          {
+            "path": "examples/cms-kontent-ai/README.md",
+            "line_start": 185,
+            "line_end": 221,
+            "score": 0.5635,
+            "text": "RLs** and set a new preview URL for the `Post` content type to:\n\n```plain\nhttp://localhost:3000/api/preview?secret=<KONTENT_PREVIEW_SECRET>&slug={URLslug}\n```\n\nReplace `<KONTENT_PREVIEW_SECRET>` with its respective value in `.env.local`:\n\n![Preview URL setup](./docs/preview-URLs-setup.png)\n\nOnce saved, go to one of the posts you've created and:\n\n- Create a new version of the post\n- **Update the title**. For example, you can add `[Draft]` in front of the title.\n  > Mind the title also regenerates the URL slug, if you want to change any other field that does not influence the URL slug, feel free to do so.\n- **Do not** publish it. By not publishing it, the post will be in the draft workflow step.\n- On the menu, you will see the **Preview** button. Click on it!\n\n![Post preview button](./docs/post-preview-button.png).\n\nYou will now be able to see the updated title. To exit preview mode, you can click on **Click here to exit preview mode** at the top of the page.\n\n### **6. Deploy on Vercel**"
+          },
+          {
+            "path": ".claude-plugin/plugins/README.md",
+            "line_start": 1,
+            "line_end": 98,
+            "score": 0.5528,
+            "text": "# Next.js Claude Code Plugins\n\nThis directory contains Claude Code plugins for Next.js development.\n\n## Using the Next.js Plugin Marketplace\n\nThe Next.js repository serves as a Claude Code plugin marketplace. Team members and contributors can install plugins directly from this repo.\n\n### Quick Start\n\n```bash\n# Add the Next.js marketplace\n/plugin marketplace add vercel/next.js\n\n# List available plugins\n/plugin list\n\n# Install a plugin\n/plugin install cache-components@nextjs\n```\n\n### Available Plugins\n\n| Plugin | Description |\n|--------|-------------|\n| `cache-components` | Expert guidance for Cache Components and PPR |\n\n## For Team Members\n\nTo auto-enable plugins for everyone working in a Next.js project, add to `.claude/settings.json`:\n\n```json\n{\n  \"extraKnownMarketplaces\": {\n    \"nextjs\": {\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"vercel/next.js\"\n      }\n    }\n  },\n  \"enabledPlugins\": {\n    \"cache-components@nextjs\": true\n  }\n}\n```\n\n## Creating New Plugins\n\nTo ad"
+          }
+        ]
+      },
+      {
+        "question": "Where is authentication implemented?",
+        "answer_seconds": 13.4,
+        "answer": "Okay, I need to figure out where authentication is implemented in the Next.js repository based on the provided context. Let me look through the cited files.\n\nFirst, in the data-security.mdx file, there's a section about Server Actions. They mention using an auth() function to check the user's session. The example in actions.ts shows calling await auth() to get the session and check if the user is authenticated. That's part of the authentication process.\n\nThen, the authentication.mdx file's title directly mentions implementing authentication. It breaks down authentication into verifying user identity, session management, and authorization. The examples show using custom auth solutions or libraries, and there's a mention of an auth() function in the lib/auth import. The data access layer examples also use auth() to check the session.\n\nLooking at the code snippets, the auth function is imported from '@/lib/auth', which suggests that",
+        "citations": [
+          {
+            "path": "docs/01-app/02-guides/data-security.mdx",
+            "line_start": 256,
+            "line_end": 295,
+            "score": 0.5551
+          },
+          {
+            "path": "docs/01-app/02-guides/data-security.mdx",
+            "line_start": 340,
+            "line_end": 393,
+            "score": 0.5506
+          },
+          {
+            "path": "docs/01-app/02-guides/authentication.mdx",
+            "line_start": 1,
+            "line_end": 33,
+            "score": 0.521
+          },
+          {
+            "path": "docs/01-app/02-guides/data-security.mdx",
+            "line_start": 391,
+            "line_end": 445,
+            "score": 0.4933
+          },
+          {
+            "path": "docs/01-app/02-guides/authentication.mdx",
+            "line_start": 1495,
+            "line_end": 1549,
+            "score": 0.4791
+          },
+          {
+            "path": "docs/02-pages/02-guides/authentication.mdx",
+            "line_start": 1,
+            "line_end": 9,
+            "score": 0.4765
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/01-app/02-guides/data-security.mdx",
+            "line_start": 256,
+            "line_end": 295,
+            "score": 0.5551,
+            "text": "package=\"yarn\"\nyarn add server-only\n```\n\n```bash package=\"pnpm\"\npnpm add server-only\n```\n\n```bash package=\"bun\"\nbun add server-only\n```\n\nRead more about `server-only` in the [preventing environment poisoning](/docs/app/getting-started/server-and-client-components#preventing-environment-poisoning) section.\n\n## Mutating Data\n\nNext.js handles mutations with [Server Actions](https://react.dev/reference/rsc/server-functions).\n\n### Built-in Server Actions Security features\n\nBy default, when a Server Action is created and exported, it is reachable via a direct POST request, not just through your application's UI. This means, even if a Server Action or utility function is not imported elsewhere in your code, it can still be called externally.\n\nTo improve security, Next.js has the following built-in features:\n\n- **Secure action IDs:** Next.js creates encrypted, non-deterministic IDs to allow the client to reference and call the Server Action. These IDs are periodically recalculated between buil"
+          },
+          {
+            "path": "docs/01-app/02-guides/data-security.mdx",
+            "line_start": 340,
+            "line_end": 393,
+            "score": 0.5506,
+            "text": "onst session = await auth()\n  if (!session?.user?.isAdmin) {\n    redirect('/login')\n  }\n\n  return (\n    <form\n      action={async () => {\n        'use server'\n        const session = await auth()\n        if (!session?.user?.isAdmin) {\n          throw new Error('Unauthorized')\n        }\n        await db.record.deleteMany()\n      }}\n    >\n      <button>Delete Records</button>\n    </form>\n  )\n}\n```\n\nThe highlighted `auth()` check inside the action is critical. The page-level redirect on line 6 controls which UI is rendered, but the Server Action is a separate entry point and must verify the caller on its own.\n\nBeyond authentication (is the user logged in?), remember to check **authorization** (does this user have permission to act on this specific resource?). This prevents [Insecure Direct Object Reference (IDOR)](https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html) vulnerabilities:\n\n```tsx filename=\"app/actions.ts\"\n'use server'\n\nimp"
+          },
+          {
+            "path": "docs/01-app/02-guides/authentication.mdx",
+            "line_start": 1,
+            "line_end": 33,
+            "score": 0.521,
+            "text": "---\ntitle: How to implement authentication in Next.js\nnav_title: Authentication\ndescription: Learn how to implement authentication in your Next.js application.\n---\n\nUnderstanding authentication is crucial for protecting your application's data. This page will guide you through what React and Next.js features to use to implement auth.\n\nBefore starting, it helps to break down the process into three concepts:\n\n1. **[Authentication](#authentication)**: Verifies if the user is who they say they are. It requires the user to prove their identity with something they have, such as a username and password.\n2. **[Session Management](#session-management)**: Tracks the user's auth state across requests.\n3. **[Authorization](#authorization)**: Decides what routes and data the user can access.\n\nThis diagram shows the authentication flow using React and Next.js features:\n\n<Image\n  alt=\"Diagram showing the authentication flow with React and Next.js features\"\n  srcLight=\"/docs/light/authentication-overv"
+          },
+          {
+            "path": "docs/01-app/02-guides/data-security.mdx",
+            "line_start": 391,
+            "line_end": 445,
+            "score": 0.4933,
+            "text": "ns\n\nJust as we recommend a [Data Access Layer](#data-access-layer) for reading data, you can apply the same pattern to mutations. This keeps authentication, authorization, and database logic in a dedicated `server-only` module, while `\"use server\"` actions stay thin.\n\n```ts filename=\"data/posts.ts\"\nimport 'server-only'\n\nimport { auth } from '@/lib/auth'\nimport { db } from '@/lib/db'\n\nexport async function deletePost(postId: string) {\n  const session = await auth()\n  if (!session?.user) {\n    throw new Error('Unauthorized')\n  }\n\n  const post = await db.post.findUnique({ where: { id: postId } })\n\n  if (post.authorId !== session.user.id) {\n    throw new Error('Forbidden')\n  }\n\n  await db.post.delete({ where: { id: postId } })\n}\n```\n\nThe `\"use server\"` action then delegates to the DAL:\n\n```ts filename=\"app/actions.ts\"\n'use server'\n\nimport { deletePost } from '@/data/posts'\nimport { revalidatePath } from 'next/cache'\n\nexport async function deletePostAction(postId: string) {\n  await deletePo"
+          },
+          {
+            "path": "docs/01-app/02-guides/authentication.mdx",
+            "line_start": 1495,
+            "line_end": 1549,
+            "score": 0.4791,
+            "text": "ute.ts\" switcher\nimport { verifySession } from '@/app/lib/dal'\n\nexport async function GET() {\n  // User authentication and role verification\n  const session = await verifySession()\n\n  // Check if the user is authenticated\n  if (!session) {\n    // User is not authenticated\n    return new Response(null, { status: 401 })\n  }\n\n  // Check if the user has the 'admin' role\n  if (session.user.role !== 'admin') {\n    // User is authenticated but does not have the right permissions\n    return new Response(null, { status: 403 })\n  }\n\n  // Continue for authorized users\n}\n```\n\n```js filename=\"app/api/route.js\" switcher\nimport { verifySession } from '@/app/lib/dal'\n\nexport async function GET() {\n  // User authentication and role verification\n  const session = await verifySession()\n\n  // Check if the user is authenticated\n  if (!session) {\n    // User is not authenticated\n    return new Response(null, { status: 401 })\n  }\n\n  // Check if the user has the 'admin' role\n  if (session.user.role !== 'admin"
+          }
+        ]
+      },
+      {
+        "question": "Which services talk to the database?",
+        "answer_seconds": 17.05,
+        "answer": "Okay, let's tackle this question: \"Which services talk to the database?\" using the provided repository context.\n\nFirst, I'll look through the given code snippets and documentation. The user mentioned the Next.js repository, so I need to focus on the files provided here.\n\nStarting with the first source: turbopack/crates/turbo-tasks-backend/src/kv_backing_storage.rs. This file discusses a KeyValueDatabaseBackingStorage struct, which interacts with a database. The methods like new_in_memory and open_versioned_on_disk suggest that this service manages database connections, possibly for caching or storage in TurboPack. So, the Turbo Tasks backend service is one that talks to the database.\n\nNext, the examples/with-mysql/README.md file is crucial. It provides setup instructions for a MySQL database. The README mentions using Prisma to generate the client and push the schema. The DATABASE",
+        "citations": [
+          {
+            "path": "turbopack/crates/turbo-tasks-backend/src/kv_backing_storage.rs",
+            "line_start": 94,
+            "line_end": 131,
+            "score": 0.6857
+          },
+          {
+            "path": "examples/with-mysql/README.md",
+            "line_start": 56,
+            "line_end": 95,
+            "score": 0.6578
+          },
+          {
+            "path": "turbopack/crates/turbo-persistence/src/db.rs",
+            "line_start": 679,
+            "line_end": 722,
+            "score": 0.6523
+          },
+          {
+            "path": "turbopack/crates/turbo-tasks-backend/src/database/key_value_database.rs",
+            "line_start": 101,
+            "line_end": 129,
+            "score": 0.6278
+          },
+          {
+            "path": "examples/with-mysql/README.md",
+            "line_start": 83,
+            "line_end": 130,
+            "score": 0.6265
+          },
+          {
+            "path": "turbopack/crates/turbo-tasks-backend/src/database/db_invalidation.rs",
+            "line_start": 44,
+            "line_end": 82,
+            "score": 0.6233
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "turbopack/crates/turbo-tasks-backend/src/kv_backing_storage.rs",
+            "line_start": 94,
+            "line_end": 131,
+            "score": 0.6857,
+            "text": "el key-value database into a higher-level [`BackingStorage`] type.\nimpl<T: KeyValueDatabase> KeyValueDatabaseBackingStorage<T> {\n    pub(crate) fn new_in_memory(database: T) -> Self {\n        Self {\n            inner: Arc::new(KeyValueDatabaseBackingStorageInner {\n                database,\n                base_path: None,\n                invalidated: Mutex::new(false),\n                _panic_hook_guard: None,\n            }),\n        }\n    }\n\n    /// Handles boilerplate logic for an on-disk persisted database with versioning.\n    ///\n    /// - Creates a directory per version, with a maximum number of old versions and performs\n    ///   automatic cleanup of old versions.\n    /// - Checks for a database invalidation marker file, and cleans up the database as needed.\n    /// - [Registers a dynamic panic hook][turbo_tasks::panic_hooks] to invalidate the database upon\n    ///   a panic. This invalidates the database using [`invalidation_reasons::PANIC`].\n    ///\n    /// Along with returning "
+          },
+          {
+            "path": "examples/with-mysql/README.md",
+            "line_start": 56,
+            "line_end": 95,
+            "score": 0.6578,
+            "text": ". If you'd prefer to use the dashboard for this step, you can find those instructions in the [Connection Strings documentation](https://docs.planetscale.com/concepts/connection-strings#creating-a-password) and then come back here to finish setup.\n\nFirst, create your `.env` file by renaming the `.env.example` file to `.env`:\n\n```sh\nmv .env.example .env\n```\n\nNext, using the PlanetScale CLI, create a new username and password for the branch of your database:\n\n```sh\npscale password create <DATABASE_NAME> <BRANCH_NAME> <PASSWORD_NAME>\n```\n\n> The `PASSWORD_NAME` value represents the name of the username and password being generated. You can have multiple credentials for a branch, so this gives you a way to categorize them. To manage your passwords in the dashboard, go to your database overview page, click \"Settings\", and then click \"Passwords\".\n\nTake note of the values returned to you, as you won't be able to see this password again.\n\n```text\nPassword <PASSWORD_NAME> was successfully created"
+          },
+          {
+            "path": "turbopack/crates/turbo-persistence/src/db.rs",
+            "line_start": 679,
+            "line_end": 722,
+            "score": 0.6523,
+            "text": "ll back to one-by-one insertion instead of sorted merge.\n            let mut amqf =\n                qfilter::Filter::with_fingerprint_size(initial_capacity as u64, u64::BITS as u8)\n                    .unwrap();\n            // This drains items from the set. But due to concurrency it might not be empty\n            // afterwards, but that's fine. It will be part of the next commit.\n            set.retain(|hash| {\n                // Performance-wise it would usually be better to insert sorted fingerprints, but we\n                // assume that hashes are equally distributed, which makes it unnecessary.\n                // Good for cache locality is that we insert in the order of the dashset's buckets.\n                amqf.insert_fingerprint(false, *hash)\n                    .expect(\"Failed to insert fingerprint\");\n                false\n            });\n            amqf\n        })?;\n        self.commit(CommitOptions {\n            new_meta_files,\n            new_sst_files,\n            new_bl"
+          },
+          {
+            "path": "turbopack/crates/turbo-tasks-backend/src/database/key_value_database.rs",
+            "line_start": 101,
+            "line_end": 129,
+            "score": 0.6278,
+            "text": "nt in writing anything else to disk, or flushing\n    /// during [`KeyValueDatabase::shutdown`].\n    ///\n    /// This is a best-effort optimization hint, and the database may choose to ignore this and\n    /// continue file writes. This happens after the database is invalidated, so it is valid for\n    /// this to leave the database in a half-updated and corrupted state.\n    fn prevent_writes(&self) {\n        // this is an optional performance hint to the database\n    }\n\n    /// Triggers compaction of the database.\n    ///\n    /// Returns `Ok(true)` if compaction actually merged files, `Ok(false)` if there was nothing\n    /// to compact. The default implementation is a no-op.\n    fn compact(&self) -> Result<bool> {\n        Ok(false)\n    }\n\n    fn shutdown(&self) -> Result<()> {\n        Ok(())\n    }\n\n    /// Returns true if the database is in an unrecoverable error state where a previous write or\n    /// compaction failed and the rollback also failed, permanently disabling further writes.\n"
+          },
+          {
+            "path": "examples/with-mysql/README.md",
+            "line_start": 83,
+            "line_end": 130,
+            "score": 0.6265,
+            "text": "connection string in the following format:\n\n```text\nmysql://<USERNAME>:<PLAIN_TEXT_PASSWORD>@<ACCESS_HOST_URL>/<DATABASE_NAME>?sslaccept=strict\n```\n\nGenerate the Prisma Client:\n\n```bash\nnpx prisma generate\n```\n\nPush the database schema to your PlanetScale database using Prisma:\n\n```bash\nnpx prisma db push\n```\n\nRun the seed script to populate your database with `Product` and `Category` data:\n\n```bash\nnpx prisma db seed\n```\n\n## Run the App\n\nRun the app with the following command:\n\n```bash\nnpm run dev\n```\n\nOpen your browser at [localhost:3000](http://localhost:3000) to see the running application.\n\n## Deploy Your Own\n\nAfter you've got your application running locally, it's time to deploy it. To do so, you'll need to promote your database branch (`main` by default) to be the production branch ([read the branching documentation for more information](https://docs.planetscale.com/concepts/branching)).\n\n```sh\npscale branch promote <DATABASE_NAME> <BRANCH_NAME>\n```\n\nNow that your branch has bee"
+          }
+        ]
+      },
+      {
+        "question": "Where are API routes defined?",
+        "answer_seconds": 13.66,
+        "answer": "Okay, so the user is asking where API routes are defined in Next.js. Let me look through the provided context to find the answer.\n\nFirst, checking the docs/02-pages/03-building-your-application/01-routing/07-api-routes.mdx file. That seems relevant. The description mentions that API routes are in the pages/api folder. The file says, \"Any file inside the folder pages/api is mapped to /api/* and will be treated as an API endpoint.\" There's also a code example with a file named pages/api/hello.ts, which supports that.\n\nLooking at the other sources, like the route-kind.ts file, there's a RouteKind.PAGES_API which refers to pages/api/. The get-routes.ts mentions that API routes are included in pagesRouter, which is under the pages directory. The examples like api-routes-graphql are under",
+        "citations": [
+          {
+            "path": "docs/02-pages/03-building-your-application/01-routing/07-api-routes.mdx",
+            "line_start": 1,
+            "line_end": 47,
+            "score": 0.6279
+          },
+          {
+            "path": "packages/next/src/server/mcp/tools/get-routes.ts",
+            "line_start": 1,
+            "line_end": 40,
+            "score": 0.5683
+          },
+          {
+            "path": "examples/api-routes-graphql/README.md",
+            "line_start": 1,
+            "line_end": 31,
+            "score": 0.5645
+          },
+          {
+            "path": "docs/01-app/03-api-reference/03-file-conventions/parallel-routes.mdx",
+            "line_start": 1,
+            "line_end": 61,
+            "score": 0.5593
+          },
+          {
+            "path": "packages/next/src/server/route-kind.ts",
+            "line_start": 1,
+            "line_end": 26,
+            "score": 0.5476
+          },
+          {
+            "path": "docs/01-app/03-api-reference/05-config/01-next-config-js/rewrites.mdx",
+            "line_start": 72,
+            "line_end": 106,
+            "score": 0.5332
+          }
+        ],
+        "retrieved_chunks": [
+          {
+            "path": "docs/02-pages/03-building-your-application/01-routing/07-api-routes.mdx",
+            "line_start": 1,
+            "line_end": 47,
+            "score": 0.6279,
+            "text": "---\ntitle: API Routes\ndescription: Next.js supports API Routes, which allow you to build your API without leaving your Next.js app. Learn how it works here.\n---\n\n<details>\n  <summary>Examples</summary>\n\n- [API Routes Request Helpers](https://github.com/vercel/next.js/tree/canary/examples/api-routes-proxy)\n- [API Routes with GraphQL](https://github.com/vercel/next.js/tree/canary/examples/api-routes-graphql)\n- [API Routes with REST](https://github.com/vercel/next.js/tree/canary/examples/api-routes-rest)\n- [API Routes with CORS](https://github.com/vercel/next.js/tree/canary/examples/api-routes-cors)\n\n</details>\n\n> **Good to know**: If you are using the App Router, you can use [Server Components](/docs/app/getting-started/server-and-client-components) or [Route Handlers](/docs/app/api-reference/file-conventions/route) instead of API Routes.\n\nAPI routes provide a solution to build a **public API** with Next.js.\n\nAny file inside the folder `pages/api` is mapped to `/api/*` and will be treate"
+          },
+          {
+            "path": "packages/next/src/server/mcp/tools/get-routes.ts",
+            "line_start": 1,
+            "line_end": 40,
+            "score": 0.5683,
+            "text": "/**\n * MCP tool for getting all routes that become entry points in a Next.js application.\n *\n * This tool discovers routes by scanning the filesystem directly. It finds all route\n * files in the app/ and pages/ directories and converts them to route paths.\n *\n * Returns routes grouped by router type:\n * - appRouter: App Router pages and route handlers\n * - pagesRouter: Pages Router pages and API routes\n *\n * Dynamic route segments appear as [id], [slug], or [...slug] patterns. This tool\n * does NOT expand getStaticParams - it only shows the route patterns as defined in\n * the filesystem.\n */\nimport type { McpServer } from 'next/dist/compiled/@modelcontextprotocol/sdk/server/mcp'\nimport { mcpTelemetryTracker } from '../mcp-telemetry-tracker'\nimport { discoverRoutes } from '../../../build/route-discovery'\nimport type { NextConfigComplete } from '../../../server/config-shared'\nimport z from 'next/dist/compiled/zod'\n\nexport function registerGetRoutesTool(\n  server: McpServer,\n  options: {\n"
+          },
+          {
+            "path": "examples/api-routes-graphql/README.md",
+            "line_start": 1,
+            "line_end": 31,
+            "score": 0.5645,
+            "text": "# API routes with GraphQL server\n\nNext.js ships with [API routes](https://nextjs.org/docs/api-routes/introduction), which provide an easy solution to build your own `API`.\nThis example showcases how to build a lightweight and blazing fast GraphQL API with minimum configuration using GraphQL Yoga.\n\nGraphQL Yoga comes with strong defaults:\n\n- CORS is enabled by default\n- Automatically masking unexpected errors and preventing sensitive information from leaking to clients.\n- Shipped with GraphiQL\n\nYoga also brings support (with no additional dependency) for subscriptions, file uploads, and your favorite schema-building library (GraphQL Tools, Pothos, Nexus, TypeGraphQL, SDL first schema-design approaches, graphql-js, Apollo Tools).\n\nMore information on all available features are available [on the official documentation](https://www.graphql-yoga.com/docs/quick-start).\n\nFinally, GraphQL Yoga is built on top of Envelop. Envelop is a library that helps build GraphQL API faster and flexibly wit"
+          },
+          {
+            "path": "docs/01-app/03-api-reference/03-file-conventions/parallel-routes.mdx",
+            "line_start": 1,
+            "line_end": 61,
+            "score": 0.5593,
+            "text": "---\ntitle: Parallel Routes\ndescription: Simultaneously render one or more pages in the same view that can be navigated independently. A pattern for highly dynamic applications.\nrelated:\n  links:\n    - app/api-reference/file-conventions/default\n---\n\nParallel Routes allows you to simultaneously or conditionally render one or more pages within the same layout. They are useful for highly dynamic sections of an app, such as dashboards and feeds on social sites.\n\nFor example, considering a dashboard, you can use parallel routes to simultaneously render the `team` and `analytics` pages:\n\n<Image\n  alt=\"Parallel Routes Diagram\"\n  srcLight=\"/docs/light/parallel-routes.png\"\n  srcDark=\"/docs/dark/parallel-routes.png\"\n  width=\"1600\"\n  height=\"942\"\n/>\n\n## Convention\n\n### Slots\n\nParallel routes are created using named **slots**. Slots are defined with the `@folder` convention. For example, the following file structure defines two slots: `@analytics` and `@team`:\n\n<Image\n  alt=\"Parallel Routes File-sy"
+          },
+          {
+            "path": "packages/next/src/server/route-kind.ts",
+            "line_start": 1,
+            "line_end": 26,
+            "score": 0.5476,
+            "text": "export const enum RouteKind {\n  /**\n   * `PAGES` represents all the React pages that are under `pages/`.\n   */\n  PAGES = 'PAGES',\n  /**\n   * `PAGES_API` represents all the API routes under `pages/api/`.\n   */\n  PAGES_API = 'PAGES_API',\n  /**\n   * `APP_PAGE` represents all the React pages that are under `app/` with the\n   * filename of `page.{j,t}s{,x}`.\n   */\n  APP_PAGE = 'APP_PAGE',\n  /**\n   * `APP_ROUTE` represents all the API routes and metadata routes that are under `app/` with the\n   * filename of `route.{j,t}s{,x}`.\n   */\n  APP_ROUTE = 'APP_ROUTE',\n\n  /**\n   * `IMAGE` represents all the images that are generated by `next/image`.\n   */\n  IMAGE = 'IMAGE',\n}\n"
+          }
+        ]
+      }
+    ],
+    "success": true
+  }
+]

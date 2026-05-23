@@ -1,0 +1,367 @@
+{
+  "label": "repomindai-self",
+  "path": "/home/ratish/RepoMindAI",
+  "started_at": 1779526282.88473,
+  "ingest_seconds": 1.69,
+  "repo_id": "dbdfd5f1aa3a4df388f21a74057a1d7d",
+  "workspace": "/home/ratish/RepoMindAI/data/repositories/RepoMindAI-951f708470",
+  "analysis_seconds": 20.79,
+  "summary": {
+    "statistics": {
+      "files": 67,
+      "bytes": 165440,
+      "functions": 115,
+      "classes": 12,
+      "routes": 18,
+      "indexed_chunks": 142
+    },
+    "languages": {
+      "primary": "Python",
+      "all": {
+        "Text": 13,
+        "YAML": 2,
+        "Markdown": 8,
+        "Python": 33,
+        "Dockerfile": 1,
+        "TypeScript": 6,
+        "JSON": 3,
+        "JavaScript": 1
+      }
+    },
+    "stack": {
+      "frameworks": [
+        "FastAPI"
+      ],
+      "package_managers": [
+        "npm",
+        "pip/uv"
+      ],
+      "build_tools": [
+        "Docker"
+      ],
+      "ci_cd": [
+        "GitHub Actions"
+      ],
+      "docker": true
+    },
+    "scores": {
+      "security": 74.4,
+      "maintainability": 38.7,
+      "production_readiness": 76.4,
+      "recruiter": 84.7,
+      "cto": 70.7,
+      "confidence": 95
+    },
+    "architecture": {
+      "style": "API service",
+      "top_level_directories": [
+        ".github",
+        "backend",
+        "docs",
+        "frontend",
+        "sample_repos",
+        "tests"
+      ],
+      "important_files": [
+        "backend/repomind/main.py",
+        "backend/repomind/analysis/analyzer.py",
+        "backend/repomind/llm/adapters.py",
+        "__future__",
+        "backend/repomind/ingestion/ingestor.py",
+        "tests/unit/test_utils_and_parsing.py",
+        "pathlib",
+        "backend/repomind/core/store.py",
+        "backend/repomind/analysis/parser.py",
+        "backend/repomind/core/config.py"
+      ],
+      "route_files": [
+        "backend/repomind/main.py",
+        "sample_repos/python_fastapi_example/app/main.py",
+        "sample_repos/python_fastapi_example/app/users.py"
+      ],
+      "summary": "Primary language is inferred as repository-local code with FastAPI. The dependency graph highlights 260 code, module, and symbol nodes."
+    },
+    "security_counts": {
+      "medium": 5,
+      "high": 1,
+      "low": 43
+    },
+    "security_findings": 49,
+    "debt_items": 10,
+    "reports": {
+      "README.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/README.md",
+      "ARCHITECTURE.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/ARCHITECTURE.md",
+      "SECURITY_REPORT.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/SECURITY_REPORT.md",
+      "TECH_DEBT.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/TECH_DEBT.md",
+      "RECRUITER_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/RECRUITER_REVIEW.md",
+      "CTO_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/CTO_REVIEW.md",
+      "ROADMAP.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/ROADMAP.md",
+      "PROJECT_STATUS.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/PROJECT_STATUS.md",
+      "analysis-summary.json": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/analysis-summary.json"
+    }
+  },
+  "qa": [
+    {
+      "question": "What are the biggest flaws?",
+      "answer_seconds": 12.03,
+      "answer": "Okay, let's tackle the question: \"What are the biggest flaws?\" using the provided repository context.\n\nFirst, I'll go through each of the sources mentioned to find any issues or limitations highlighted.\n\nLooking at the README.md, under the \"Local Models\" section, it mentions that the model at `/home/ratish/Forge/models/qwen-judge` is used, selected after benchmarking. But there's a note in the LOCAL_MACHINE_AUDIT.md about the models being Hugging Face-style checkpoints and not GGUF. Also, the audit concludes that runtime loading can't be confirmed until the dependencies like `torch` and `transformers` are properly set up. That suggests potential compatibility or dependency issues.\n\nIn the INSTALL_PLAN.md, there are several points under \"Must Be Installed or Replaced for Full Container Workflow\" like Docker Compose being missing and PostgreSQL/Redis not installed locally",
+      "citations": [
+        {
+          "path": "README.md",
+          "line_start": 1,
+          "line_end": 54,
+          "score": 0.759
+        },
+        {
+          "path": "README.md",
+          "line_start": 41,
+          "line_end": 82,
+          "score": 0.682
+        },
+        {
+          "path": "docs/USAGE.md",
+          "line_start": 1,
+          "line_end": 24,
+          "score": 0.3476
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 1,
+          "line_end": 75,
+          "score": 0.34
+        },
+        {
+          "path": "INSTALL_PLAN.md",
+          "line_start": 46,
+          "line_end": 89,
+          "score": 0.1955
+        },
+        {
+          "path": "LOCAL_MACHINE_AUDIT.md",
+          "line_start": 91,
+          "line_end": 137,
+          "score": 0.1894
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "README.md",
+          "line_start": 1,
+          "line_end": 54,
+          "score": 0.759,
+          "text": "# RepoMind AI\n\nOffline AI-Powered GitHub Repository Intelligence Platform.\n\nRepoMind AI is a local-first application that ingests software repositories, builds repository intelligence, indexes code for retrieval, and generates architecture, security, technical debt, recruiter, CTO, roadmap, and status reports without cloud LLM APIs.\n\n## What It Does\n\n- Ingests repositories from ZIP uploads, GitHub URLs, or local folders.\n- Filters generated folders such as `.git`, `node_modules`, `.next`, `dist`, `build`, `.venv`, and `target`.\n- Detects languages, frameworks, package managers, Docker, and CI signals.\n- Extracts imports, classes, functions, routes, environment variables, TODO/FIXME markers, and dependency metadata.\n- Builds a NetworkX dependency graph.\n- Runs local security heuristics and Bandit when installed.\n- Scores security, maintainability, production readiness, recruiter signal, CTO readiness, and confidence.\n- Indexes repository chunks with deterministic local embeddings.\n- Ans"
+        },
+        {
+          "path": "README.md",
+          "line_start": 41,
+          "line_end": 82,
+          "score": 0.682,
+          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `/home/ratish/Forge/models` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
+        },
+        {
+          "path": "docs/USAGE.md",
+          "line_start": 1,
+          "line_end": 24,
+          "score": 0.3476,
+          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n/home/ratish/RepoMindAI/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 1,
+          "line_end": 75,
+          "score": 0.34,
+          "text": "[project]\nname = \"repomind-ai\"\nversion = \"0.1.0\"\ndescription = \"Offline AI-powered GitHub repository intelligence platform\"\nrequires-python = \">=3.12\"\ndependencies = [\n  \"fastapi>=0.115.0\",\n  \"uvicorn[standard]>=0.30.0\",\n  \"python-multipart>=0.0.9\",\n  \"pydantic>=2.8.0\",\n  \"pydantic-settings>=2.4.0\",\n  \"sqlalchemy>=2.0.32\",\n  \"psycopg[binary]>=3.2.1\",\n  \"gitpython>=3.1.43\",\n  \"networkx>=3.3\",\n  \"radon>=6.0.1\",\n  \"pygments>=2.18.0\",\n  \"pyyaml>=6.0.2\",\n  \"redis>=5.0.8\",\n  \"celery>=5.4.0\",\n  \"chromadb>=0.5.5\",\n  \"httpx>=0.27.0\",\n]\n\n[build-system]\nrequires = [\"setuptools>=69\", \"wheel\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[tool.setuptools]\npackage-dir = {\"\" = \"backend\"}\n\n[tool.setuptools.packages.find]\nwhere = [\"backend\"]\ninclude = [\"repomind*\"]\n\n[project.optional-dependencies]\nanalysis = [\n  \"bandit>=1.7.9\",\n  \"tree-sitter>=0.22.3\",\n  \"tree-sitter-languages>=1.10.2\",\n]\nllm = [\n  \"torch>=2.4.0\",\n  \"transformers>=4.45.0\",\n  \"accelerate>=0.34.0\",\n  \"safetensors>=0.4.4\",\n  \"sentence-transf"
+        },
+        {
+          "path": "INSTALL_PLAN.md",
+          "line_start": 46,
+          "line_end": 89,
+          "score": 0.1955,
+          "text": " a local fallback embedding implementation\n- pytest, pytest-asyncio, httpx, and coverage tooling for validation\n\nFrontend dependencies, installed under `/home/ratish/RepoMindAI/frontend`:\n\n- Next.js\n- TypeScript\n- Tailwind CSS\n- shadcn/ui-compatible primitives\n- React UI dependencies\n- Vitest/Testing Library if frontend tests are enabled\n\n## Must Be Installed or Replaced for Full Container Workflow\n\n- Docker Compose is missing. Either install the Docker Compose plugin or use a compatible `docker-compose` binary.\n- PostgreSQL and Redis are not installed locally. They can be provided by Docker Compose.\n\n## Can Be Skipped Initially\n\n- Ollama, because the available models are Hugging Face-style checkpoints rather than Ollama models.\n- vLLM, because the first implementation can use a Transformers backend and a deterministic fallback backend.\n- Downloading any additional LLMs, because the required Forge model folders exist.\n- Downloading a large embedding model. The first implementation shou"
+        },
+        {
+          "path": "LOCAL_MACHINE_AUDIT.md",
+          "line_start": 91,
+          "line_end": 137,
+          "score": 0.1894,
+          "text": "ensor shards, tokenizer files | Format valid; load pending project env |\n| Long-form synthesis / report aggregation | `/home/ratish/Forge/models/deepseek-synth` | 34G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 2 safetensor shards, tokenizer files | Format valid; load pending project env |\n\n### Model Metadata\n\n`qwen-primary`\n\n- Architecture: `Qwen3_5MoeForConditionalGeneration`\n- Model type: `qwen3_5_moe`\n- Quantization metadata: present\n- Vision config: present\n- GGUF files: none detected\n\n`qwen-judge`\n\n- Architecture: `Qwen2ForCausalLM`\n- Model type: `qwen2`\n- dtype: `float16`\n- Max position embeddings: 40960\n- Quantization metadata: present\n- GGUF files: none detected\n\n`deepseek-synth`\n\n- Architecture: `LlamaForCausalLM`\n- Model type: `llama`\n- dtype: `float16`\n- Max position embeddings: 16384\n- Quantization metadata: present\n- GGUF files: none detected\n\n## Model Cache Scan\n\nNo additional local Hugging Face, Torch, "
+        }
+      ]
+    },
+    {
+      "question": "What production blockers exist?",
+      "answer_seconds": 8.76,
+      "answer": "Okay, I need to figure out what production blockers exist based on the provided repository context. Let me start by going through each of the given sources to find any mentions of issues that could block production readiness.\n\nFirst, looking at the README.md. In the \"What It Does\" section, there's a mention of scoring production readiness. But I need to check if there are any specific blockers listed. Scrolling further down, under the \"Docker\" section, it says that Docker Compose isn't currently available. That might be a problem because Docker is often used in production setups. The user would need to install Docker Compose to use the docker compose up command, which is part of the deployment process. So that's one blocker: Docker Compose not being available.\n\nNext, in the same README, under \"Local Models\", it specifies that the model used is qwen-judge,",
+      "citations": [
+        {
+          "path": "README.md",
+          "line_start": 1,
+          "line_end": 54,
+          "score": 0.8558
+        },
+        {
+          "path": "README.md",
+          "line_start": 41,
+          "line_end": 82,
+          "score": 0.5634
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 1,
+          "line_end": 75,
+          "score": 0.3608
+        },
+        {
+          "path": "docs/USAGE.md",
+          "line_start": 1,
+          "line_end": 24,
+          "score": 0.3166
+        },
+        {
+          "path": "docs/MODEL_USAGE.md",
+          "line_start": 1,
+          "line_end": 29,
+          "score": 0.2792
+        },
+        {
+          "path": "backend/repomind_ai.egg-info/PKG-INFO",
+          "line_start": 1,
+          "line_end": 37,
+          "score": 0.2334
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "README.md",
+          "line_start": 1,
+          "line_end": 54,
+          "score": 0.8558,
+          "text": "# RepoMind AI\n\nOffline AI-Powered GitHub Repository Intelligence Platform.\n\nRepoMind AI is a local-first application that ingests software repositories, builds repository intelligence, indexes code for retrieval, and generates architecture, security, technical debt, recruiter, CTO, roadmap, and status reports without cloud LLM APIs.\n\n## What It Does\n\n- Ingests repositories from ZIP uploads, GitHub URLs, or local folders.\n- Filters generated folders such as `.git`, `node_modules`, `.next`, `dist`, `build`, `.venv`, and `target`.\n- Detects languages, frameworks, package managers, Docker, and CI signals.\n- Extracts imports, classes, functions, routes, environment variables, TODO/FIXME markers, and dependency metadata.\n- Builds a NetworkX dependency graph.\n- Runs local security heuristics and Bandit when installed.\n- Scores security, maintainability, production readiness, recruiter signal, CTO readiness, and confidence.\n- Indexes repository chunks with deterministic local embeddings.\n- Ans"
+        },
+        {
+          "path": "README.md",
+          "line_start": 41,
+          "line_end": 82,
+          "score": 0.5634,
+          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `/home/ratish/Forge/models` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 1,
+          "line_end": 75,
+          "score": 0.3608,
+          "text": "[project]\nname = \"repomind-ai\"\nversion = \"0.1.0\"\ndescription = \"Offline AI-powered GitHub repository intelligence platform\"\nrequires-python = \">=3.12\"\ndependencies = [\n  \"fastapi>=0.115.0\",\n  \"uvicorn[standard]>=0.30.0\",\n  \"python-multipart>=0.0.9\",\n  \"pydantic>=2.8.0\",\n  \"pydantic-settings>=2.4.0\",\n  \"sqlalchemy>=2.0.32\",\n  \"psycopg[binary]>=3.2.1\",\n  \"gitpython>=3.1.43\",\n  \"networkx>=3.3\",\n  \"radon>=6.0.1\",\n  \"pygments>=2.18.0\",\n  \"pyyaml>=6.0.2\",\n  \"redis>=5.0.8\",\n  \"celery>=5.4.0\",\n  \"chromadb>=0.5.5\",\n  \"httpx>=0.27.0\",\n]\n\n[build-system]\nrequires = [\"setuptools>=69\", \"wheel\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[tool.setuptools]\npackage-dir = {\"\" = \"backend\"}\n\n[tool.setuptools.packages.find]\nwhere = [\"backend\"]\ninclude = [\"repomind*\"]\n\n[project.optional-dependencies]\nanalysis = [\n  \"bandit>=1.7.9\",\n  \"tree-sitter>=0.22.3\",\n  \"tree-sitter-languages>=1.10.2\",\n]\nllm = [\n  \"torch>=2.4.0\",\n  \"transformers>=4.45.0\",\n  \"accelerate>=0.34.0\",\n  \"safetensors>=0.4.4\",\n  \"sentence-transf"
+        },
+        {
+          "path": "docs/USAGE.md",
+          "line_start": 1,
+          "line_end": 24,
+          "score": 0.3166,
+          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n/home/ratish/RepoMindAI/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
+        },
+        {
+          "path": "docs/MODEL_USAGE.md",
+          "line_start": 1,
+          "line_end": 29,
+          "score": 0.2792,
+          "text": "# Model Usage Guide\n\nRepoMind AI never calls OpenAI, Anthropic, Groq, Pinecone, or cloud LLM APIs.\n\n## Selected Production Model\n\nRepoMind AI uses one production local model:\n\n- `/home/ratish/Forge/models/qwen-judge`\n\n## Backend Detection\n\nThe adapter checks for:\n\n1. GGUF files.\n2. Hugging Face `config.json`, tokenizer files, and `.safetensors` or `.bin` weights.\n3. Ollama runtime availability.\nThere is no production role router. The benchmark selected `qwen-judge` because it is the only tested model that loads and produces usable repository-analysis output on this machine.\n\n## Heavy Loading\n\nInstall optional LLM dependencies:\n\n```bash\nuv pip install -e \".[llm]\"\n```\n\nModel loading uses `local_files_only=True`.\n"
+        },
+        {
+          "path": "backend/repomind_ai.egg-info/PKG-INFO",
+          "line_start": 1,
+          "line_end": 37,
+          "score": 0.2334,
+          "text": "Metadata-Version: 2.4\nName: repomind-ai\nVersion: 0.1.0\nSummary: Offline AI-powered GitHub repository intelligence platform\nRequires-Python: >=3.12\nRequires-Dist: fastapi>=0.115.0\nRequires-Dist: uvicorn[standard]>=0.30.0\nRequires-Dist: python-multipart>=0.0.9\nRequires-Dist: pydantic>=2.8.0\nRequires-Dist: pydantic-settings>=2.4.0\nRequires-Dist: sqlalchemy>=2.0.32\nRequires-Dist: psycopg[binary]>=3.2.1\nRequires-Dist: gitpython>=3.1.43\nRequires-Dist: networkx>=3.3\nRequires-Dist: radon>=6.0.1\nRequires-Dist: pygments>=2.18.0\nRequires-Dist: pyyaml>=6.0.2\nRequires-Dist: redis>=5.0.8\nRequires-Dist: celery>=5.4.0\nRequires-Dist: chromadb>=0.5.5\nRequires-Dist: httpx>=0.27.0\nProvides-Extra: analysis\nRequires-Dist: bandit>=1.7.9; extra == \"analysis\"\nRequires-Dist: tree-sitter>=0.22.3; extra == \"analysis\"\nRequires-Dist: tree-sitter-languages>=1.10.2; extra == \"analysis\"\nProvides-Extra: llm\nRequires-Dist: torch>=2.4.0; extra == \"llm\"\nRequires-Dist: transformers>=4.45.0; extra == \"llm\"\nRequires-Dist: ac"
+        }
+      ]
+    },
+    {
+      "question": "What architecture weaknesses exist?",
+      "answer_seconds": 9.7,
+      "answer": "Okay, let's tackle the question: \"What architecture weaknesses exist?\" using the provided repository context.\n\nFirst, I'll look through the given files. The README.md mentions that RepoMind AI uses a local Forge model, specifically `/home/ratish/Forge/models/qwen-judge`. The LOCAL_MACHINE_AUDIT.md file has details about the models. Under the \"Model Metadata\" section, each model's architecture is listed. For \"qwen-judge\", the architecture is Qwen2ForCausalLM, which is a specific type. The audit also mentions that \"qwen-primary\" uses a newer Qwen MoE architecture, which might require a recent Transformers version. \n\nThe audit conclusions point out that the models are Hugging Face-style checkpoints, not GGUF, and that runtime loading depends on the environment having the right dependencies. Also, point 4 says there's a risk",
+      "citations": [
+        {
+          "path": "README.md",
+          "line_start": 1,
+          "line_end": 54,
+          "score": 0.7507
+        },
+        {
+          "path": "README.md",
+          "line_start": 41,
+          "line_end": 82,
+          "score": 0.5366
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 1,
+          "line_end": 75,
+          "score": 0.3608
+        },
+        {
+          "path": "backend/repomind/llm/prompts.py",
+          "line_start": 1,
+          "line_end": 29,
+          "score": 0.2591
+        },
+        {
+          "path": "docs/USAGE.md",
+          "line_start": 1,
+          "line_end": 24,
+          "score": 0.2128
+        },
+        {
+          "path": "LOCAL_MACHINE_AUDIT.md",
+          "line_start": 91,
+          "line_end": 137,
+          "score": 0.2
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "README.md",
+          "line_start": 1,
+          "line_end": 54,
+          "score": 0.7507,
+          "text": "# RepoMind AI\n\nOffline AI-Powered GitHub Repository Intelligence Platform.\n\nRepoMind AI is a local-first application that ingests software repositories, builds repository intelligence, indexes code for retrieval, and generates architecture, security, technical debt, recruiter, CTO, roadmap, and status reports without cloud LLM APIs.\n\n## What It Does\n\n- Ingests repositories from ZIP uploads, GitHub URLs, or local folders.\n- Filters generated folders such as `.git`, `node_modules`, `.next`, `dist`, `build`, `.venv`, and `target`.\n- Detects languages, frameworks, package managers, Docker, and CI signals.\n- Extracts imports, classes, functions, routes, environment variables, TODO/FIXME markers, and dependency metadata.\n- Builds a NetworkX dependency graph.\n- Runs local security heuristics and Bandit when installed.\n- Scores security, maintainability, production readiness, recruiter signal, CTO readiness, and confidence.\n- Indexes repository chunks with deterministic local embeddings.\n- Ans"
+        },
+        {
+          "path": "README.md",
+          "line_start": 41,
+          "line_end": 82,
+          "score": 0.5366,
+          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `/home/ratish/Forge/models` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
+        },
+        {
+          "path": "pyproject.toml",
+          "line_start": 1,
+          "line_end": 75,
+          "score": 0.3608,
+          "text": "[project]\nname = \"repomind-ai\"\nversion = \"0.1.0\"\ndescription = \"Offline AI-powered GitHub repository intelligence platform\"\nrequires-python = \">=3.12\"\ndependencies = [\n  \"fastapi>=0.115.0\",\n  \"uvicorn[standard]>=0.30.0\",\n  \"python-multipart>=0.0.9\",\n  \"pydantic>=2.8.0\",\n  \"pydantic-settings>=2.4.0\",\n  \"sqlalchemy>=2.0.32\",\n  \"psycopg[binary]>=3.2.1\",\n  \"gitpython>=3.1.43\",\n  \"networkx>=3.3\",\n  \"radon>=6.0.1\",\n  \"pygments>=2.18.0\",\n  \"pyyaml>=6.0.2\",\n  \"redis>=5.0.8\",\n  \"celery>=5.4.0\",\n  \"chromadb>=0.5.5\",\n  \"httpx>=0.27.0\",\n]\n\n[build-system]\nrequires = [\"setuptools>=69\", \"wheel\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[tool.setuptools]\npackage-dir = {\"\" = \"backend\"}\n\n[tool.setuptools.packages.find]\nwhere = [\"backend\"]\ninclude = [\"repomind*\"]\n\n[project.optional-dependencies]\nanalysis = [\n  \"bandit>=1.7.9\",\n  \"tree-sitter>=0.22.3\",\n  \"tree-sitter-languages>=1.10.2\",\n]\nllm = [\n  \"torch>=2.4.0\",\n  \"transformers>=4.45.0\",\n  \"accelerate>=0.34.0\",\n  \"safetensors>=0.4.4\",\n  \"sentence-transf"
+        },
+        {
+          "path": "backend/repomind/llm/prompts.py",
+          "line_start": 1,
+          "line_end": 29,
+          "score": 0.2591,
+          "text": "from __future__ import annotations\n\n\ndef report_prompt(report_type: str, summary: dict) -> str:\n    architecture = summary[\"architecture\"]\n    compact_architecture = {\n        \"style\": architecture.get(\"style\"),\n        \"important_files\": architecture.get(\"important_files\", [])[:8],\n        \"route_files\": architecture.get(\"route_files\", [])[:8],\n        \"summary\": architecture.get(\"summary\"),\n    }\n    compact_stack = {\n        \"frameworks\": summary[\"stack\"].get(\"frameworks\", [])[:10],\n        \"package_managers\": summary[\"stack\"].get(\"package_managers\", [])[:6],\n        \"build_tools\": summary[\"stack\"].get(\"build_tools\", [])[:8],\n        \"ci_cd\": summary[\"stack\"].get(\"ci_cd\", [])[:6],\n        \"docker\": summary[\"stack\"].get(\"docker\"),\n    }\n    return (\n        f\"Create a {report_type} report from this repository analysis. \"\n        \"Use concrete evidence, concise recommendations, and local-only reasoning.\\n\\n\"\n        f\"Repository: {summary['repository']['name']}\\n\"\n        f\"Languages:"
+        },
+        {
+          "path": "docs/USAGE.md",
+          "line_start": 1,
+          "line_end": 24,
+          "score": 0.2128,
+          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n/home/ratish/RepoMindAI/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
+        },
+        {
+          "path": "LOCAL_MACHINE_AUDIT.md",
+          "line_start": 91,
+          "line_end": 137,
+          "score": 0.2,
+          "text": "ensor shards, tokenizer files | Format valid; load pending project env |\n| Long-form synthesis / report aggregation | `/home/ratish/Forge/models/deepseek-synth` | 34G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 2 safetensor shards, tokenizer files | Format valid; load pending project env |\n\n### Model Metadata\n\n`qwen-primary`\n\n- Architecture: `Qwen3_5MoeForConditionalGeneration`\n- Model type: `qwen3_5_moe`\n- Quantization metadata: present\n- Vision config: present\n- GGUF files: none detected\n\n`qwen-judge`\n\n- Architecture: `Qwen2ForCausalLM`\n- Model type: `qwen2`\n- dtype: `float16`\n- Max position embeddings: 40960\n- Quantization metadata: present\n- GGUF files: none detected\n\n`deepseek-synth`\n\n- Architecture: `LlamaForCausalLM`\n- Model type: `llama`\n- dtype: `float16`\n- Max position embeddings: 16384\n- Quantization metadata: present\n- GGUF files: none detected\n\n## Model Cache Scan\n\nNo additional local Hugging Face, Torch, "
+        }
+      ]
+    }
+  ],
+  "success": true
+}

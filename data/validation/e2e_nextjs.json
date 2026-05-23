@@ -1,0 +1,448 @@
+{
+  "label": "nextjs",
+  "url": "https://github.com/vercel/next.js",
+  "path": "/home/ratish/RepoMindAI/data/repositories/next-5278503056",
+  "started_at": 1779526112.5268407,
+  "ingest_seconds": "reused prior successful git clone",
+  "repo_id": "3adf6f64bbaa496b808dbca91f5de88a",
+  "analysis_seconds": 31.85,
+  "summary": {
+    "statistics": {
+      "files": 25048,
+      "bytes": 57675268,
+      "functions": 13718,
+      "classes": 623,
+      "routes": 5,
+      "indexed_chunks": 51020
+    },
+    "languages": {
+      "primary": "TypeScript",
+      "all": {
+        "Markdown": 479,
+        "Text": 3622,
+        "JSON": 1081,
+        "Shell": 28,
+        "YAML": 109,
+        "TypeScript": 9815,
+        "Dockerfile": 12,
+        "JavaScript": 8926,
+        "Rust": 974,
+        "SQL": 1,
+        "Python": 1
+      }
+    },
+    "stack": {
+      "frameworks": [
+        "Express",
+        "Next.js",
+        "React",
+        "SQL/database"
+      ],
+      "package_managers": [
+        "npm",
+        "pnpm"
+      ],
+      "build_tools": [
+        "Docker"
+      ],
+      "ci_cd": [
+        "GitHub Actions"
+      ],
+      "docker": true
+    },
+    "scores": {
+      "security": 92.4,
+      "maintainability": 38.9,
+      "production_readiness": 82.2,
+      "recruiter": 84.7,
+      "cto": 77.9,
+      "confidence": 95
+    },
+    "architecture": {
+      "style": "Monorepo",
+      "top_level_directories": [
+        ".agents",
+        ".cargo",
+        ".claude-plugin",
+        ".conductor",
+        ".config",
+        ".cursor",
+        ".devcontainer",
+        ".github",
+        ".husky",
+        "apps",
+        "bench",
+        "contributing",
+        "crates",
+        "docs",
+        "errors",
+        "evals",
+        "examples",
+        "packages",
+        "patches",
+        "rspack"
+      ],
+      "important_files": [
+        "react",
+        "e2e-utils",
+        "next/link",
+        "turbopack/crates/turbopack-ecmascript/tests/benches/react-dom-client.development.js",
+        "next/server",
+        "path",
+        "next-test-utils",
+        "next",
+        "next/navigation",
+        "next/router"
+      ],
+      "route_files": [
+        "examples/with-joi/pages/api/people.js",
+        "examples/with-joi/pages/api/people/[id].js",
+        "packages/next/src/server/dev/hot-reloader-turbopack.ts",
+        "turbopack/crates/turbopack-tracing/tests/node-file-trace/integration/express-template-engine.js",
+        "turbopack/crates/turbopack-tracing/tests/node-file-trace/integration/express-template.js"
+      ],
+      "summary": "Primary language is inferred as repository-local code with Express, Next.js, React, SQL/database. The dependency graph highlights 44138 code, module, and symbol nodes."
+    },
+    "security_findings": 2696,
+    "security_counts": {
+      "medium": 295,
+      "high": 4,
+      "low": 2397
+    },
+    "debt_items": 0,
+    "reports": {
+      "README.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/README.md",
+      "ARCHITECTURE.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/ARCHITECTURE.md",
+      "SECURITY_REPORT.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/SECURITY_REPORT.md",
+      "TECH_DEBT.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/TECH_DEBT.md",
+      "RECRUITER_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/RECRUITER_REVIEW.md",
+      "CTO_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/CTO_REVIEW.md",
+      "ROADMAP.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/ROADMAP.md",
+      "PROJECT_STATUS.md": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/PROJECT_STATUS.md",
+      "analysis-summary.json": "/home/ratish/RepoMindAI/reports/generated/3adf6f64bbaa496b808dbca91f5de88a/analysis-summary.json"
+    }
+  },
+  "qa": [
+    {
+      "question": "What does this project do?",
+      "answer_seconds": 13.21,
+      "answer": "Okay, I need to figure out what the Next.js project does based on the provided repository context. Let me look through the given files.\n\nStarting with the readme.md sections. The first part mentions that Next.js is used by large companies to create full-stack web apps using the latest React features and Rust-based tooling for fast builds. The \"Getting Started\" section says it extends React and uses powerful JavaScript tooling. The documentation link is provided, but the context here is enough.\n\nAnother part of the readme.md talks about community and contributing, but the core functionality is in the initial description. The package.json lists dependencies, but maybe not necessary here. The .github comments mention contributing, which isn't the question. The Cache Components plugin in another file is a specific feature but perhaps part of the broader framework.\n\nPutting it together: The main points from the readme are that Next.js is a framework",
+      "citations": [
+        {
+          "path": "readme.md",
+          "line_start": 24,
+          "line_end": 50,
+          "score": 0.7388
+        },
+        {
+          "path": "readme.md",
+          "line_start": 1,
+          "line_end": 30,
+          "score": 0.5662
+        },
+        {
+          "path": ".claude-plugin/plugins/cache-components/README.md",
+          "line_start": 1,
+          "line_end": 68,
+          "score": 0.3613
+        },
+        {
+          "path": "package.json",
+          "line_start": 114,
+          "line_end": 165,
+          "score": 0.3609
+        },
+        {
+          "path": ".github/comments/good-first-issue.md",
+          "line_start": 1,
+          "line_end": 13,
+          "score": 0.3547
+        },
+        {
+          "path": "package.json",
+          "line_start": 297,
+          "line_end": 346,
+          "score": 0.354
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "readme.md",
+          "line_start": 24,
+          "line_end": 50,
+          "score": 0.7388,
+          "text": "n\n\nVisit [https://nextjs.org/docs](https://nextjs.org/docs) to view the full documentation.\n\n## Community\n\nThe Next.js community can be found on [GitHub Discussions](https://github.com/vercel/next.js/discussions) where you can ask questions, voice ideas, and share your projects with other people.\n\nTo chat with other community members you can join the Next.js [Discord](https://nextjs.org/discord) server.\n\nDo note that our [Code of Conduct](https://github.com/vercel/next.js/blob/canary/CODE_OF_CONDUCT.md) applies to all Next.js community channels. Users are **highly encouraged** to read and adhere to it to avoid repercussions.\n\n## Contributing\n\nContributions to Next.js are welcome and highly appreciated. However, before you jump right into it, we would like you to review our [Contribution Guidelines](/contributing.md) to make sure you have a smooth experience contributing to Next.js.\n\n### Good First Issues:\n\nWe have a list of **[good first issues](https://github.com/vercel/next.js/labels"
+        },
+        {
+          "path": "readme.md",
+          "line_start": 1,
+          "line_end": 30,
+          "score": 0.5662,
+          "text": "<div align=\"center\">\n  <a href=\"https://nextjs.org\">\n    <picture>\n      <source media=\"(prefers-color-scheme: dark)\" srcset=\"https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_dark_background.png\">\n      <img alt=\"Next.js logo\" src=\"https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_light_background.png\" height=\"128\">\n    </picture>\n  </a>\n  <h1>Next.js</h1>\n\n<a href=\"https://vercel.com\"><img alt=\"Vercel logo\" src=\"https://img.shields.io/badge/MADE%20BY%20Vercel-000000.svg?style=for-the-badge&logo=Vercel&labelColor=000\"></a>\n<a href=\"https://www.npmjs.com/package/next\"><img alt=\"NPM version\" src=\"https://img.shields.io/npm/v/next.svg?style=for-the-badge&labelColor=000000\"></a>\n<a href=\"https://github.com/vercel/next.js/blob/canary/license.md\"><img alt=\"License\" src=\"https://img.shields.io/npm/l/next.svg?style=for-the-badge&labelColor=000000\"></a>\n<a href=\"https://github.com/vercel/next.js/discussions\"><img alt=\"Join the community on GitHub\" src=\"https://img.shi"
+        },
+        {
+          "path": ".claude-plugin/plugins/cache-components/README.md",
+          "line_start": 1,
+          "line_end": 68,
+          "score": 0.3613,
+          "text": "# Cache Components Plugin for Claude Code\n\nExpert guidance for Next.js Cache Components and Partial Prerendering (PPR).\n\n## Features\n\nThis plugin provides a comprehensive skill that:\n\n- **Proactively activates** in projects with `cacheComponents: true`\n- Teaches the `'use cache'` directive, `cacheLife()`, `cacheTag()`, and invalidation APIs\n- Explains **parameter permutation rendering** and subshell generation\n- Covers migration from deprecated `revalidate`/`dynamic` segment configs\n- Provides build-time error solutions and debugging guidance\n\n## Installation\n\n### Step 1: Add the Next.js Marketplace\n\n```\n/plugin marketplace add vercel/next.js\n```\n\n### Step 2: Install the Plugin\n\n```\n/plugin install cache-components@nextjs\n```\n\nOr install via CLI:\n\n```bash\nclaude plugin install cache-components@nextjs\n```\n\n### Step 3 (Optional): Enable for Your Team\n\nAdd to your project's `.claude/settings.json` to auto-enable for all team members:\n\n```json\n{\n  \"enabledPlugins\": {\n    \"cache-components@"
+        },
+        {
+          "path": "package.json",
+          "line_start": 114,
+          "line_end": 165,
+          "score": 0.3609,
+          "text": ".6\",\n    \"@babel/generator\": \"7.27.0\",\n    \"@babel/parser\": \"7.27.0\",\n    \"@babel/plugin-syntax-explicit-resource-management\": \"7.25.7\",\n    \"@babel/plugin-transform-object-rest-spread\": \"7.25.9\",\n    \"@babel/preset-react\": \"7.26.3\",\n    \"@edge-runtime/jest-environment\": \"4.0.0\",\n    \"@emotion/cache\": \"11.11.0\",\n    \"@emotion/react\": \"11.11.1\",\n    \"@eslint/compat\": \"1.4.0\",\n    \"@eslint/eslintrc\": \"^3\",\n    \"@eslint/js\": \"9.37.0\",\n    \"@fullhuman/postcss-purgecss\": \"1.3.0\",\n    \"@jest/expect-utils\": \"29.7.0\",\n    \"@mdx-js/loader\": \"2.2.1\",\n    \"@mdx-js/react\": \"2.2.1\",\n    \"@next/bundle-analyzer\": \"workspace:*\",\n    \"@next/env\": \"workspace:*\",\n    \"@next/eslint-plugin-next\": \"workspace:*\",\n    \"@next/font\": \"workspace:*\",\n    \"@next/mdx\": \"workspace:*\",\n    \"@next/playwright\": \"workspace:*\",\n    \"@next/plugin-storybook\": \"workspace:*\",\n    \"@next/polyfill-module\": \"workspace:*\",\n    \"@next/polyfill-nomodule\": \"workspace:*\",\n    \"@next/swc\": \"workspace:*\",\n    \"@next/third-parties\": \"w"
+        },
+        {
+          "path": ".github/comments/good-first-issue.md",
+          "line_start": 1,
+          "line_end": 13,
+          "score": 0.3547,
+          "text": "The issue was marked with the `good first issue` label by a maintainer.\n\nThis means that it is a good candidate for someone interested in contributing to the project, but does not know where to start.\n\nTo get started, read the [Contributing Guide](https://github.com/vercel/next.js/blob/canary/contributing.md). When you are ready, open a PR and link back to this issue in the form of adding `Fixes #1234` to the PR description, where `1234` is the issue number. This will automatically close the issue when the PR gets merged, making it easier for us to keep track of what has been fixed.\n\nPlease remember to add tests to confirm your code changes will fix the issue and we do not regress in the future.\n\nIf you have any questions, feel free to ask below or on the PR. Generally, you don't need to `@mention` anyone directly, as we will get notified anyway and will respond as soon as we can.\n\n> [!NOTE]  \n> There is no need to ask for permission \"can I work on this?\" Please, go ahead if there is n"
+        }
+      ]
+    },
+    {
+      "question": "Where is authentication implemented?",
+      "answer_seconds": 14.66,
+      "answer": "Okay, I need to figure out where authentication is implemented in the Next.js repository based on the provided context. Let me look through the cited files.\n\nFirst, in the data-security.mdx file, there's a section about Server Actions. They mention using an auth() function to check the user's session. The example in actions.ts shows calling await auth() to get the session and check if the user is authenticated. That's part of the authentication process.\n\nThen, the authentication.mdx file's title directly mentions implementing authentication. It breaks down authentication into verifying user identity, session management, and authorization. The examples show using custom auth solutions or libraries, and there's a mention of an auth() function in the lib/auth import. \n\nLooking at the code snippets, the 'lib/auth' path is referenced in multiple places. For instance, in the deletePost function, they import auth from '@/",
+      "citations": [
+        {
+          "path": "docs/01-app/02-guides/data-security.mdx",
+          "line_start": 256,
+          "line_end": 295,
+          "score": 0.5551
+        },
+        {
+          "path": "docs/01-app/02-guides/data-security.mdx",
+          "line_start": 340,
+          "line_end": 393,
+          "score": 0.5506
+        },
+        {
+          "path": "docs/01-app/02-guides/authentication.mdx",
+          "line_start": 1,
+          "line_end": 33,
+          "score": 0.521
+        },
+        {
+          "path": "docs/01-app/02-guides/data-security.mdx",
+          "line_start": 391,
+          "line_end": 445,
+          "score": 0.4933
+        },
+        {
+          "path": "docs/01-app/02-guides/authentication.mdx",
+          "line_start": 1495,
+          "line_end": 1549,
+          "score": 0.4791
+        },
+        {
+          "path": "docs/02-pages/02-guides/authentication.mdx",
+          "line_start": 1,
+          "line_end": 9,
+          "score": 0.4765
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "docs/01-app/02-guides/data-security.mdx",
+          "line_start": 256,
+          "line_end": 295,
+          "score": 0.5551,
+          "text": "package=\"yarn\"\nyarn add server-only\n```\n\n```bash package=\"pnpm\"\npnpm add server-only\n```\n\n```bash package=\"bun\"\nbun add server-only\n```\n\nRead more about `server-only` in the [preventing environment poisoning](/docs/app/getting-started/server-and-client-components#preventing-environment-poisoning) section.\n\n## Mutating Data\n\nNext.js handles mutations with [Server Actions](https://react.dev/reference/rsc/server-functions).\n\n### Built-in Server Actions Security features\n\nBy default, when a Server Action is created and exported, it is reachable via a direct POST request, not just through your application's UI. This means, even if a Server Action or utility function is not imported elsewhere in your code, it can still be called externally.\n\nTo improve security, Next.js has the following built-in features:\n\n- **Secure action IDs:** Next.js creates encrypted, non-deterministic IDs to allow the client to reference and call the Server Action. These IDs are periodically recalculated between buil"
+        },
+        {
+          "path": "docs/01-app/02-guides/data-security.mdx",
+          "line_start": 340,
+          "line_end": 393,
+          "score": 0.5506,
+          "text": "onst session = await auth()\n  if (!session?.user?.isAdmin) {\n    redirect('/login')\n  }\n\n  return (\n    <form\n      action={async () => {\n        'use server'\n        const session = await auth()\n        if (!session?.user?.isAdmin) {\n          throw new Error('Unauthorized')\n        }\n        await db.record.deleteMany()\n      }}\n    >\n      <button>Delete Records</button>\n    </form>\n  )\n}\n```\n\nThe highlighted `auth()` check inside the action is critical. The page-level redirect on line 6 controls which UI is rendered, but the Server Action is a separate entry point and must verify the caller on its own.\n\nBeyond authentication (is the user logged in?), remember to check **authorization** (does this user have permission to act on this specific resource?). This prevents [Insecure Direct Object Reference (IDOR)](https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html) vulnerabilities:\n\n```tsx filename=\"app/actions.ts\"\n'use server'\n\nimp"
+        },
+        {
+          "path": "docs/01-app/02-guides/authentication.mdx",
+          "line_start": 1,
+          "line_end": 33,
+          "score": 0.521,
+          "text": "---\ntitle: How to implement authentication in Next.js\nnav_title: Authentication\ndescription: Learn how to implement authentication in your Next.js application.\n---\n\nUnderstanding authentication is crucial for protecting your application's data. This page will guide you through what React and Next.js features to use to implement auth.\n\nBefore starting, it helps to break down the process into three concepts:\n\n1. **[Authentication](#authentication)**: Verifies if the user is who they say they are. It requires the user to prove their identity with something they have, such as a username and password.\n2. **[Session Management](#session-management)**: Tracks the user's auth state across requests.\n3. **[Authorization](#authorization)**: Decides what routes and data the user can access.\n\nThis diagram shows the authentication flow using React and Next.js features:\n\n<Image\n  alt=\"Diagram showing the authentication flow with React and Next.js features\"\n  srcLight=\"/docs/light/authentication-overv"
+        },
+        {
+          "path": "docs/01-app/02-guides/data-security.mdx",
+          "line_start": 391,
+          "line_end": 445,
+          "score": 0.4933,
+          "text": "ns\n\nJust as we recommend a [Data Access Layer](#data-access-layer) for reading data, you can apply the same pattern to mutations. This keeps authentication, authorization, and database logic in a dedicated `server-only` module, while `\"use server\"` actions stay thin.\n\n```ts filename=\"data/posts.ts\"\nimport 'server-only'\n\nimport { auth } from '@/lib/auth'\nimport { db } from '@/lib/db'\n\nexport async function deletePost(postId: string) {\n  const session = await auth()\n  if (!session?.user) {\n    throw new Error('Unauthorized')\n  }\n\n  const post = await db.post.findUnique({ where: { id: postId } })\n\n  if (post.authorId !== session.user.id) {\n    throw new Error('Forbidden')\n  }\n\n  await db.post.delete({ where: { id: postId } })\n}\n```\n\nThe `\"use server\"` action then delegates to the DAL:\n\n```ts filename=\"app/actions.ts\"\n'use server'\n\nimport { deletePost } from '@/data/posts'\nimport { revalidatePath } from 'next/cache'\n\nexport async function deletePostAction(postId: string) {\n  await deletePo"
+        },
+        {
+          "path": "docs/01-app/02-guides/authentication.mdx",
+          "line_start": 1495,
+          "line_end": 1549,
+          "score": 0.4791,
+          "text": "ute.ts\" switcher\nimport { verifySession } from '@/app/lib/dal'\n\nexport async function GET() {\n  // User authentication and role verification\n  const session = await verifySession()\n\n  // Check if the user is authenticated\n  if (!session) {\n    // User is not authenticated\n    return new Response(null, { status: 401 })\n  }\n\n  // Check if the user has the 'admin' role\n  if (session.user.role !== 'admin') {\n    // User is authenticated but does not have the right permissions\n    return new Response(null, { status: 403 })\n  }\n\n  // Continue for authorized users\n}\n```\n\n```js filename=\"app/api/route.js\" switcher\nimport { verifySession } from '@/app/lib/dal'\n\nexport async function GET() {\n  // User authentication and role verification\n  const session = await verifySession()\n\n  // Check if the user is authenticated\n  if (!session) {\n    // User is not authenticated\n    return new Response(null, { status: 401 })\n  }\n\n  // Check if the user has the 'admin' role\n  if (session.user.role !== 'admin"
+        }
+      ]
+    },
+    {
+      "question": "Which services talk to the database?",
+      "answer_seconds": 14.16,
+      "answer": "Okay, let's tackle this question: \"Which services talk to the database?\" using the provided repository context.\n\nFirst, I'll look through the given code snippets and documentation. The user mentioned the Next.js repository, so I need to focus on the files provided here.\n\nStarting with the first source: turbopack/crates/turbo-tasks-backend/src/kv_backing_storage.rs. This file discusses a KeyValueDatabaseBackingStorage struct, which interacts with a database. The methods like new_in_memory and open_versioned_on_disk suggest that this service manages database connections, possibly for caching or storage in TurboPack. So, the Turbo Tasks backend service is one that talks to the database.\n\nNext, the examples/with-mysql/README.md file is crucial. It provides setup instructions for a MySQL database. The README mentions using Prisma to generate the client and push the schema. The DATABASE",
+      "citations": [
+        {
+          "path": "turbopack/crates/turbo-tasks-backend/src/kv_backing_storage.rs",
+          "line_start": 94,
+          "line_end": 131,
+          "score": 0.6857
+        },
+        {
+          "path": "examples/with-mysql/README.md",
+          "line_start": 56,
+          "line_end": 95,
+          "score": 0.6578
+        },
+        {
+          "path": "turbopack/crates/turbo-persistence/src/db.rs",
+          "line_start": 679,
+          "line_end": 722,
+          "score": 0.6523
+        },
+        {
+          "path": "turbopack/crates/turbo-tasks-backend/src/database/key_value_database.rs",
+          "line_start": 101,
+          "line_end": 129,
+          "score": 0.6278
+        },
+        {
+          "path": "examples/with-mysql/README.md",
+          "line_start": 83,
+          "line_end": 130,
+          "score": 0.6265
+        },
+        {
+          "path": "turbopack/crates/turbo-tasks-backend/src/database/db_invalidation.rs",
+          "line_start": 44,
+          "line_end": 82,
+          "score": 0.6233
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "turbopack/crates/turbo-tasks-backend/src/kv_backing_storage.rs",
+          "line_start": 94,
+          "line_end": 131,
+          "score": 0.6857,
+          "text": "el key-value database into a higher-level [`BackingStorage`] type.\nimpl<T: KeyValueDatabase> KeyValueDatabaseBackingStorage<T> {\n    pub(crate) fn new_in_memory(database: T) -> Self {\n        Self {\n            inner: Arc::new(KeyValueDatabaseBackingStorageInner {\n                database,\n                base_path: None,\n                invalidated: Mutex::new(false),\n                _panic_hook_guard: None,\n            }),\n        }\n    }\n\n    /// Handles boilerplate logic for an on-disk persisted database with versioning.\n    ///\n    /// - Creates a directory per version, with a maximum number of old versions and performs\n    ///   automatic cleanup of old versions.\n    /// - Checks for a database invalidation marker file, and cleans up the database as needed.\n    /// - [Registers a dynamic panic hook][turbo_tasks::panic_hooks] to invalidate the database upon\n    ///   a panic. This invalidates the database using [`invalidation_reasons::PANIC`].\n    ///\n    /// Along with returning "
+        },
+        {
+          "path": "examples/with-mysql/README.md",
+          "line_start": 56,
+          "line_end": 95,
+          "score": 0.6578,
+          "text": ". If you'd prefer to use the dashboard for this step, you can find those instructions in the [Connection Strings documentation](https://docs.planetscale.com/concepts/connection-strings#creating-a-password) and then come back here to finish setup.\n\nFirst, create your `.env` file by renaming the `.env.example` file to `.env`:\n\n```sh\nmv .env.example .env\n```\n\nNext, using the PlanetScale CLI, create a new username and password for the branch of your database:\n\n```sh\npscale password create <DATABASE_NAME> <BRANCH_NAME> <PASSWORD_NAME>\n```\n\n> The `PASSWORD_NAME` value represents the name of the username and password being generated. You can have multiple credentials for a branch, so this gives you a way to categorize them. To manage your passwords in the dashboard, go to your database overview page, click \"Settings\", and then click \"Passwords\".\n\nTake note of the values returned to you, as you won't be able to see this password again.\n\n```text\nPassword <PASSWORD_NAME> was successfully created"
+        },
+        {
+          "path": "turbopack/crates/turbo-persistence/src/db.rs",
+          "line_start": 679,
+          "line_end": 722,
+          "score": 0.6523,
+          "text": "ll back to one-by-one insertion instead of sorted merge.\n            let mut amqf =\n                qfilter::Filter::with_fingerprint_size(initial_capacity as u64, u64::BITS as u8)\n                    .unwrap();\n            // This drains items from the set. But due to concurrency it might not be empty\n            // afterwards, but that's fine. It will be part of the next commit.\n            set.retain(|hash| {\n                // Performance-wise it would usually be better to insert sorted fingerprints, but we\n                // assume that hashes are equally distributed, which makes it unnecessary.\n                // Good for cache locality is that we insert in the order of the dashset's buckets.\n                amqf.insert_fingerprint(false, *hash)\n                    .expect(\"Failed to insert fingerprint\");\n                false\n            });\n            amqf\n        })?;\n        self.commit(CommitOptions {\n            new_meta_files,\n            new_sst_files,\n            new_bl"
+        },
+        {
+          "path": "turbopack/crates/turbo-tasks-backend/src/database/key_value_database.rs",
+          "line_start": 101,
+          "line_end": 129,
+          "score": 0.6278,
+          "text": "nt in writing anything else to disk, or flushing\n    /// during [`KeyValueDatabase::shutdown`].\n    ///\n    /// This is a best-effort optimization hint, and the database may choose to ignore this and\n    /// continue file writes. This happens after the database is invalidated, so it is valid for\n    /// this to leave the database in a half-updated and corrupted state.\n    fn prevent_writes(&self) {\n        // this is an optional performance hint to the database\n    }\n\n    /// Triggers compaction of the database.\n    ///\n    /// Returns `Ok(true)` if compaction actually merged files, `Ok(false)` if there was nothing\n    /// to compact. The default implementation is a no-op.\n    fn compact(&self) -> Result<bool> {\n        Ok(false)\n    }\n\n    fn shutdown(&self) -> Result<()> {\n        Ok(())\n    }\n\n    /// Returns true if the database is in an unrecoverable error state where a previous write or\n    /// compaction failed and the rollback also failed, permanently disabling further writes.\n"
+        },
+        {
+          "path": "examples/with-mysql/README.md",
+          "line_start": 83,
+          "line_end": 130,
+          "score": 0.6265,
+          "text": "connection string in the following format:\n\n```text\nmysql://<USERNAME>:<PLAIN_TEXT_PASSWORD>@<ACCESS_HOST_URL>/<DATABASE_NAME>?sslaccept=strict\n```\n\nGenerate the Prisma Client:\n\n```bash\nnpx prisma generate\n```\n\nPush the database schema to your PlanetScale database using Prisma:\n\n```bash\nnpx prisma db push\n```\n\nRun the seed script to populate your database with `Product` and `Category` data:\n\n```bash\nnpx prisma db seed\n```\n\n## Run the App\n\nRun the app with the following command:\n\n```bash\nnpm run dev\n```\n\nOpen your browser at [localhost:3000](http://localhost:3000) to see the running application.\n\n## Deploy Your Own\n\nAfter you've got your application running locally, it's time to deploy it. To do so, you'll need to promote your database branch (`main` by default) to be the production branch ([read the branching documentation for more information](https://docs.planetscale.com/concepts/branching)).\n\n```sh\npscale branch promote <DATABASE_NAME> <BRANCH_NAME>\n```\n\nNow that your branch has bee"
+        }
+      ]
+    },
+    {
+      "question": "Where are API routes defined?",
+      "answer_seconds": 14.43,
+      "answer": "Okay, so the user is asking where API routes are defined in Next.js. Let me look through the provided context to find the answer.\n\nFirst, checking the docs/02-pages/03-building-your-application/01-routing/07-api-routes.mdx file. That seems relevant. The description mentions that API routes are in the pages/api folder. The file says, \"Any file inside the folder pages/api is mapped to /api/* and will be treated as an API endpoint.\" There's also a code example with a file named pages/api/hello.ts, which supports that.\n\nLooking at the other sources, like the route-kind.ts file, there's a RouteKind.PAGES_API which refers to pages/api/. The get-routes.ts mentions that API routes are included in pagesRouter, which is under the pages directory. The examples like api-routes-graphql are under",
+      "citations": [
+        {
+          "path": "docs/02-pages/03-building-your-application/01-routing/07-api-routes.mdx",
+          "line_start": 1,
+          "line_end": 47,
+          "score": 0.6279
+        },
+        {
+          "path": "packages/next/src/server/mcp/tools/get-routes.ts",
+          "line_start": 1,
+          "line_end": 40,
+          "score": 0.5683
+        },
+        {
+          "path": "examples/api-routes-graphql/README.md",
+          "line_start": 1,
+          "line_end": 31,
+          "score": 0.5645
+        },
+        {
+          "path": "docs/01-app/03-api-reference/03-file-conventions/parallel-routes.mdx",
+          "line_start": 1,
+          "line_end": 61,
+          "score": 0.5593
+        },
+        {
+          "path": "packages/next/src/server/route-kind.ts",
+          "line_start": 1,
+          "line_end": 26,
+          "score": 0.5476
+        },
+        {
+          "path": "docs/01-app/03-api-reference/05-config/01-next-config-js/rewrites.mdx",
+          "line_start": 72,
+          "line_end": 106,
+          "score": 0.5332
+        }
+      ],
+      "retrieved_chunks": [
+        {
+          "path": "docs/02-pages/03-building-your-application/01-routing/07-api-routes.mdx",
+          "line_start": 1,
+          "line_end": 47,
+          "score": 0.6279,
+          "text": "---\ntitle: API Routes\ndescription: Next.js supports API Routes, which allow you to build your API without leaving your Next.js app. Learn how it works here.\n---\n\n<details>\n  <summary>Examples</summary>\n\n- [API Routes Request Helpers](https://github.com/vercel/next.js/tree/canary/examples/api-routes-proxy)\n- [API Routes with GraphQL](https://github.com/vercel/next.js/tree/canary/examples/api-routes-graphql)\n- [API Routes with REST](https://github.com/vercel/next.js/tree/canary/examples/api-routes-rest)\n- [API Routes with CORS](https://github.com/vercel/next.js/tree/canary/examples/api-routes-cors)\n\n</details>\n\n> **Good to know**: If you are using the App Router, you can use [Server Components](/docs/app/getting-started/server-and-client-components) or [Route Handlers](/docs/app/api-reference/file-conventions/route) instead of API Routes.\n\nAPI routes provide a solution to build a **public API** with Next.js.\n\nAny file inside the folder `pages/api` is mapped to `/api/*` and will be treate"
+        },
+        {
+          "path": "packages/next/src/server/mcp/tools/get-routes.ts",
+          "line_start": 1,
+          "line_end": 40,
+          "score": 0.5683,
+          "text": "/**\n * MCP tool for getting all routes that become entry points in a Next.js application.\n *\n * This tool discovers routes by scanning the filesystem directly. It finds all route\n * files in the app/ and pages/ directories and converts them to route paths.\n *\n * Returns routes grouped by router type:\n * - appRouter: App Router pages and route handlers\n * - pagesRouter: Pages Router pages and API routes\n *\n * Dynamic route segments appear as [id], [slug], or [...slug] patterns. This tool\n * does NOT expand getStaticParams - it only shows the route patterns as defined in\n * the filesystem.\n */\nimport type { McpServer } from 'next/dist/compiled/@modelcontextprotocol/sdk/server/mcp'\nimport { mcpTelemetryTracker } from '../mcp-telemetry-tracker'\nimport { discoverRoutes } from '../../../build/route-discovery'\nimport type { NextConfigComplete } from '../../../server/config-shared'\nimport z from 'next/dist/compiled/zod'\n\nexport function registerGetRoutesTool(\n  server: McpServer,\n  options: {\n"
+        },
+        {
+          "path": "examples/api-routes-graphql/README.md",
+          "line_start": 1,
+          "line_end": 31,
+          "score": 0.5645,
+          "text": "# API routes with GraphQL server\n\nNext.js ships with [API routes](https://nextjs.org/docs/api-routes/introduction), which provide an easy solution to build your own `API`.\nThis example showcases how to build a lightweight and blazing fast GraphQL API with minimum configuration using GraphQL Yoga.\n\nGraphQL Yoga comes with strong defaults:\n\n- CORS is enabled by default\n- Automatically masking unexpected errors and preventing sensitive information from leaking to clients.\n- Shipped with GraphiQL\n\nYoga also brings support (with no additional dependency) for subscriptions, file uploads, and your favorite schema-building library (GraphQL Tools, Pothos, Nexus, TypeGraphQL, SDL first schema-design approaches, graphql-js, Apollo Tools).\n\nMore information on all available features are available [on the official documentation](https://www.graphql-yoga.com/docs/quick-start).\n\nFinally, GraphQL Yoga is built on top of Envelop. Envelop is a library that helps build GraphQL API faster and flexibly wit"
+        },
+        {
+          "path": "docs/01-app/03-api-reference/03-file-conventions/parallel-routes.mdx",
+          "line_start": 1,
+          "line_end": 61,
+          "score": 0.5593,
+          "text": "---\ntitle: Parallel Routes\ndescription: Simultaneously render one or more pages in the same view that can be navigated independently. A pattern for highly dynamic applications.\nrelated:\n  links:\n    - app/api-reference/file-conventions/default\n---\n\nParallel Routes allows you to simultaneously or conditionally render one or more pages within the same layout. They are useful for highly dynamic sections of an app, such as dashboards and feeds on social sites.\n\nFor example, considering a dashboard, you can use parallel routes to simultaneously render the `team` and `analytics` pages:\n\n<Image\n  alt=\"Parallel Routes Diagram\"\n  srcLight=\"/docs/light/parallel-routes.png\"\n  srcDark=\"/docs/dark/parallel-routes.png\"\n  width=\"1600\"\n  height=\"942\"\n/>\n\n## Convention\n\n### Slots\n\nParallel routes are created using named **slots**. Slots are defined with the `@folder` convention. For example, the following file structure defines two slots: `@analytics` and `@team`:\n\n<Image\n  alt=\"Parallel Routes File-sy"
+        },
+        {
+          "path": "packages/next/src/server/route-kind.ts",
+          "line_start": 1,
+          "line_end": 26,
+          "score": 0.5476,
+          "text": "export const enum RouteKind {\n  /**\n   * `PAGES` represents all the React pages that are under `pages/`.\n   */\n  PAGES = 'PAGES',\n  /**\n   * `PAGES_API` represents all the API routes under `pages/api/`.\n   */\n  PAGES_API = 'PAGES_API',\n  /**\n   * `APP_PAGE` represents all the React pages that are under `app/` with the\n   * filename of `page.{j,t}s{,x}`.\n   */\n  APP_PAGE = 'APP_PAGE',\n  /**\n   * `APP_ROUTE` represents all the API routes and metadata routes that are under `app/` with the\n   * filename of `route.{j,t}s{,x}`.\n   */\n  APP_ROUTE = 'APP_ROUTE',\n\n  /**\n   * `IMAGE` represents all the images that are generated by `next/image`.\n   */\n  IMAGE = 'IMAGE',\n}\n"
+        }
+      ]
+    }
+  ],
+  "success": true
+}

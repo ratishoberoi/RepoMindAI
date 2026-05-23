@@ -1,0 +1,613 @@
+[
+  {
+    "target": "FastAPI",
+    "source": "https://github.com/fastapi/fastapi",
+    "status": "passed",
+    "repo_id": "c9e588c3b3b04339a2d432a899c6bf80",
+    "ingestion_seconds": 9.128,
+    "analysis_wall_seconds": 214.669,
+    "statistics": {
+      "files": 2748,
+      "bytes": 20618946,
+      "functions": 4318,
+      "methods": 266,
+      "classes": 692,
+      "routes": 1254,
+      "database_models": 7,
+      "indexed_chunks": 10862
+    },
+    "scores": {
+      "security": 42.9,
+      "maintainability": 67.7,
+      "production_readiness": 68.9,
+      "recruiter": 91.9,
+      "cto": 65.3,
+      "confidence": 95
+    },
+    "timings": {
+      "scan_files_seconds": 0.182,
+      "parse_files_seconds": 1.175,
+      "graph_stack_seconds": 0.035,
+      "technical_debt_seconds": 97.808,
+      "security_seconds": 5.319,
+      "indexing_seconds": 34.913,
+      "chunking_seconds": 0.256,
+      "embedding_seconds": 22.133,
+      "chroma_upsert_seconds": 12.487,
+      "index_manifest_seconds": 0.021,
+      "report_generation_seconds": 75.228,
+      "total_analysis_seconds": 249.557
+    },
+    "architecture_quality": {
+      "score": 100,
+      "diagram_count": 5,
+      "component_count": 14,
+      "important_file_count": 10,
+      "route_file_count": 544,
+      "database_model_file_count": 7
+    },
+    "retrieval_quality": {
+      "authentication": {
+        "question": "How does authentication work?",
+        "latency_seconds": 0.054,
+        "top_paths": [
+          "docs/en/docs/tutorial/security/index.md",
+          "docs/en/docs/tutorial/security/first-steps.md",
+          "docs/en/docs/tutorial/security/simple-oauth2.md",
+          "docs/en/docs/tutorial/security/oauth2-jwt.md",
+          "docs/en/docs/tutorial/security/first-steps.md"
+        ],
+        "top_score": 0.7928,
+        "quality": "strong"
+      },
+      "routing": {
+        "question": "How does routing work?",
+        "latency_seconds": 0.012,
+        "top_paths": [
+          "docs/en/docs/tutorial/bigger-applications.md",
+          "docs/en/docs/tutorial/first-steps.md",
+          "docs/en/docs/tutorial/bigger-applications.md",
+          "fastapi/routing.py",
+          "docs/en/docs/how-to/custom-request-and-route.md"
+        ],
+        "top_score": 0.5624,
+        "quality": "strong"
+      },
+      "database": {
+        "question": "How does database access work?",
+        "latency_seconds": 0.011,
+        "top_paths": [
+          "docs/en/docs/tutorial/sql-databases.md",
+          "docs/en/docs/tutorial/sql-databases.md",
+          "docs/en/docs/tutorial/sql-databases.md",
+          "docs/en/docs/tutorial/sql-databases.md",
+          "docs/uk/docs/tutorial/sql-databases.md"
+        ],
+        "top_score": 0.7236,
+        "quality": "strong"
+      }
+    },
+    "explainer_quality": {
+      "authentication": {
+        "latency_seconds": 22.685,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "docs/en/docs/tutorial/security/index.md",
+          "docs/en/docs/tutorial/security/first-steps.md",
+          "docs/en/docs/tutorial/security/simple-oauth2.md",
+          "docs/en/docs/tutorial/security/oauth2-jwt.md",
+          "docs/de/docs/advanced/security/http-basic-auth.md",
+          "docs/de/docs/advanced/security/index.md"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, I need to figure out how authentication works in FastAPI based on the provided context. Let me start by going through each of the cited sections.\n\nFirst, the index.md mentions that FastAPI uses OAuth2 and OpenID Connect. It says OAuth2 has various flows, and the password flow is covered in later chapters. The key point here is that FastAPI provides tools in the security module to handle these.\n\nLooking at first-steps.md, there's a detailed flow: the user enters username/password, the frontend sends it to the API's tokenUrl, the API checks and returns a token. The token is then used in subsequent requests via the Authorization header with Bearer. The OAuth2PasswordBea"
+      },
+      "routing": {
+        "latency_seconds": 25.67,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "docs/en/docs/tutorial/bigger-applications.md",
+          "docs/en/docs/tutorial/first-steps.md",
+          "fastapi/routing.py",
+          "docs/en/docs/how-to/custom-request-and-route.md",
+          "docs_src/additional_responses/tutorial001_py310.py",
+          "docs_src/additional_responses/tutorial002_py310.py"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, I need to explain how routing works in FastAPI using the provided context. Let me start by looking at the key sections mentioned in the context.\n\nFirst, the tutorial on bigger applications (docs/en/docs/tutorial/bigger-applications.md) talks about using APIRouter with prefix, tags, responses, and dependencies. The example shows how routers can be included with a prefix, so paths like /items/ and /items/{item_id} are created. Dependencies added to the router run before the path operations, and tags help with documentation. The code in app/routers/items.py and main.py shows how routers are defined and included with these parameters.\n\nThen, the first-steps tutorial (doc"
+      },
+      "database": {
+        "latency_seconds": 22.439,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "docs/en/docs/tutorial/sql-databases.md",
+          "docs/uk/docs/tutorial/sql-databases.md",
+          "docs_src/sql_databases/tutorial001_py310.py",
+          "docs_src/dependencies/tutorial013_an_py310.py",
+          "docs_src/dependencies/tutorial014_an_py310.py",
+          "docs_src/sql_databases/tutorial001_an_py310.py"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, I need to figure out how database access works in the FastAPI repository based on the provided context. Let me start by going through the given sections.\n\nFirst, the user is asking about database access in FastAPI. The context includes parts of the documentation and some Python code examples. Let me look at the key sections mentioned.\n\nThe SQL databases tutorial mentions using SQLModel, which is built on SQLAlchemy and Pydantic. The setup involves creating an engine, which handles database connections. The engine is created with SQLite in this example, using create_engine and specifying check_same_thread=False to handle multi-threaded requests. That's from the docs/e"
+      }
+    },
+    "reports": [
+      "ARCHITECTURE.md",
+      "CTO_REVIEW.md",
+      "PROJECT_STATUS.md",
+      "README.md",
+      "RECRUITER_REVIEW.md",
+      "ROADMAP.md",
+      "SECURITY_REPORT.md",
+      "TECH_DEBT.md",
+      "analysis-summary.json"
+    ],
+    "cleanup": {
+      "repository_deleted": true,
+      "path_exists_after_cleanup": false,
+      "reports_exist": true,
+      "index_manifest_exists": true
+    }
+  },
+  {
+    "target": "Flask",
+    "source": "https://github.com/pallets/flask",
+    "status": "passed",
+    "repo_id": "e61f2b3dcc874b2ea1e2f59de40cccff",
+    "ingestion_seconds": 4.078,
+    "analysis_wall_seconds": 71.975,
+    "statistics": {
+      "files": 231,
+      "bytes": 1474917,
+      "functions": 1059,
+      "methods": 401,
+      "classes": 160,
+      "routes": 20,
+      "database_models": 1,
+      "indexed_chunks": 857
+    },
+    "scores": {
+      "security": 25.3,
+      "maintainability": 37.3,
+      "production_readiness": 55.9,
+      "recruiter": 84.3,
+      "cto": 48.9,
+      "confidence": 95
+    },
+    "timings": {
+      "scan_files_seconds": 0.015,
+      "parse_files_seconds": 0.186,
+      "graph_stack_seconds": 0.006,
+      "technical_debt_seconds": 0.569,
+      "security_seconds": 1.836,
+      "indexing_seconds": 1.94,
+      "chunking_seconds": 0.009,
+      "embedding_seconds": 1.138,
+      "chroma_upsert_seconds": 0.789,
+      "index_manifest_seconds": 0.002,
+      "report_generation_seconds": 67.421,
+      "total_analysis_seconds": 73.911
+    },
+    "architecture_quality": {
+      "score": 100,
+      "diagram_count": 5,
+      "component_count": 14,
+      "important_file_count": 10,
+      "route_file_count": 7,
+      "database_model_file_count": 1
+    },
+    "retrieval_quality": {
+      "authentication": {
+        "question": "How does authentication work?",
+        "latency_seconds": 0.05,
+        "top_paths": [
+          "docs/web-security.rst",
+          "examples/tutorial/flaskr/auth.py",
+          "examples/tutorial/tests/test_auth.py",
+          "examples/tutorial/flaskr/auth.py",
+          "examples/tutorial/tests/test_auth.py"
+        ],
+        "top_score": 0.7749,
+        "quality": "strong"
+      },
+      "routing": {
+        "question": "How does routing work?",
+        "latency_seconds": 0.011,
+        "top_paths": [
+          "docs/design.rst",
+          "docs/api.rst",
+          "docs/lifecycle.rst",
+          "docs/api.rst",
+          "src/flask/sansio/scaffold.py"
+        ],
+        "top_score": 0.6112,
+        "quality": "partial"
+      },
+      "database": {
+        "question": "How does database access work?",
+        "latency_seconds": 0.02,
+        "top_paths": [
+          "docs/patterns/sqlite3.rst",
+          "docs/tutorial/database.rst",
+          "docs/tutorial/database.rst",
+          "docs/patterns/sqlite3.rst",
+          "docs/patterns/sqlite3.rst"
+        ],
+        "top_score": 0.8305,
+        "quality": "strong"
+      }
+    },
+    "explainer_quality": {
+      "authentication": {
+        "latency_seconds": 22.769,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "docs/web-security.rst",
+          "examples/tutorial/flaskr/auth.py",
+          "examples/tutorial/tests/test_auth.py",
+          "examples/tutorial/flaskr/templates/auth/login.html",
+          "examples/tutorial/flaskr/templates/auth/register.html"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, I need to figure out how authentication works in the Flask repository based on the provided context. Let me start by looking through the given files.\n\nFirst, the docs/web-security.rst mentions CSRF protection. It explains that cookies are used for storing authentication info, but they can be vulnerable to CSRF attacks. The solution involves using one-time tokens in both cookies and form data. However, Flask doesn't handle this automatically because it lacks a form validation framework. That's an important point about how Flask leaves some security aspects to the developer.\n\nNext, looking at the auth.py file in the examples/tutorial. The register function takes a user"
+      },
+      "routing": {
+        "latency_seconds": 23.352,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "docs/design.rst",
+          "docs/api.rst",
+          "docs/lifecycle.rst",
+          "src/flask/sansio/scaffold.py",
+          "docs/quickstart.rst",
+          "examples/celery/src/task_app/views.py"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, I need to figure out how routing works in Flask based on the provided repository context. Let me start by going through each of the cited files and sections.\n\nFirst, the docs/design.rst mentions that Flask uses Werkzeug's routing system. It says routes are ordered by complexity automatically, so the order of decorators doesn't matter. Also, Werkzeug ensures URLs are unique, so ambiguous routes get redirected to the canonical one. That's important for the explanation.\n\nNext, docs/api.rst has sections on URL route registrations. It lists three methods: route decorator, add_url_rule function, and accessing the url_map directly. The example shows using @app.route with va"
+      },
+      "database": {
+        "latency_seconds": 23.101,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "docs/patterns/sqlite3.rst",
+          "docs/tutorial/database.rst",
+          "docs/patterns/sqlalchemy.rst",
+          "tests/test_config.py"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, I need to figure out how database access works in the Flask repository based on the provided context. Let me start by going through each of the cited files and sections.\n\nFirst, the docs/patterns/sqlite3.rst file describes using SQLite with Flask. It mentions creating a connection during the request context, reusing it, and closing it when the request ends. The get_db function checks if the database is already stored in the g object, which is specific to the request context. The teardown_appcontext decorator is used to ensure the connection is closed. This is key because it shows the connection is managed per request.\n\nThe tutorial/database.rst also talks about conne"
+      }
+    },
+    "reports": [
+      "ARCHITECTURE.md",
+      "CTO_REVIEW.md",
+      "PROJECT_STATUS.md",
+      "README.md",
+      "RECRUITER_REVIEW.md",
+      "ROADMAP.md",
+      "SECURITY_REPORT.md",
+      "TECH_DEBT.md",
+      "analysis-summary.json"
+    ],
+    "cleanup": {
+      "repository_deleted": true,
+      "path_exists_after_cleanup": false,
+      "reports_exist": true,
+      "index_manifest_exists": true
+    }
+  },
+  {
+    "target": "Next.js",
+    "source": "https://github.com/vercel/next.js",
+    "status": "passed",
+    "repo_id": "05221cad5f6a4aa69ecd1e61798ae46b",
+    "ingestion_seconds": 23.016,
+    "analysis_wall_seconds": 200.799,
+    "statistics": {
+      "files": 25024,
+      "bytes": 57673630,
+      "functions": 22616,
+      "methods": 2927,
+      "classes": 611,
+      "routes": 445,
+      "database_models": 0,
+      "indexed_chunks": 50996
+    },
+    "scores": {
+      "security": 20,
+      "maintainability": 38.9,
+      "production_readiness": 59.0,
+      "recruiter": 84.7,
+      "cto": 49.3,
+      "confidence": 95
+    },
+    "timings": {
+      "scan_files_seconds": 2.09,
+      "parse_files_seconds": 11.614,
+      "graph_stack_seconds": 0.353,
+      "technical_debt_seconds": 0.039,
+      "security_seconds": 27.984,
+      "indexing_seconds": 92.848,
+      "chunking_seconds": 1.201,
+      "embedding_seconds": 47.352,
+      "chroma_upsert_seconds": 44.085,
+      "index_manifest_seconds": 0.129,
+      "report_generation_seconds": 65.757,
+      "total_analysis_seconds": 293.452
+    },
+    "architecture_quality": {
+      "score": 100,
+      "diagram_count": 5,
+      "component_count": 14,
+      "important_file_count": 10,
+      "route_file_count": 399,
+      "database_model_file_count": 0
+    },
+    "retrieval_quality": {
+      "authentication": {
+        "question": "How does authentication work?",
+        "latency_seconds": 0.041,
+        "top_paths": [
+          "docs/01-app/02-guides/authentication.mdx",
+          "docs/01-app/02-guides/authentication.mdx",
+          "docs/01-app/02-guides/authentication.mdx",
+          "docs/01-app/02-guides/authentication.mdx",
+          "docs/01-app/02-guides/data-security.mdx"
+        ],
+        "top_score": 0.7917,
+        "quality": "strong"
+      },
+      "routing": {
+        "question": "How does routing work?",
+        "latency_seconds": 0.012,
+        "top_paths": [
+          "docs/02-pages/03-building-your-application/01-routing/03-linking-and-navigating.mdx",
+          "docs/02-pages/03-building-your-application/01-routing/07-api-routes.mdx",
+          "docs/01-app/01-getting-started/15-route-handlers.mdx",
+          "docs/02-pages/03-building-your-application/02-rendering/02-static-site-generation.mdx",
+          "docs/01-app/02-guides/multi-zones.mdx"
+        ],
+        "top_score": 0.6086,
+        "quality": "strong"
+      },
+      "database": {
+        "question": "How does database access work?",
+        "latency_seconds": 0.011,
+        "top_paths": [
+          "examples/with-mysql/README.md",
+          "examples/with-passport-and-next-connect/lib/db.js",
+          "examples/with-mysql/README.md",
+          "examples/with-mysql/.env.example",
+          "docs/01-app/02-guides/data-security.mdx"
+        ],
+        "top_score": 0.7218,
+        "quality": "strong"
+      }
+    },
+    "explainer_quality": {
+      "authentication": {
+        "latency_seconds": 18.916,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "docs/01-app/02-guides/authentication.mdx",
+          "docs/01-app/02-guides/data-security.mdx",
+          ".agents/skills/authoring-skills/SKILL.md",
+          "docs/01-app/02-guides/content-security-policy.mdx",
+          "docs/01-app/03-api-reference/03-file-conventions/unauthorized.mdx",
+          "docs/01-app/03-api-reference/04-functions/unauthorized.mdx"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, let's tackle this question about how authentication works in the Next.js repository. The user wants a detailed answer using only the provided context. Let me start by going through each of the context snippets provided.\n\nFirst, the main authentication guide (docs/01-app/02-guides/authentication.mdx:1-33) breaks down authentication into three parts: authentication itself, session management, and authorization. It mentions using React and Next.js features, and recommends using auth libraries like NextAuth.js. The diagram there shows the flow, but since I can't see the image, I'll rely on the text description.\n\nLooking at the code examples in the same document (sections"
+      },
+      "routing": {
+        "latency_seconds": 23.232,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "docs/02-pages/03-building-your-application/01-routing/03-linking-and-navigating.mdx",
+          "docs/02-pages/03-building-your-application/01-routing/07-api-routes.mdx",
+          "docs/01-app/01-getting-started/15-route-handlers.mdx",
+          "docs/02-pages/03-building-your-application/02-rendering/02-static-site-generation.mdx",
+          "docs/01-app/02-guides/multi-zones.mdx",
+          "docs/01-app/03-api-reference/07-adapters/05-routing-with-next-routing.mdx"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, I need to figure out how routing works in Next.js based on the provided context. Let me start by going through each of the cited files and sections.\n\nFirst, the user asked about routing in Next.js. The context includes several documentation files. Let me look at each one.\n\nStarting with the first source: docs/02-pages/03-building-your-application/01-routing/03-linking-and-navigating.mdx. This talks about using useRouter and the Link component for navigation. The example shows using useRouter's push method to navigate to '/about'. There's also mention of shallow routing, which avoids re-running data fetching methods like getServerSideProps. The shallow option is set t"
+      },
+      "database": {
+        "latency_seconds": 22.278,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "examples/with-mysql/README.md",
+          "examples/with-passport-and-next-connect/lib/db.js",
+          "examples/with-mysql/.env.example",
+          "docs/01-app/02-guides/data-security.mdx"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nOkay, let's tackle the question: \"How does database access work?\" using the provided repository context. \n\nFirst, I need to look through the given files. The main sources are the examples/with-mysql/README.md, the .env.example file, and parts of the data-security.mdx documentation. \n\nStarting with the examples/with-mysql/README.md. The context mentions creating a .env file by renaming .env.example. The DATABASE_URL is formatted with username, password, host, and database name. The Prisma commands like generate and db push are used here. So the setup involves configuring the DATABASE_URL in the .env file, which is critical because that's where the connection details are sto"
+      }
+    },
+    "reports": [
+      "ARCHITECTURE.md",
+      "CTO_REVIEW.md",
+      "PROJECT_STATUS.md",
+      "README.md",
+      "RECRUITER_REVIEW.md",
+      "ROADMAP.md",
+      "SECURITY_REPORT.md",
+      "TECH_DEBT.md",
+      "analysis-summary.json"
+    ],
+    "cleanup": {
+      "repository_deleted": true,
+      "path_exists_after_cleanup": false,
+      "reports_exist": true,
+      "index_manifest_exists": true
+    }
+  },
+  {
+    "target": "RepoMindAI",
+    "source": "/home/ratish/RepoMindAI",
+    "status": "passed",
+    "repo_id": "41060817053c4d099c0ac6bee28defcb",
+    "ingestion_seconds": 3.618,
+    "analysis_wall_seconds": 84.715,
+    "statistics": {
+      "files": 66,
+      "bytes": 293200,
+      "functions": 179,
+      "methods": 22,
+      "classes": 10,
+      "routes": 16,
+      "database_models": 0,
+      "indexed_chunks": 220
+    },
+    "scores": {
+      "security": 63.2,
+      "maintainability": 1.0,
+      "production_readiness": 63.8,
+      "recruiter": 75.2,
+      "cto": 54.7,
+      "confidence": 95
+    },
+    "timings": {
+      "scan_files_seconds": 0.004,
+      "parse_files_seconds": 0.068,
+      "graph_stack_seconds": 0.001,
+      "technical_debt_seconds": 0.101,
+      "security_seconds": 1.423,
+      "indexing_seconds": 9.77,
+      "chunking_seconds": 0.003,
+      "embedding_seconds": 9.321,
+      "chroma_upsert_seconds": 0.444,
+      "index_manifest_seconds": 0.001,
+      "report_generation_seconds": 73.348,
+      "total_analysis_seconds": 94.484
+    },
+    "architecture_quality": {
+      "score": 100,
+      "diagram_count": 5,
+      "component_count": 14,
+      "important_file_count": 10,
+      "route_file_count": 1,
+      "database_model_file_count": 0
+    },
+    "retrieval_quality": {
+      "authentication": {
+        "question": "How does authentication work?",
+        "latency_seconds": 0.74,
+        "top_paths": [
+          "backend/repomind/security/scanner.py",
+          "backend/repomind/security/semgrep_rules.yml",
+          "backend/repomind/security/scanner.py",
+          "backend/repomind/security/scanner.py",
+          "frontend/components/RepoMindDashboard.tsx"
+        ],
+        "top_score": 0.68,
+        "quality": "partial"
+      },
+      "routing": {
+        "question": "How does routing work?",
+        "latency_seconds": 0.721,
+        "top_paths": [
+          "backend/repomind/main.py",
+          "backend/repomind/main.py",
+          "backend/repomind/main.py",
+          "backend/repomind/main.py",
+          "scripts/run_real_world_benchmarks.py"
+        ],
+        "top_score": 0.78,
+        "quality": "partial"
+      },
+      "database": {
+        "question": "How does database access work?",
+        "latency_seconds": 0.768,
+        "top_paths": [
+          "backend/repomind/core/store.py",
+          "backend/repomind/core/store.py",
+          "backend/repomind/rag/indexer.py",
+          "backend/repomind/rag/indexer.py",
+          "backend/repomind/rag/retriever.py"
+        ],
+        "top_score": 0.9,
+        "quality": "partial"
+      }
+    },
+    "explainer_quality": {
+      "authentication": {
+        "latency_seconds": 30.189,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "backend/repomind/security/scanner.py",
+          "backend/repomind/security/semgrep_rules.yml",
+          "frontend/components/RepoMindDashboard.tsx",
+          "scripts/run_real_world_benchmarks.py"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nlet's tackle the question: \"How does authentication work?\" using the provided repository context.\n\nFirst, The main files mentioned are in the backend/security directory, like scanner.py and semgrep_rules.yml. The frontend's RepoMindDashboard.tsx and a benchmark script are also listed, but maybe they're less relevant here.\n\nLooking at scanner.py, there's a function scan_security that checks for hardcoded secrets and dangerous patterns. The SECRET_RE regex looks for patterns like \"api_key\", \"secret\", \"token\", or \"password\" followed by a value. If found, it flags them as potential hardcoded credentials. The severity is set to \"low\" if the file is in an example or test directo"
+      },
+      "routing": {
+        "latency_seconds": 26.852,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "backend/repomind/main.py",
+          "scripts/run_real_world_benchmarks.py",
+          "frontend/lib/api.ts"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nThe user's question is about routing, so py. The @app.post decorators for /repositories/upload, /repositories/clone, and others indicate different ways to ingest repositories. The ingest functions like ingest_zip, ingest_github, and ingest_local_path are called here.\n\nLooking at the scripts/run_real_world_benchmarks.py, there's a question listed under \"routing\" which matches the user's query. The code there tests how routing works in different frameworks, which might be part of the analysis process. The analyze_repository function is used here, so maybe the routing analysis is part of that.\n\nIn the frontend's api.ts, there are functions to interact with these endpoints, li"
+      },
+      "database": {
+        "latency_seconds": 22.609,
+        "has_explanation": true,
+        "has_risks": true,
+        "has_improvements": true,
+        "citation_count": 6,
+        "critical_files": [
+          "backend/repomind/core/store.py",
+          "backend/repomind/rag/indexer.py",
+          "backend/repomind/rag/retriever.py"
+        ],
+        "answer_excerpt": "## A. Explanation\n\nlet's tackle the question: \"How does database access work?\" using the provided repository context.\n\nFirst, The critical files listed are store.py, indexer.py, and retriever.py. py since it's mentioned in the core.\n\nLooking at backend/repomind/core/store.py lines 1-56, there's a class RepositoryStore that handles metadata storage in a JSON file. The _read and _write methods manage reading and writing to metadata.json. The create_repository method initializes a repository entry with fields like \"database_retention_minutes\". The update and get methods modify or retrieve repository data. This seems to handle metadata about repositories but not direct database access.\n\nNext, in"
+      }
+    },
+    "reports": [
+      "ARCHITECTURE.md",
+      "CTO_REVIEW.md",
+      "PROJECT_STATUS.md",
+      "README.md",
+      "RECRUITER_REVIEW.md",
+      "ROADMAP.md",
+      "SECURITY_REPORT.md",
+      "TECH_DEBT.md",
+      "analysis-summary.json"
+    ],
+    "cleanup": {
+      "repository_deleted": true,
+      "path_exists_after_cleanup": false,
+      "reports_exist": true,
+      "index_manifest_exists": true
+    }
+  }
+]

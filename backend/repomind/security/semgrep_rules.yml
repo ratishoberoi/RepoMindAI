@@ -1,0 +1,26 @@
+rules:
+  - id: repomind.python.subprocess-shell-true
+    languages: [python]
+    severity: WARNING
+    message: subprocess with shell=True can expose command injection risk.
+    pattern: subprocess.$FUNC(..., shell=True, ...)
+  - id: repomind.python.eval
+    languages: [python]
+    severity: ERROR
+    message: eval executes dynamic code and should not process untrusted input.
+    pattern: eval(...)
+  - id: repomind.python.exec
+    languages: [python]
+    severity: ERROR
+    message: exec executes dynamic code and should not process untrusted input.
+    pattern: exec(...)
+  - id: repomind.javascript.inner-html
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Direct innerHTML assignment can introduce XSS risk.
+    pattern: $EL.innerHTML = $VALUE
+  - id: repomind.javascript.dangerously-set-inner-html
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: React dangerouslySetInnerHTML can introduce XSS risk.
+    pattern: dangerouslySetInnerHTML={...}
