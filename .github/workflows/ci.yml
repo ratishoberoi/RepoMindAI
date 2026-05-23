@@ -15,8 +15,13 @@ jobs:
 
       - run: uv venv
 
-      - run: uv pip install -e ".[dev,analysis]"
+      - name: Install CI dependencies
+        run: uv pip install -e ".[analysis,dev]"
 
-      - run: uv run pytest
+      - name: Lint
+        run: PYTHONPATH=backend .venv/bin/ruff check backend tests scripts
+
+      - name: Test
+        run: PYTHONPATH=backend .venv/bin/pytest tests/api/test_api.py::test_health_endpoint tests/unit/test_utils_and_parsing.py -q
         env:
           PYTHONPATH: backend

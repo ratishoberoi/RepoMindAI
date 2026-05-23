@@ -18,6 +18,40 @@ dependencies = [
   "httpx>=0.27.0",
 ]
 
+[dependency-groups]
+core = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "python-multipart>=0.0.9",
+  "pydantic>=2.8.0",
+  "pydantic-settings>=2.4.0",
+  "gitpython>=3.1.43",
+  "networkx>=3.3",
+  "radon>=6.0.1",
+  "pygments>=2.18.0",
+  "pyyaml>=6.0.2",
+  "chromadb>=0.5.5",
+  "httpx>=0.27.0",
+]
+analysis = [
+  "bandit>=1.7.9",
+  "semgrep>=1.163.0",
+  "tree-sitter-language-pack>=1.8.1",
+]
+dev = [
+  "pytest>=8.3.2",
+  "pytest-asyncio>=0.23.8",
+  "coverage>=7.6.1",
+  "ruff>=0.6.2",
+]
+llm = [
+  "torch>=2.4.0",
+  "transformers>=4.45.0",
+  "gptqmodel>=7.0.0",
+  "compressed-tensors>=0.15.0",
+  "sentence-transformers>=3.0.1",
+]
+
 [build-system]
 requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -38,13 +72,9 @@ analysis = [
 llm = [
   "torch>=2.4.0",
   "transformers>=4.45.0",
-  "accelerate>=0.34.0",
-  "safetensors>=0.4.4",
-  "sentence-transformers>=3.0.1",
   "gptqmodel>=7.0.0",
   "compressed-tensors>=0.15.0",
-  "torchvision>=0.20.0",
-  "ninja>=1.13.0",
+  "sentence-transformers>=3.0.1",
 ]
 dev = [
   "pytest>=8.3.2",

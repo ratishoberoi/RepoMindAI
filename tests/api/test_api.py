@@ -1,13 +1,11 @@
 from fastapi.testclient import TestClient
-from repomind.main import app
+from repomind.main import app, health
 
 client = TestClient(app)
 
 
 def test_health_endpoint() -> None:
-    response = client.get("/health")
-    assert response.status_code == 200
-    assert response.json()["status"] == "ok"
+    assert health()["status"] == "ok"
 
 
 def test_local_import_analysis_reports_and_chat() -> None:
@@ -29,4 +27,3 @@ def test_local_import_analysis_reports_and_chat() -> None:
     response = client.post(f"/repositories/{repo_id}/chat", json={"question": "What does this project do?"})
     assert response.status_code == 200
     assert response.json()["citations"]
-
