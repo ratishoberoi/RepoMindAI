@@ -10,7 +10,7 @@
 Example local path:
 
 ```text
-/home/ratish/RepoMindAI/sample_repos/python_fastapi_example
+${PROJECT_ROOT}/sample_repos/python_fastapi_example
 ```
 
 Example questions:

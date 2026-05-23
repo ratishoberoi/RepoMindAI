@@ -1,7 +1,7 @@
 {
   "label": "flask",
   "url": "https://github.com/pallets/flask",
-  "path": "/home/ratish/RepoMindAI/data/repositories/flask-353488decf",
+  "path": "${PROJECT_ROOT}/data/repositories/flask-353488decf",
   "started_at": 1779526037.790863,
   "ingest_seconds": "reused prior successful git clone",
   "repo_id": "a6cef24fe5b340bf8f80af7e3109d167",
@@ -100,15 +100,15 @@
     },
     "debt_items": 38,
     "reports": {
-      "README.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/README.md",
-      "ARCHITECTURE.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/ARCHITECTURE.md",
-      "SECURITY_REPORT.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/SECURITY_REPORT.md",
-      "TECH_DEBT.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/TECH_DEBT.md",
-      "RECRUITER_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/RECRUITER_REVIEW.md",
-      "CTO_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/CTO_REVIEW.md",
-      "ROADMAP.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/ROADMAP.md",
-      "PROJECT_STATUS.md": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/PROJECT_STATUS.md",
-      "analysis-summary.json": "/home/ratish/RepoMindAI/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/analysis-summary.json"
+      "README.md": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/README.md",
+      "ARCHITECTURE.md": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/ARCHITECTURE.md",
+      "SECURITY_REPORT.md": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/SECURITY_REPORT.md",
+      "TECH_DEBT.md": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/TECH_DEBT.md",
+      "RECRUITER_REVIEW.md": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/RECRUITER_REVIEW.md",
+      "CTO_REVIEW.md": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/CTO_REVIEW.md",
+      "ROADMAP.md": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/ROADMAP.md",
+      "PROJECT_STATUS.md": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/PROJECT_STATUS.md",
+      "analysis-summary.json": "${PROJECT_ROOT}/reports/generated/a6cef24fe5b340bf8f80af7e3109d167/analysis-summary.json"
     }
   },
   "qa": [

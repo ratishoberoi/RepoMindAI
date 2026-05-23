@@ -14,7 +14,7 @@ Yes, if shown as a local AI engineering project with real inference and real ben
 
 Strong recruiter signals:
 
-- Real local inference with `/home/ratish/Forge/models/qwen-judge`, not OpenAI/API wrapper demos.
+- Real local inference with `${FORGE_MODELS}/qwen-judge`, not OpenAI/API wrapper demos.
 - Real Chroma/BGE semantic indexing validated on FastAPI, Flask, Next.js, and RepoMindAI.
 - Frontend now has repository map, architecture viewer, rendered Mermaid diagrams, dependency graph, report viewer, and cited chat.
 - Benchmarking is honest and includes cleanup checks and retrieval quality.

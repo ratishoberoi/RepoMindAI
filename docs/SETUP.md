@@ -3,7 +3,7 @@
 ## Backend
 
 ```bash
-cd /home/ratish/RepoMindAI
+cd ${PROJECT_ROOT}
 uv venv
 uv pip install -e ".[dev,analysis]"
 PYTHONPATH=backend uvicorn repomind.main:app --reload
@@ -20,7 +20,7 @@ The selected model loads lazily on the first report or chat generation.
 ## Frontend
 
 ```bash
-cd /home/ratish/RepoMindAI/frontend
+cd ${PROJECT_ROOT}/frontend
 npm install
 npm run dev
 ```

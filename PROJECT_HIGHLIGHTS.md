@@ -6,7 +6,7 @@ RepoMind AI is an offline AI-powered repository intelligence platform that turns
 
 ## What Makes It Stand Out
 
-- Local-only generation with `/home/ratish/Forge/models/qwen-judge`.
+- Local-only generation with `${FORGE_MODELS}/qwen-judge`.
 - Real semantic retrieval with BGE embeddings and ChromaDB.
 - Four-level architecture visualization: executive, service, module, implementation.
 - Layered dependency explorer designed to avoid file graph hairballs.

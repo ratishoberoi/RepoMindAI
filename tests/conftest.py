@@ -1,11 +1,23 @@
 from __future__ import annotations
 
 import os
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
-os.environ.setdefault("REPOMIND_DATA_DIR", str(ROOT / "data"))
-os.environ.setdefault("REPOMIND_REPORT_DIR", str(ROOT / "reports"))
 
+TEST_RUNTIME = Path(tempfile.mkdtemp(prefix="repomind-tests-")).resolve()
+os.environ["REPOMIND_DATA_DIR"] = str(TEST_RUNTIME / "data")
+os.environ["REPOMIND_REPORTS_DIR"] = str(TEST_RUNTIME / "reports")
+os.environ["REPOMIND_INDEX_DIR"] = str(TEST_RUNTIME / "data" / "indexes")
+os.environ["REPOMIND_CHROMA_DIR"] = str(TEST_RUNTIME / "data" / "chroma")
+os.environ["REPOMIND_UPLOAD_DIR"] = str(TEST_RUNTIME / "data" / "uploads")
+os.environ["REPOMIND_MODEL_PATH"] = str(TEST_RUNTIME / "models" / "qwen-judge")
+os.environ["REPOMIND_ENABLE_MODEL_INFERENCE"] = "false"
+
+
+def pytest_sessionfinish(session, exitstatus):
+    shutil.rmtree(TEST_RUNTIME, ignore_errors=True)

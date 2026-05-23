@@ -14,7 +14,7 @@ Existing product claims were rechecked against code. Previously fake or unused P
 
 ## What Works Now
 
-- Single local inference path is enforced at startup: `/home/ratish/Forge/models/qwen-judge`.
+- Single local inference path is enforced at startup: `${FORGE_MODELS}/qwen-judge`.
 - No model routing and no fallback generation path remains in backend code.
 - BGE semantic embeddings are implemented with `BAAI/bge-small-en-v1.5`.
 - ChromaDB is the runtime vector store under `data/chroma`.
@@ -82,7 +82,7 @@ Repository lifecycle smoke:
 
 Model status:
 
-- Path: `/home/ratish/Forge/models/qwen-judge`
+- Path: `${FORGE_MODELS}/qwen-judge`
 - Backend: Transformers
 - Architecture: `Qwen2ForCausalLM`
 - Model type: `qwen2`

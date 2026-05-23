@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 from fastapi import UploadFile
-from repomind.core.config import get_settings
+from repomind.core.config import PROJECT_ROOT, get_settings
 from repomind.core.store import store
 from repomind.utils.ignore import IGNORED_DIRS
 
@@ -59,7 +59,10 @@ def ingest_github(url: str) -> dict:
 
 
 def ingest_local_path(path: str) -> dict:
-    source = Path(path).expanduser().resolve()
+    source = Path(path).expanduser()
+    if not source.is_absolute():
+        source = PROJECT_ROOT / source
+    source = source.resolve()
     if not source.exists() or not source.is_dir():
         raise ValueError(f"Local repository path does not exist or is not a directory: {source}")
     workspace = _workspace(source.name)

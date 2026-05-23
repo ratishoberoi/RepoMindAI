@@ -1,10 +1,10 @@
 {
   "label": "repomindai-self",
-  "path": "/home/ratish/RepoMindAI",
+  "path": "${PROJECT_ROOT}",
   "started_at": 1779526282.88473,
   "ingest_seconds": 1.69,
   "repo_id": "dbdfd5f1aa3a4df388f21a74057a1d7d",
-  "workspace": "/home/ratish/RepoMindAI/data/repositories/RepoMindAI-951f708470",
+  "workspace": "${PROJECT_ROOT}/data/repositories/RepoMindAI-951f708470",
   "analysis_seconds": 20.79,
   "summary": {
     "statistics": {
@@ -89,22 +89,22 @@
     "security_findings": 49,
     "debt_items": 10,
     "reports": {
-      "README.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/README.md",
-      "ARCHITECTURE.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/ARCHITECTURE.md",
-      "SECURITY_REPORT.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/SECURITY_REPORT.md",
-      "TECH_DEBT.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/TECH_DEBT.md",
-      "RECRUITER_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/RECRUITER_REVIEW.md",
-      "CTO_REVIEW.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/CTO_REVIEW.md",
-      "ROADMAP.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/ROADMAP.md",
-      "PROJECT_STATUS.md": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/PROJECT_STATUS.md",
-      "analysis-summary.json": "/home/ratish/RepoMindAI/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/analysis-summary.json"
+      "README.md": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/README.md",
+      "ARCHITECTURE.md": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/ARCHITECTURE.md",
+      "SECURITY_REPORT.md": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/SECURITY_REPORT.md",
+      "TECH_DEBT.md": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/TECH_DEBT.md",
+      "RECRUITER_REVIEW.md": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/RECRUITER_REVIEW.md",
+      "CTO_REVIEW.md": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/CTO_REVIEW.md",
+      "ROADMAP.md": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/ROADMAP.md",
+      "PROJECT_STATUS.md": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/PROJECT_STATUS.md",
+      "analysis-summary.json": "${PROJECT_ROOT}/reports/generated/dbdfd5f1aa3a4df388f21a74057a1d7d/analysis-summary.json"
     }
   },
   "qa": [
     {
       "question": "What are the biggest flaws?",
       "answer_seconds": 12.03,
-      "answer": "Okay, let's tackle the question: \"What are the biggest flaws?\" using the provided repository context.\n\nFirst, I'll go through each of the sources mentioned to find any issues or limitations highlighted.\n\nLooking at the README.md, under the \"Local Models\" section, it mentions that the model at `/home/ratish/Forge/models/qwen-judge` is used, selected after benchmarking. But there's a note in the LOCAL_MACHINE_AUDIT.md about the models being Hugging Face-style checkpoints and not GGUF. Also, the audit concludes that runtime loading can't be confirmed until the dependencies like `torch` and `transformers` are properly set up. That suggests potential compatibility or dependency issues.\n\nIn the INSTALL_PLAN.md, there are several points under \"Must Be Installed or Replaced for Full Container Workflow\" like Docker Compose being missing and PostgreSQL/Redis not installed locally",
+      "answer": "Okay, let's tackle the question: \"What are the biggest flaws?\" using the provided repository context.\n\nFirst, I'll go through each of the sources mentioned to find any issues or limitations highlighted.\n\nLooking at the README.md, under the \"Local Models\" section, it mentions that the model at `${FORGE_MODELS}/qwen-judge` is used, selected after benchmarking. But there's a note in the LOCAL_MACHINE_AUDIT.md about the models being Hugging Face-style checkpoints and not GGUF. Also, the audit concludes that runtime loading can't be confirmed until the dependencies like `torch` and `transformers` are properly set up. That suggests potential compatibility or dependency issues.\n\nIn the INSTALL_PLAN.md, there are several points under \"Must Be Installed or Replaced for Full Container Workflow\" like Docker Compose being missing and PostgreSQL/Redis not installed locally",
       "citations": [
         {
           "path": "README.md",
@@ -156,14 +156,14 @@
           "line_start": 41,
           "line_end": 82,
           "score": 0.682,
-          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `/home/ratish/Forge/models` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
+          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `${FORGE_MODELS}` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
         },
         {
           "path": "docs/USAGE.md",
           "line_start": 1,
           "line_end": 24,
           "score": 0.3476,
-          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n/home/ratish/RepoMindAI/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
+          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n${PROJECT_ROOT}/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
         },
         {
           "path": "pyproject.toml",
@@ -177,14 +177,14 @@
           "line_start": 46,
           "line_end": 89,
           "score": 0.1955,
-          "text": " a local fallback embedding implementation\n- pytest, pytest-asyncio, httpx, and coverage tooling for validation\n\nFrontend dependencies, installed under `/home/ratish/RepoMindAI/frontend`:\n\n- Next.js\n- TypeScript\n- Tailwind CSS\n- shadcn/ui-compatible primitives\n- React UI dependencies\n- Vitest/Testing Library if frontend tests are enabled\n\n## Must Be Installed or Replaced for Full Container Workflow\n\n- Docker Compose is missing. Either install the Docker Compose plugin or use a compatible `docker-compose` binary.\n- PostgreSQL and Redis are not installed locally. They can be provided by Docker Compose.\n\n## Can Be Skipped Initially\n\n- Ollama, because the available models are Hugging Face-style checkpoints rather than Ollama models.\n- vLLM, because the first implementation can use a Transformers backend and a deterministic fallback backend.\n- Downloading any additional LLMs, because the required Forge model folders exist.\n- Downloading a large embedding model. The first implementation shou"
+          "text": " a local fallback embedding implementation\n- pytest, pytest-asyncio, httpx, and coverage tooling for validation\n\nFrontend dependencies, installed under `${PROJECT_ROOT}/frontend`:\n\n- Next.js\n- TypeScript\n- Tailwind CSS\n- shadcn/ui-compatible primitives\n- React UI dependencies\n- Vitest/Testing Library if frontend tests are enabled\n\n## Must Be Installed or Replaced for Full Container Workflow\n\n- Docker Compose is missing. Either install the Docker Compose plugin or use a compatible `docker-compose` binary.\n- PostgreSQL and Redis are not installed locally. They can be provided by Docker Compose.\n\n## Can Be Skipped Initially\n\n- Ollama, because the available models are Hugging Face-style checkpoints rather than Ollama models.\n- vLLM, because the first implementation can use a Transformers backend and a deterministic fallback backend.\n- Downloading any additional LLMs, because the required Forge model folders exist.\n- Downloading a large embedding model. The first implementation shou"
         },
         {
           "path": "LOCAL_MACHINE_AUDIT.md",
           "line_start": 91,
           "line_end": 137,
           "score": 0.1894,
-          "text": "ensor shards, tokenizer files | Format valid; load pending project env |\n| Long-form synthesis / report aggregation | `/home/ratish/Forge/models/deepseek-synth` | 34G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 2 safetensor shards, tokenizer files | Format valid; load pending project env |\n\n### Model Metadata\n\n`qwen-primary`\n\n- Architecture: `Qwen3_5MoeForConditionalGeneration`\n- Model type: `qwen3_5_moe`\n- Quantization metadata: present\n- Vision config: present\n- GGUF files: none detected\n\n`qwen-judge`\n\n- Architecture: `Qwen2ForCausalLM`\n- Model type: `qwen2`\n- dtype: `float16`\n- Max position embeddings: 40960\n- Quantization metadata: present\n- GGUF files: none detected\n\n`deepseek-synth`\n\n- Architecture: `LlamaForCausalLM`\n- Model type: `llama`\n- dtype: `float16`\n- Max position embeddings: 16384\n- Quantization metadata: present\n- GGUF files: none detected\n\n## Model Cache Scan\n\nNo additional local Hugging Face, Torch, "
+          "text": "ensor shards, tokenizer files | Format valid; load pending project env |\n| Long-form synthesis / report aggregation | `${FORGE_MODELS}/deepseek-synth` | 34G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 2 safetensor shards, tokenizer files | Format valid; load pending project env |\n\n### Model Metadata\n\n`qwen-primary`\n\n- Architecture: `Qwen3_5MoeForConditionalGeneration`\n- Model type: `qwen3_5_moe`\n- Quantization metadata: present\n- Vision config: present\n- GGUF files: none detected\n\n`qwen-judge`\n\n- Architecture: `Qwen2ForCausalLM`\n- Model type: `qwen2`\n- dtype: `float16`\n- Max position embeddings: 40960\n- Quantization metadata: present\n- GGUF files: none detected\n\n`deepseek-synth`\n\n- Architecture: `LlamaForCausalLM`\n- Model type: `llama`\n- dtype: `float16`\n- Max position embeddings: 16384\n- Quantization metadata: present\n- GGUF files: none detected\n\n## Model Cache Scan\n\nNo additional local Hugging Face, Torch, "
         }
       ]
     },
@@ -243,7 +243,7 @@
           "line_start": 41,
           "line_end": 82,
           "score": 0.5634,
-          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `/home/ratish/Forge/models` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
+          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `${FORGE_MODELS}` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
         },
         {
           "path": "pyproject.toml",
@@ -257,14 +257,14 @@
           "line_start": 1,
           "line_end": 24,
           "score": 0.3166,
-          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n/home/ratish/RepoMindAI/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
+          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n${PROJECT_ROOT}/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
         },
         {
           "path": "docs/MODEL_USAGE.md",
           "line_start": 1,
           "line_end": 29,
           "score": 0.2792,
-          "text": "# Model Usage Guide\n\nRepoMind AI never calls OpenAI, Anthropic, Groq, Pinecone, or cloud LLM APIs.\n\n## Selected Production Model\n\nRepoMind AI uses one production local model:\n\n- `/home/ratish/Forge/models/qwen-judge`\n\n## Backend Detection\n\nThe adapter checks for:\n\n1. GGUF files.\n2. Hugging Face `config.json`, tokenizer files, and `.safetensors` or `.bin` weights.\n3. Ollama runtime availability.\nThere is no production role router. The benchmark selected `qwen-judge` because it is the only tested model that loads and produces usable repository-analysis output on this machine.\n\n## Heavy Loading\n\nInstall optional LLM dependencies:\n\n```bash\nuv pip install -e \".[llm]\"\n```\n\nModel loading uses `local_files_only=True`.\n"
+          "text": "# Model Usage Guide\n\nRepoMind AI never calls OpenAI, Anthropic, Groq, Pinecone, or cloud LLM APIs.\n\n## Selected Production Model\n\nRepoMind AI uses one production local model:\n\n- `${FORGE_MODELS}/qwen-judge`\n\n## Backend Detection\n\nThe adapter checks for:\n\n1. GGUF files.\n2. Hugging Face `config.json`, tokenizer files, and `.safetensors` or `.bin` weights.\n3. Ollama runtime availability.\nThere is no production role router. The benchmark selected `qwen-judge` because it is the only tested model that loads and produces usable repository-analysis output on this machine.\n\n## Heavy Loading\n\nInstall optional LLM dependencies:\n\n```bash\nuv pip install -e \".[llm]\"\n```\n\nModel loading uses `local_files_only=True`.\n"
         },
         {
           "path": "backend/repomind_ai.egg-info/PKG-INFO",
@@ -278,7 +278,7 @@
     {
       "question": "What architecture weaknesses exist?",
       "answer_seconds": 9.7,
-      "answer": "Okay, let's tackle the question: \"What architecture weaknesses exist?\" using the provided repository context.\n\nFirst, I'll look through the given files. The README.md mentions that RepoMind AI uses a local Forge model, specifically `/home/ratish/Forge/models/qwen-judge`. The LOCAL_MACHINE_AUDIT.md file has details about the models. Under the \"Model Metadata\" section, each model's architecture is listed. For \"qwen-judge\", the architecture is Qwen2ForCausalLM, which is a specific type. The audit also mentions that \"qwen-primary\" uses a newer Qwen MoE architecture, which might require a recent Transformers version. \n\nThe audit conclusions point out that the models are Hugging Face-style checkpoints, not GGUF, and that runtime loading depends on the environment having the right dependencies. Also, point 4 says there's a risk",
+      "answer": "Okay, let's tackle the question: \"What architecture weaknesses exist?\" using the provided repository context.\n\nFirst, I'll look through the given files. The README.md mentions that RepoMind AI uses a local Forge model, specifically `${FORGE_MODELS}/qwen-judge`. The LOCAL_MACHINE_AUDIT.md file has details about the models. Under the \"Model Metadata\" section, each model's architecture is listed. For \"qwen-judge\", the architecture is Qwen2ForCausalLM, which is a specific type. The audit also mentions that \"qwen-primary\" uses a newer Qwen MoE architecture, which might require a recent Transformers version. \n\nThe audit conclusions point out that the models are Hugging Face-style checkpoints, not GGUF, and that runtime loading depends on the environment having the right dependencies. Also, point 4 says there's a risk",
       "citations": [
         {
           "path": "README.md",
@@ -330,7 +330,7 @@
           "line_start": 41,
           "line_end": 82,
           "score": 0.5366,
-          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `/home/ratish/Forge/models` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
+          "text": "pm run dev\n```\n\nOpen `http://localhost:3000`.\n\n## API\n\nBackend base URL: `http://localhost:8000`\n\n- `GET /health`\n- `GET /repositories`\n- `POST /repositories/upload`\n- `POST /repositories/clone`\n- `POST /repositories/local`\n- `POST /repositories/{repo_id}/analysis`\n- `GET /repositories/{repo_id}/summary`\n- `GET /repositories/{repo_id}/graph`\n- `GET /repositories/{repo_id}/security`\n- `GET /repositories/{repo_id}/technical-debt`\n- `POST /repositories/{repo_id}/chat`\n- `GET /repositories/{repo_id}/reports`\n- `GET /repositories/{repo_id}/reports/{report_name}`\n- `GET /repositories/{repo_id}/export`\n\n## Docker\n\nDocker engine is installed on this machine, but Docker Compose is not currently available. After installing Docker Compose:\n\n```bash\ndocker compose up --build\n```\n\nThe compose file mounts `${FORGE_MODELS}` read-only.\n\n## Tests\n\n```bash\nPYTHONPATH=backend pytest\n```\n\nHeavy model loading tests are skipped unless explicitly enabled.\n"
         },
         {
           "path": "pyproject.toml",
@@ -351,14 +351,14 @@
           "line_start": 1,
           "line_end": 24,
           "score": 0.2128,
-          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n/home/ratish/RepoMindAI/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
+          "text": "# Usage Guide\n\n1. Start the backend and frontend.\n2. Import a repository by ZIP upload, GitHub URL, or local path.\n3. Select the repository and run analysis.\n4. Review summary cards, architecture, security findings, and technical debt.\n5. Ask questions in the AI Repository Q&A panel.\n6. Download generated Markdown reports or export the report bundle.\n\nExample local path:\n\n```text\n${PROJECT_ROOT}/sample_repos/python_fastapi_example\n```\n\nExample questions:\n\n- What does this project do?\n- Where are API routes implemented?\n- Which files are most important?\n- What is missing for production readiness?\n- Which files contain risky patterns?\n\n"
         },
         {
           "path": "LOCAL_MACHINE_AUDIT.md",
           "line_start": 91,
           "line_end": 137,
           "score": 0.2,
-          "text": "ensor shards, tokenizer files | Format valid; load pending project env |\n| Long-form synthesis / report aggregation | `/home/ratish/Forge/models/deepseek-synth` | 34G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 2 safetensor shards, tokenizer files | Format valid; load pending project env |\n\n### Model Metadata\n\n`qwen-primary`\n\n- Architecture: `Qwen3_5MoeForConditionalGeneration`\n- Model type: `qwen3_5_moe`\n- Quantization metadata: present\n- Vision config: present\n- GGUF files: none detected\n\n`qwen-judge`\n\n- Architecture: `Qwen2ForCausalLM`\n- Model type: `qwen2`\n- dtype: `float16`\n- Max position embeddings: 40960\n- Quantization metadata: present\n- GGUF files: none detected\n\n`deepseek-synth`\n\n- Architecture: `LlamaForCausalLM`\n- Model type: `llama`\n- dtype: `float16`\n- Max position embeddings: 16384\n- Quantization metadata: present\n- GGUF files: none detected\n\n## Model Cache Scan\n\nNo additional local Hugging Face, Torch, "
+          "text": "ensor shards, tokenizer files | Format valid; load pending project env |\n| Long-form synthesis / report aggregation | `${FORGE_MODELS}/deepseek-synth` | 34G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 2 safetensor shards, tokenizer files | Format valid; load pending project env |\n\n### Model Metadata\n\n`qwen-primary`\n\n- Architecture: `Qwen3_5MoeForConditionalGeneration`\n- Model type: `qwen3_5_moe`\n- Quantization metadata: present\n- Vision config: present\n- GGUF files: none detected\n\n`qwen-judge`\n\n- Architecture: `Qwen2ForCausalLM`\n- Model type: `qwen2`\n- dtype: `float16`\n- Max position embeddings: 40960\n- Quantization metadata: present\n- GGUF files: none detected\n\n`deepseek-synth`\n\n- Architecture: `LlamaForCausalLM`\n- Model type: `llama`\n- dtype: `float16`\n- Max position embeddings: 16384\n- Quantization metadata: present\n- GGUF files: none detected\n\n## Model Cache Scan\n\nNo additional local Hugging Face, Torch, "
         }
       ]
     }

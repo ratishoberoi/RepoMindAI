@@ -20,15 +20,15 @@ This plan is based on `LOCAL_MACHINE_AUDIT.md` and follows the local-first const
 
 The following existing model folders must be reused and must not be downloaded again:
 
-- Main analysis model: `/home/ratish/Forge/models/qwen-primary`
-- Judge model: `/home/ratish/Forge/models/qwen-judge`
-- Synthesis model: `/home/ratish/Forge/models/deepseek-synth`
+- Main analysis model: `${FORGE_MODELS}/qwen-primary`
+- Judge model: `${FORGE_MODELS}/qwen-judge`
+- Synthesis model: `${FORGE_MODELS}/deepseek-synth`
 
 RepoMind AI will register these by role in its model registry instead of hardcoding brand-specific behavior.
 
 ## Must Be Installed in the Project Environment
 
-Backend Python dependencies, installed into `/home/ratish/RepoMindAI/.venv`:
+Backend Python dependencies, installed into `${PROJECT_ROOT}/.venv`:
 
 - FastAPI and Uvicorn for the API
 - Pydantic settings and validation packages
@@ -46,7 +46,7 @@ Backend Python dependencies, installed into `/home/ratish/RepoMindAI/.venv`:
 - sentence-transformers or a local fallback embedding implementation
 - pytest, pytest-asyncio, httpx, and coverage tooling for validation
 
-Frontend dependencies, installed under `/home/ratish/RepoMindAI/frontend`:
+Frontend dependencies, installed under `${PROJECT_ROOT}/frontend`:
 
 - Next.js
 - TypeScript
@@ -71,9 +71,9 @@ Frontend dependencies, installed under `/home/ratish/RepoMindAI/frontend`:
 
 ## Must Not Be Downloaded
 
-- Any replacement for `/home/ratish/Forge/models/qwen-primary`
-- Any replacement for `/home/ratish/Forge/models/qwen-judge`
-- Any replacement for `/home/ratish/Forge/models/deepseek-synth`
+- Any replacement for `${FORGE_MODELS}/qwen-primary`
+- Any replacement for `${FORGE_MODELS}/qwen-judge`
+- Any replacement for `${FORGE_MODELS}/deepseek-synth`
 - Any paid API SDKs that imply cloud inference use as a runtime dependency
 - OpenAI, Anthropic, Groq, Pinecone, or other SaaS API clients
 
@@ -103,4 +103,4 @@ The only expected network operation after setup is cloning a GitHub repository w
    - Deterministic local fallback when runtime dependencies are unavailable, so tests and static analysis remain usable offline.
 4. Implement local deterministic embeddings first, with an optional sentence-transformers adapter if a local embedding checkpoint is configured.
 5. Add tests that avoid loading the large models by default. Model verification tests should validate metadata and adapter selection, and only perform heavy loading when explicitly enabled.
-6. Keep all generated repositories, indexes, exports, and working files inside `/home/ratish/RepoMindAI/data` and `/home/ratish/RepoMindAI/reports`.
+6. Keep all generated repositories, indexes, exports, and working files inside `${PROJECT_ROOT}/data` and `${PROJECT_ROOT}/reports`.

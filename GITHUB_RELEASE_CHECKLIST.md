@@ -15,7 +15,7 @@ Date: 2026-05-23
 | README complete | Hero, screenshots, diagrams, benchmarks, install, roadmap | PASS |
 | License present | `LICENSE` | PASS |
 | Mermaid diagrams | GitHub-renderable fenced Mermaid blocks in README | PASS |
-| Local model constraint | README states `/home/ratish/Forge/models/qwen-judge` only | PASS |
+| Local model constraint | README states `${FORGE_MODELS}/qwen-judge` only | PASS |
 
 ## Screenshot Inventory
 

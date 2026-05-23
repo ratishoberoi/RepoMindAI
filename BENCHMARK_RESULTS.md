@@ -156,7 +156,7 @@ Benchmarks use real ingestion, static analysis, BGE embeddings, ChromaDB indexin
 
 ## RepoMindAI
 
-- Source: `/home/ratish/RepoMindAI`
+- Source: `${PROJECT_ROOT}`
 - Status: **passed**
 - Repository ID: `41060817053c4d099c0ac6bee28defcb`
 - Ingestion time: 3.618s

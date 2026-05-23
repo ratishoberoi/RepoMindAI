@@ -464,7 +464,7 @@
   },
   {
     "target": "RepoMindAI",
-    "source": "/home/ratish/RepoMindAI",
+    "source": "${PROJECT_ROOT}",
     "status": "passed",
     "repo_id": "41060817053c4d099c0ac6bee28defcb",
     "ingestion_seconds": 3.618,

@@ -65,7 +65,7 @@ def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
             for chunk in chunks
         ],
     }
-    index_path = settings.indexes_dir / f"{repo_id}.json"
+    index_path = settings.index_dir / f"{repo_id}.json"
     index_path.write_text(json.dumps(manifest, indent=2))
     timings["index_manifest_seconds"] = _elapsed(start)
     return {"chunks": len(chunks), "index_path": str(index_path), "vector_store": "chromadb", "timings": timings}
@@ -75,7 +75,7 @@ def _collection(repo_id: str, reset: bool = False):
     import chromadb
 
     settings = get_settings()
-    client = chromadb.PersistentClient(path=str(settings.chroma_path))
+    client = chromadb.PersistentClient(path=str(settings.chroma_dir))
     name = _collection_name(repo_id)
     if reset:
         try:

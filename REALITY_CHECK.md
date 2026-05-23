@@ -33,7 +33,7 @@ Generated or third-party files were not treated as project source: `.venv`, `fro
 | Technical debt analysis | Partially implemented | `analyze_technical_debt()` in `backend/repomind/analysis/analyzer.py` | Uses Radon for Python only, TODO/FIXME, large files. JS/TS complexity is not measured. |
 | Recruiter review | Implemented with limitations | `backend/repomind/reports/generator.py`: `_recruiter()` calls `local_model().generate()` | Real local model generation now. Output quality is imperfect because the selected model emits reasoning text. |
 | CTO review | Implemented with limitations | `_cto()` in report generator | Real local model generation now. Same output quality limitation. |
-| Local LLM inference | Implemented with one model | `backend/repomind/llm/adapters.py`, `registry.py` | Uses only `/home/ratish/Forge/models/qwen-judge`; no routing. Actual load and generation verified. |
+| Local LLM inference | Implemented with one model | `backend/repomind/llm/adapters.py`, `registry.py` | Uses only `${FORGE_MODELS}/qwen-judge`; no routing. Actual load and generation verified. |
 | RAG | Partially implemented | `backend/repomind/rag/*` | Local chunking, deterministic embeddings, hybrid-ish retrieval, citations. No Chroma-backed vector DB in runtime path despite dependency. |
 | Report generation | Implemented | `backend/repomind/reports/generator.py` | Generates Markdown reports and JSON summary. PDF export is not implemented. |
 | Frontend dashboard | Implemented | `frontend/components/RepoMindDashboard.tsx`, `frontend/lib/api.ts` | Builds successfully. No automated browser test suite. |

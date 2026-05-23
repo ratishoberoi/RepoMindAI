@@ -98,7 +98,7 @@ export function RepoMindDashboard() {
   const [activeRepo, setActiveRepo] = useState<Repository | null>(null);
   const [repoSummary, setRepoSummary] = useState<any>(null);
   const [githubUrl, setGithubUrl] = useState("");
-  const [localPath, setLocalPath] = useState("/home/ratish/RepoMindAI/sample_repos/python_fastapi_example");
+  const [localPath, setLocalPath] = useState("sample_repos/python_fastapi_example");
   const [question, setQuestion] = useState("How does authentication work?");
   const [answer, setAnswer] = useState<any>(null);
   const [busy, setBusy] = useState<string | null>(null);

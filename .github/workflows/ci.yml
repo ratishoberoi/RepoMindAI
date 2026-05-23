@@ -22,6 +22,6 @@ jobs:
         run: PYTHONPATH=backend .venv/bin/ruff check backend tests scripts
 
       - name: Test
-        run: PYTHONPATH=backend .venv/bin/pytest tests/api/test_api.py::test_health_endpoint tests/unit/test_utils_and_parsing.py -q
+        run: PYTHONPATH=backend .venv/bin/pytest -q
         env:
           PYTHONPATH: backend

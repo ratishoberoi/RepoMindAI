@@ -4,7 +4,7 @@ Date: 2026-05-23 UTC
 
 ## qwen-primary
 
-- Path: `/home/ratish/Forge/models/qwen-primary`
+- Path: `${FORGE_MODELS}/qwen-primary`
 - Config: valid JSON
 - Tokenizer: `tokenizer.json`, `tokenizer_config.json`, `vocab.json` present
 - Weights: 5 safetensor shards plus index
@@ -18,7 +18,7 @@ Date: 2026-05-23 UTC
 
 ## qwen-judge
 
-- Path: `/home/ratish/Forge/models/qwen-judge`
+- Path: `${FORGE_MODELS}/qwen-judge`
 - Config: valid JSON
 - Tokenizer: present
 - Weights: 5 safetensor shards plus index
@@ -34,7 +34,7 @@ Date: 2026-05-23 UTC
 
 ## deepseek-synth
 
-- Path: `/home/ratish/Forge/models/deepseek-synth`
+- Path: `${FORGE_MODELS}/deepseek-synth`
 - Config: valid JSON
 - Tokenizer: present
 - Weights: 2 safetensor shards plus index

@@ -16,7 +16,7 @@ RepoMind AI turns a GitHub URL, ZIP, or local repository into an evidence-backed
 It runs locally. The only generation model is:
 
 ```text
-/home/ratish/Forge/models/qwen-judge
+${FORGE_MODELS}/qwen-judge
 ```
 
 No model routing. No cloud LLM fallback. No mock answers.
@@ -251,13 +251,13 @@ Full details: [`BENCHMARK_RESULTS.md`](BENCHMARK_RESULTS.md).
 
 - Python 3.11+
 - Node.js 18+
-- Local model at `/home/ratish/Forge/models/qwen-judge`
+- Local model at `${FORGE_MODELS}/qwen-judge`
 - CUDA-capable GPU recommended for qwen-judge
 
 ### Backend
 
 ```bash
-cd /home/ratish/RepoMindAI
+cd ${PROJECT_ROOT}
 make setup
 PYTHONPATH=backend .venv/bin/uvicorn repomind.main:app --host 0.0.0.0 --port 8000
 ```
@@ -265,7 +265,7 @@ PYTHONPATH=backend .venv/bin/uvicorn repomind.main:app --host 0.0.0.0 --port 800
 ### Frontend
 
 ```bash
-cd /home/ratish/RepoMindAI/frontend
+cd ${PROJECT_ROOT}/frontend
 npm install
 npm run build
 cp -R .next/static .next/standalone/.next/static

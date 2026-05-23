@@ -9,7 +9,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./reports:/app/reports
-      - /home/ratish/Forge/models:/home/ratish/Forge/models:ro
+      - ${REPOMIND_MODEL_HOST_DIR:-./models/qwen-judge}:/app/models/qwen-judge:ro
 
   frontend:
     build:
@@ -21,4 +21,3 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-

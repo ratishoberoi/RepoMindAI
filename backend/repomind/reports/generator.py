@@ -24,7 +24,7 @@ REPORT_NAMES = [
 
 def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str, str]:
     settings = get_settings()
-    out_dir = settings.report_dir / "generated" / repo["id"]
+    out_dir = settings.reports_dir / "generated" / repo["id"]
     out_dir.mkdir(parents=True, exist_ok=True)
     ai = _synthesize_reports(summary)
     writers: dict[str, Callable[[dict[str, Any], dict[str, str]], str]] = {
@@ -49,7 +49,7 @@ def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str,
 
 def export_bundle(repo_id: str) -> Path:
     settings = get_settings()
-    source = settings.report_dir / "generated" / repo_id
+    source = settings.reports_dir / "generated" / repo_id
     if not source.exists():
         raise FileNotFoundError(repo_id)
     target = settings.exports_dir / f"{repo_id}-reports"

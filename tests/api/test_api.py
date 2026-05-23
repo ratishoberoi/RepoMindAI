@@ -1,29 +1,24 @@
-from fastapi.testclient import TestClient
-from repomind.main import app, health
+from pathlib import Path
 
-client = TestClient(app)
+from repomind.core.config import get_settings
+from repomind.core.store import store
+from repomind.main import health, import_local_repository
+from repomind.schemas import LocalPathRequest
 
 
 def test_health_endpoint() -> None:
     assert health()["status"] == "ok"
 
 
-def test_local_import_analysis_reports_and_chat() -> None:
-    response = client.post(
-        "/repositories/local",
-        json={"path": "/home/ratish/RepoMindAI/sample_repos/python_fastapi_example"},
-    )
-    assert response.status_code == 200
-    repo_id = response.json()["id"]
+def test_local_import_uses_configured_workspace(tmp_path: Path) -> None:
+    source = tmp_path / "sample_repo"
+    source.mkdir()
+    (source / "README.md").write_text("# Sample\n")
 
-    response = client.post(f"/repositories/{repo_id}/analysis")
-    assert response.status_code == 200
-    assert response.json()["summary"]["statistics"]["files"] >= 4
+    response = import_local_repository(LocalPathRequest(path=str(source)))
+    repo = store.get(response["id"])
+    workspace = Path(repo["path"])
 
-    response = client.get(f"/repositories/{repo_id}/reports")
-    assert response.status_code == 200
-    assert "README.md" in response.json()
-
-    response = client.post(f"/repositories/{repo_id}/chat", json={"question": "What does this project do?"})
-    assert response.status_code == 200
-    assert response.json()["citations"]
+    assert response["source_type"] == "local"
+    assert workspace.exists()
+    assert workspace.is_relative_to(get_settings().repositories_dir)

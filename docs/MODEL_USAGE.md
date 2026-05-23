@@ -6,7 +6,7 @@ RepoMind AI never calls OpenAI, Anthropic, Groq, Pinecone, or cloud LLM APIs.
 
 RepoMind AI uses one production local model:
 
-- `/home/ratish/Forge/models/qwen-judge`
+- `${FORGE_MODELS}/qwen-judge`
 
 ## Backend Detection
 

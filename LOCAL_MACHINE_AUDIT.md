@@ -14,7 +14,7 @@ Audit date: 2026-05-23 UTC
 - Python 3: Python 3.12.3
 - `python`: not present on PATH
 - `pip`: pip 24.0 for Python 3.12
-- `uv`: `/home/ratish/.local/bin/uv`, version 0.11.13
+- `uv`: `${USER_HOME}/.local/bin/uv`, version 0.11.13
 - `poetry`: not installed
 
 ## Node Tooling
@@ -83,13 +83,13 @@ These should be installed into the RepoMind AI backend virtual environment only.
 
 ## Local Model Inventory
 
-Required local model folders are present under `/home/ratish/Forge/models`. Forge was inspected read-only.
+Required local model folders are present under `${FORGE_MODELS}`. Forge was inspected read-only.
 
 | Role | Path | Size | Detected format | Key files | Runtime status |
 | --- | --- | ---: | --- | --- | --- |
-| Main analysis / generation | `/home/ratish/Forge/models/qwen-primary` | 23G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, `model-00001-of-00005.safetensors` ... `model-00005-of-00005.safetensors`, `tokenizer.json`, `tokenizer_config.json` | Format valid; load pending project env because global `torch`/`transformers` are absent |
-| Evaluation / critique | `/home/ratish/Forge/models/qwen-judge` | 19G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 5 safetensor shards, tokenizer files | Format valid; load pending project env |
-| Long-form synthesis / report aggregation | `/home/ratish/Forge/models/deepseek-synth` | 34G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 2 safetensor shards, tokenizer files | Format valid; load pending project env |
+| Main analysis / generation | `${FORGE_MODELS}/qwen-primary` | 23G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, `model-00001-of-00005.safetensors` ... `model-00005-of-00005.safetensors`, `tokenizer.json`, `tokenizer_config.json` | Format valid; load pending project env because global `torch`/`transformers` are absent |
+| Evaluation / critique | `${FORGE_MODELS}/qwen-judge` | 19G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 5 safetensor shards, tokenizer files | Format valid; load pending project env |
+| Long-form synthesis / report aggregation | `${FORGE_MODELS}/deepseek-synth` | 34G | Hugging Face Transformers-style checkpoint, sharded `.safetensors` | `config.json`, `generation_config.json`, 2 safetensor shards, tokenizer files | Format valid; load pending project env |
 
 ### Model Metadata
 

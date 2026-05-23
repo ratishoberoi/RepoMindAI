@@ -50,11 +50,10 @@ def test_embedding_uses_bge_model_name() -> None:
     assert BGEEmbedder.__name__ == "BGEEmbedder"
 
 
-def test_model_detection_for_forge_paths() -> None:
-    spec = detect_model(Path("/home/ratish/Forge/models/qwen-judge"))
-    assert spec.backend in {"transformers", "missing"}
-    if spec.backend == "transformers":
-        assert spec.model_type == "qwen2"
+def test_model_detection_for_configurable_qwen_path(tmp_path: Path) -> None:
+    spec = detect_model(tmp_path / "models" / "qwen-judge")
+    assert spec.backend == "missing"
+    assert not spec.loadable
 
 
 def test_tree_sitter_js_ts_parser_extracts_routes_and_exports(tmp_path: Path) -> None:
