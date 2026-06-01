@@ -49,4 +49,6 @@ def test_chat_uses_deterministic_fallback_when_model_missing(monkeypatch):
     assert answer["citations"]
     assert answer["related_files"]
     assert answer["follow_ups"]
+    assert answer["evidence"]
+    assert answer["confidence"] > 0
     assert answer["model_status"]["mode"] == "deterministic_fallback"

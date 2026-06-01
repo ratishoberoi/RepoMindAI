@@ -19,7 +19,19 @@ export const reports = [
   "EXECUTIVE_SUMMARY.md",
   "SECURITY.sarif",
   "EXECUTIVE_SUMMARY.html",
-  "EXECUTIVE_SUMMARY.pdf"
+  "EXECUTIVE_SUMMARY.pdf",
+  "CTO_REPORT.html",
+  "CTO_REPORT.pdf",
+  "EXECUTIVE_REPORT.html",
+  "EXECUTIVE_REPORT.pdf",
+  "INVESTOR_REPORT.html",
+  "INVESTOR_REPORT.pdf",
+  "DUE_DILIGENCE_REPORT.html",
+  "DUE_DILIGENCE_REPORT.pdf",
+  "SECURITY_REPORT.html",
+  "SECURITY_REPORT.pdf",
+  "ARCHITECTURE_REPORT.html",
+  "ARCHITECTURE_REPORT.pdf"
 ];
 
 export const tabs = [

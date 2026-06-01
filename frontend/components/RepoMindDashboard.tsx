@@ -218,7 +218,7 @@ export function RepoMindDashboard() {
           prResult={prResult}
           driftResult={driftResult}
           busy={Boolean(busy)}
-          onPrRisk={(files, prUrl) => activeRepo && run("pr-risk", async () => setPrResult(await prRisk(activeRepo.id, files, "Frontend review", prUrl)))}
+          onPrRisk={(files, prUrl, repository, prNumber) => activeRepo && run("pr-risk", async () => setPrResult(await prRisk(activeRepo.id, files, "Frontend review", prUrl, repository, prNumber)))}
           onDrift={(baseline, compareType, baselineRef, targetRef) => activeRepo && run("drift", async () => setDriftResult(await architectureDrift(activeRepo.id, baseline, compareType, baselineRef, targetRef)))}
         />
       );

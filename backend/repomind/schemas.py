@@ -20,6 +20,8 @@ class PRRiskRequest(BaseModel):
     title: str = Field(default="", max_length=300)
     description: str = Field(default="", max_length=2000)
     pr_url: str = Field(default="", max_length=500)
+    repository: str = Field(default="", max_length=300)
+    pr_number: int | None = Field(default=None, ge=1)
 
 
 class RepositoryResponse(BaseModel):

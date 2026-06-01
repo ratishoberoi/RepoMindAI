@@ -112,6 +112,8 @@ export type Finding = {
 export type PrRiskResult = {
   title?: string;
   pr_url?: string;
+  repository?: string;
+  pr_number?: number;
   changed_files_source?: string;
   risk_score?: number;
   risk_level?: string;
@@ -129,7 +131,16 @@ export type PrRiskResult = {
   diff_metadata?: Record<string, unknown>;
   affected_services?: Array<Record<string, unknown>>;
   recommended_reviewers?: string[];
+  required_reviewers?: string[];
+  ownership_routing?: Array<Record<string, unknown>>;
   test_impact_analysis?: Record<string, unknown>;
+  review_complexity?: Record<string, unknown>;
+  regression_probability?: Record<string, unknown>;
+  dependency_changes?: Array<Record<string, unknown>>;
+  api_changes?: Array<Record<string, unknown>>;
+  security_sensitive_changes?: Array<Record<string, unknown>>;
+  pr_impact_timeline?: Array<Record<string, unknown>>;
+  github_pr?: Record<string, unknown>;
   impact_prediction?: Record<string, unknown>;
   release_gate_recommendation?: string;
   summary?: string;
@@ -212,6 +223,9 @@ export type ChatResult = {
   citations?: Citation[];
   related_files?: string[];
   follow_ups?: string[];
+  evidence?: Array<Record<string, unknown>>;
+  affected_services?: Array<Record<string, unknown>>;
+  confidence?: number;
   model_status?: Record<string, unknown>;
 };
 

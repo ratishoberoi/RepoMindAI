@@ -22,11 +22,13 @@ export function RiskAndDriftCenter({
   prResult: PrRiskResult | null;
   driftResult: DriftResult | null;
   busy: boolean;
-  onPrRisk: (files: string[], prUrl: string) => void;
+  onPrRisk: (files: string[], prUrl: string, repository: string, prNumber?: number) => void;
   onDrift: (baselineId: string, compareType: string, baselineRef: string, targetRef: string) => void;
 }) {
   const [files, setFiles] = useState("backend/repomind/main.py\nfrontend/components/RepoMindDashboard.tsx");
   const [prUrl, setPrUrl] = useState("");
+  const [githubRepository, setGithubRepository] = useState("");
+  const [prNumber, setPrNumber] = useState("");
   const [baseline, setBaseline] = useState("");
   const [compareType, setCompareType] = useState("repository");
   const [baselineRef, setBaselineRef] = useState("");
@@ -50,7 +52,7 @@ export function RiskAndDriftCenter({
         </div>
       </section>
       <div className="grid gap-5 xl:grid-cols-2">
-        <Panel title="PR Risk Center" eyebrow="Pre-merge blast radius" action={<Button onClick={() => onPrRisk(splitChangedFiles(files), prUrl)} disabled={!activeRepo || busy || (!splitChangedFiles(files).length && !prUrl.trim())}>Analyze PR</Button>}>
+        <Panel title="PR Risk Center" eyebrow="Pre-merge blast radius" action={<Button onClick={() => onPrRisk(splitChangedFiles(files), prUrl, githubRepository, prNumber ? Number(prNumber) : undefined)} disabled={!activeRepo || busy || (!splitChangedFiles(files).length && !prUrl.trim() && !(githubRepository.trim() && prNumber.trim()))}>Analyze PR</Button>}>
           <label className="block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">PR URL</label>
           <input
             className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45"
@@ -58,6 +60,26 @@ export function RiskAndDriftCenter({
             onChange={(event) => setPrUrl(event.target.value)}
             placeholder="https://github.com/org/repo/pull/123"
           />
+          <div className="mt-3 grid gap-3 md:grid-cols-[1fr_150px]">
+            <label className="block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+              GitHub repository
+              <input
+                className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45"
+                value={githubRepository}
+                onChange={(event) => setGithubRepository(event.target.value)}
+                placeholder="owner/repo"
+              />
+            </label>
+            <label className="block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+              PR number
+              <input
+                className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45"
+                value={prNumber}
+                onChange={(event) => setPrNumber(event.target.value.replace(/\D/g, ""))}
+                placeholder="123"
+              />
+            </label>
+          </div>
           <label className="mt-4 block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Changed files</label>
           <textarea
             className="mt-2 min-h-40 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45"
@@ -131,6 +153,38 @@ function PrRiskResultView({ result }: { result: PrRiskResult }) {
           <PacketItem label="Release gate" value={String(result.release_gate_recommendation ?? result.pr_review_packet?.release_gate ?? "standard review")} />
           <PacketItem label="Blast radius" value={`${String(result.blast_radius?.domain_count ?? 0)} domains`} />
           <PacketItem label="Source" value={String(result.changed_files_source ?? "manual")} />
+        </div>
+      </Panel>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Panel title="Review Complexity" eyebrow="GitHub + diff evidence">
+          <MetricCard label="Complexity" value={String(result.review_complexity?.level ?? "--")} score={100 - Number(result.review_complexity?.score ?? 0)} detail={`${String(result.review_complexity?.line_delta ?? 0)} changed lines`} />
+        </Panel>
+        <Panel title="Regression Probability" eyebrow={String(result.regression_probability?.confidence ?? "unknown")}>
+          <MetricCard label="Probability" value={String(result.regression_probability?.level ?? "--")} score={100 - Number(result.regression_probability?.score ?? 0)} detail={(result.regression_probability?.evidence as string[] | undefined)?.join(" | ") ?? "Evidence unavailable"} />
+        </Panel>
+        <Panel title="GitHub Evidence" eyebrow={String(result.github_pr?.available ? "connected" : "not connected")}>
+          <div className="space-y-2 text-sm text-slate-300">
+            <PacketItem label="Repository" value={String(result.repository || result.github_pr?.repository || "--")} />
+            <PacketItem label="Checks" value={`${((result.github_pr?.checks as unknown[] | undefined) ?? []).length} check runs`} />
+          </div>
+        </Panel>
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <SignalList title="Dependency Changes" items={result.dependency_changes} labelKey="path" />
+        <SignalList title="API Changes" items={result.api_changes} labelKey="path" />
+        <SignalList title="Security-Sensitive Changes" items={result.security_sensitive_changes} labelKey="path" />
+      </div>
+      <Panel title="PR Impact Timeline" eyebrow="commits, files, modules, services">
+        <div className="space-y-3">
+          {(result.pr_impact_timeline ?? []).slice(0, 8).map((event, index) => (
+            <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold text-white">{String(event.label ?? `Impact ${index + 1}`)}</p>
+                {event.sha ? <Badge className="border-white/10 bg-white/[0.04] text-slate-300">{String(event.sha)}</Badge> : null}
+              </div>
+              <p className="mt-2 text-xs leading-5 text-slate-400">{((event.files as string[] | undefined) ?? (event.events as string[] | undefined) ?? []).slice(0, 6).join(" | ")}</p>
+            </div>
+          ))}
         </div>
       </Panel>
       <div className="grid gap-4 md:grid-cols-3">
@@ -245,5 +299,21 @@ function PacketItem({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">{label}</p>
       <p className="mt-2 text-sm font-semibold text-white">{value}</p>
     </div>
+  );
+}
+
+function SignalList({ title, items, labelKey }: { title: string; items?: Array<Record<string, unknown>>; labelKey: string }) {
+  return (
+    <Panel title={title}>
+      <div className="space-y-2">
+        {(items ?? []).slice(0, 6).map((item, index) => (
+          <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+            <p className="truncate text-sm font-semibold text-white">{String(item[labelKey] ?? item.path ?? title)}</p>
+            <p className="mt-1 text-xs text-slate-500">{String(item.risk ?? item.surface ?? item.evidence ?? "change evidence")}</p>
+          </div>
+        ))}
+        {!(items ?? []).length ? <p className="text-sm text-slate-400">No matching changes detected.</p> : null}
+      </div>
+    </Panel>
   );
 }

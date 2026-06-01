@@ -100,6 +100,9 @@ class Settings(BaseSettings):
     max_zip_compression_ratio: int = 100
     redact_secrets: bool = True
     trust_remote_model_code: bool = False
+    github_token: str | None = None
+    github_api_url: str = "https://api.github.com"
+    github_graphql_url: str = "https://api.github.com/graphql"
     neo4j_uri: str | None = None
     neo4j_user: str = "neo4j"
     neo4j_password: str | None = None

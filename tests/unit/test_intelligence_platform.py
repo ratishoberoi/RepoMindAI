@@ -163,6 +163,42 @@ def test_pr_risk_packet_includes_blast_radius_and_deployment_risk() -> None:
     assert result["test_impact_analysis"]["coverage_confidence"]
     assert result["release_gate_recommendation"]
     assert result["findings"]
+    assert result["review_complexity"]["score"] > 0
+    assert result["regression_probability"]["score"] > 0
+    assert result["pr_impact_timeline"]
+
+
+def test_pr_risk_uses_github_pr_evidence(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "repomind.intelligence.pr_risk.fetch_pull_request_intelligence",
+        lambda repository, pr_number, pr_url: {
+            "available": True,
+            "repository": "org/repo",
+            "pr_number": 42,
+            "title": "Secure auth",
+            "description": "Auth hardening",
+            "additions": 120,
+            "deletions": 20,
+            "changed_files": [
+                {"path": "backend/api/auth.py", "additions": 80, "deletions": 10, "changes": 90},
+                {"path": "package.json", "additions": 40, "deletions": 10, "changes": 50},
+            ],
+            "commits": [{"sha": "abc123", "message": "secure auth", "author": "dev"}],
+            "reviewers": [{"type": "user", "login": "security-reviewer"}],
+            "comments": {"review": [{"body": "check auth"}]},
+            "checks": [{"name": "test", "conclusion": "success"}],
+            "workflows": [{"name": "ci", "conclusion": "success"}],
+        },
+    )
+
+    result = analyze_pr_risk(sample_summary(), [], repository="org/repo", pr_number=42)
+
+    assert result["changed_files_source"] == "github_api"
+    assert result["github_pr"]["available"] is True
+    assert result["dependency_changes"]
+    assert result["api_changes"]
+    assert result["security_sensitive_changes"]
+    assert result["ownership_routing"]
 
 
 def test_drift_report_detects_changed_services_dependencies_and_security() -> None:
@@ -188,6 +224,8 @@ def test_drift_report_detects_changed_services_dependencies_and_security() -> No
     assert result["timeline"]
     assert result["visual_diff"]["nodes"]
     assert result["dependency_surface_changes"]["added"]
+    assert "ownership_changes" in result
+    assert "security_posture_changes" in result
     assert result["drift_report"]
 
 
@@ -224,9 +262,16 @@ def test_graph_projection_supports_repository_queries() -> None:
     query = query_repository_graph(summary, "ownership")
 
     assert projection["metrics"]["node_count"] > 0
+    assert projection["metrics"]["graph_density"] >= 0
+    assert any(node["kind"] == "api" for node in projection["nodes"])
+    assert any(edge["relation"] == "EXPOSES" for edge in projection["edges"])
     assert projection["edges"]
     assert query["query"] == "ownership"
     assert query["nodes"]
+    traversal = query_repository_graph(
+        summary, "blast_radius", source="backend/api/auth.py", depth=2
+    )
+    assert traversal["nodes"]
 
 
 def test_report_generation_creates_enterprise_aliases(tmp_path, monkeypatch) -> None:
@@ -252,5 +297,7 @@ def test_report_generation_creates_enterprise_aliases(tmp_path, monkeypatch) -> 
         ):
             assert name in paths
             assert "sample" in open(paths[name], encoding="utf-8").read()
+        for name in ("CTO_REPORT.html", "INVESTOR_REPORT.pdf", "SECURITY_REPORT.html"):
+            assert name in paths
     finally:
         get_settings.cache_clear()

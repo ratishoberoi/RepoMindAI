@@ -74,7 +74,7 @@ export function ChatExperience({
                 <span className="grid h-10 w-10 place-items-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-100"><Bot size={18} /></span>
                 <div>
                   <p className="text-sm font-semibold text-white">RepoMind answer</p>
-                  <p className="text-xs text-slate-500">Grounded by {citations.length} citations and {files.length} related files</p>
+                  <p className="text-xs text-slate-500">Grounded by {citations.length} citations, {answer.evidence?.length ?? 0} evidence records, confidence {Math.round((answer.confidence ?? 0) * 100)}%</p>
                 </div>
               </div>
               <p className="whitespace-pre-wrap text-sm leading-7 text-slate-300">{answer.answer}</p>
@@ -117,6 +117,21 @@ export function ChatExperience({
 
         <Panel title="Evidence Explorer" eyebrow="Related files">
           <div className="space-y-2">
+            {(answer?.affected_services ?? []).slice(0, 5).map((service, index) => (
+              <div key={`service-${index}`} className="rounded-xl border border-cyan-300/20 bg-cyan-300/[0.06] p-3">
+                <p className="text-sm font-semibold text-cyan-50">{String(service.service ?? "Affected service")}</p>
+                <p className="mt-1 text-xs text-cyan-100/70">{String(service.role ?? service.risk ?? "repository service")}</p>
+              </div>
+            ))}
+            {(answer?.evidence ?? []).slice(0, 5).map((item, index) => (
+              <div key={`evidence-${index}`} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="truncate text-sm font-semibold text-white">{String(item.file ?? item.kind ?? "Evidence")}</p>
+                  <Badge className="border-white/10 bg-white/[0.04] text-slate-300">{String(item.kind ?? "evidence")}</Badge>
+                </div>
+                <p className="mt-2 line-clamp-3 text-xs leading-5 text-slate-400">{String(item.evidence ?? "")}</p>
+              </div>
+            ))}
             {files.map((file) => (
               <div key={file} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3">
                 <FileSearch className="h-4 w-4 text-slate-500" />

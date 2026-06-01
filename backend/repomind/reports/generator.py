@@ -44,7 +44,22 @@ REPORT_NAMES = [
     "ROADMAP_REPORT.md",
     "EXECUTIVE_SUMMARY.md",
 ]
-EXTRA_REPORT_NAMES = ["SECURITY.sarif", "EXECUTIVE_SUMMARY.html", "EXECUTIVE_SUMMARY.pdf"]
+HTML_REPORT_NAMES = [
+    "CTO_REPORT.html",
+    "EXECUTIVE_REPORT.html",
+    "INVESTOR_REPORT.html",
+    "DUE_DILIGENCE_REPORT.html",
+    "SECURITY_REPORT.html",
+    "ARCHITECTURE_REPORT.html",
+]
+PDF_REPORT_NAMES = [name.replace(".html", ".pdf") for name in HTML_REPORT_NAMES]
+EXTRA_REPORT_NAMES = [
+    "SECURITY.sarif",
+    "EXECUTIVE_SUMMARY.html",
+    "EXECUTIVE_SUMMARY.pdf",
+    *HTML_REPORT_NAMES,
+    *PDF_REPORT_NAMES,
+]
 CancelCheck = CollectionsCallable[[], bool]
 
 
@@ -87,11 +102,21 @@ def generate_reports(
     sarif_path.write_text(json.dumps(_sarif(summary), indent=2))
     paths[sarif_path.name] = str(sarif_path)
     html_path = out_dir / "EXECUTIVE_SUMMARY.html"
-    html_path.write_text(_html_summary(summary))
+    html_path.write_text(_html_summary(summary, "Executive Summary"))
     paths[html_path.name] = str(html_path)
     pdf_path = out_dir / "EXECUTIVE_SUMMARY.pdf"
-    pdf_path.write_bytes(_pdf_summary(summary))
+    pdf_path.write_bytes(_pdf_summary(summary, "Executive Summary"))
     paths[pdf_path.name] = str(pdf_path)
+    for report_name in HTML_REPORT_NAMES:
+        report_title = report_name.removesuffix(".html").replace("_", " ").title()
+        path = out_dir / report_name
+        path.write_text(_html_summary(summary, report_title))
+        paths[path.name] = str(path)
+    for report_name in PDF_REPORT_NAMES:
+        report_title = report_name.removesuffix(".pdf").replace("_", " ").title()
+        path = out_dir / report_name
+        path.write_bytes(_pdf_summary(summary, report_title))
+        paths[path.name] = str(path)
     (out_dir / "analysis-summary.json").write_text(redact_text(json.dumps(summary, indent=2)))
     paths["analysis-summary.json"] = str(out_dir / "analysis-summary.json")
     return paths
@@ -449,7 +474,7 @@ def _sarif_result(item: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _html_summary(summary: dict[str, Any]) -> str:
+def _html_summary(summary: dict[str, Any], report_title: str = "Executive Summary") -> str:
     scores = summary.get("scores", {})
     stats = summary.get("statistics", {})
     findings = summary.get("security", {}).get("findings", [])
@@ -476,8 +501,16 @@ def _html_summary(summary: dict[str, Any]) -> str:
         )
         or "<article class='risk'><b>LOW</b><span>No high-confidence security findings.</span><small>Scanner output</small></article>"
     )
+    recommendations = "".join(
+        f"<li>{escape(str(item))}</li>" for item in _html_recommendations(summary, report_title)
+    )
+    evidence_rows = "".join(
+        f"<article class='evidence'><b>{escape(str(citation.get('file', citation.get('path', 'evidence'))))}</b><span>{escape(str(citation.get('evidence', citation.get('reason', 'Repository evidence'))))}</span></article>"
+        for item in evidence.values()
+        for citation in item.get("citations", [])[:3]
+    )
     return (
-        "<!doctype html><html><head><meta charset='utf-8'><title>RepoMind Executive Summary</title>"
+        f"<!doctype html><html><head><meta charset='utf-8'><title>RepoMind {escape(report_title)}</title>"
         "<style>"
         "@page{size:A4;margin:22mm}body{font-family:Inter,Arial,sans-serif;background:#f8fafc;color:#0f172a;margin:0}"
         ".cover{padding:40px;border-radius:28px;background:linear-gradient(135deg,#020617,#0f766e);color:white}"
@@ -487,19 +520,22 @@ def _html_summary(summary: dict[str, Any]) -> str:
         ".metric span{display:block;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.12em}.metric strong{display:block;font-size:26px;margin-top:8px}"
         ".bar{height:9px;background:#e2e8f0;border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#06b6d4,#22c55e,#facc15)}"
         ".risks{display:grid;grid-template-columns:1fr 1fr;gap:10px}.risk b{color:#be123c;margin-right:8px}.risk small{display:block;color:#64748b;margin-top:8px}"
+        ".memo{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:20px;margin-top:18px}.memo li{margin:8px 0}.evidence{border-left:4px solid #0891b2;background:#ecfeff;margin:8px 0;padding:10px 12px}.evidence span{display:block;color:#334155;font-size:12px;margin-top:4px}"
         "</style></head><body>"
         "<section class='cover'><p class='eyebrow'>RepoMindAI CTO Intelligence Platform</p>"
-        f"<h1>{escape(str(summary.get('repository', {}).get('name', 'Repository')))} Executive Summary</h1>"
+        f"<h1>{escape(str(summary.get('repository', {}).get('name', 'Repository')))} {escape(report_title)}</h1>"
         f"<p>{escape(summary.get('architecture', {}).get('summary', 'No architecture summary available.'))}</p></section>"
         f"<h2>Board Scorecard</h2><div class='grid'>{rows}</div>"
         f"<h2>Explainable Scores</h2>{scorecards}"
         f"<h2>Risk Register</h2><div class='risks'>{risk_rows}</div>"
+        f"<section class='memo'><h2>Recommendations</h2><ol>{recommendations}</ol></section>"
+        f"<section class='memo'><h2>Evidence and Citations</h2>{evidence_rows or '<p>No score citations available.</p>'}</section>"
         "</body></html>"
     )
 
 
-def _pdf_summary(summary: dict[str, Any]) -> bytes:
-    html = _html_summary(summary)
+def _pdf_summary(summary: dict[str, Any], report_title: str = "Executive Summary") -> bytes:
+    html = _html_summary(summary, report_title)
     try:
         from weasyprint import HTML
 
@@ -508,7 +544,7 @@ def _pdf_summary(summary: dict[str, Any]) -> bytes:
         pass
     lines = [
         "RepoMindAI CTO Intelligence Platform",
-        "Investor-Grade Executive Summary",
+        f"Investor-Grade {report_title}",
         f"Repository: {summary.get('repository', {}).get('name')}",
         f"Files: {summary.get('statistics', {}).get('files')}",
         f"Security: {summary.get('scores', {}).get('security')}",
@@ -535,6 +571,39 @@ def _pdf_summary(summary: dict[str, Any]) -> bytes:
 
 def _pdf_escape(value: str) -> str:
     return str(value).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+
+def _html_recommendations(summary: dict[str, Any], report_title: str) -> list[str]:
+    findings = summary.get("security", {}).get("findings", [])
+    evidence = summary.get("score_evidence", {})
+    recommendations = []
+    if findings:
+        recommendations.append(
+            "Remediate high-severity security findings before expanding production exposure."
+        )
+    if summary.get("scores", {}).get("maintainability", 100) < 75:
+        recommendations.append(
+            "Prioritize maintainability work in files cited by technical debt and architecture evidence."
+        )
+    if summary.get("scores", {}).get("production_readiness", 100) < 75:
+        recommendations.append(
+            "Close deployment, testing, and operational readiness gaps before enterprise rollout."
+        )
+    if "Investor" in report_title or "Due Diligence" in report_title:
+        recommendations.append(
+            "Use the cited score evidence to drive investor diligence questions and remediation timing."
+        )
+    if "Architecture" in report_title or "CTO" in report_title:
+        recommendations.append(
+            "Review ownership, API, data, and dependency concentration before major roadmap commitments."
+        )
+    if evidence:
+        recommendations.append(
+            "Validate every executive claim against the attached score citations and source files."
+        )
+    return recommendations or [
+        "No critical remediation signal was detected from the analyzed repository evidence."
+    ]
 
 
 def _sarif_level(severity: str) -> str:

@@ -200,8 +200,12 @@ def repository_knowledge_graph(repo_id: str) -> dict:
 
 
 @app.get("/repositories/{repo_id}/graph-query", dependencies=PROTECTED)
-def repository_graph_query(repo_id: str, query: str = "overview") -> dict:
-    return query_repository_graph(_summary(repo_id), query)
+def repository_graph_query(
+    repo_id: str, query: str = "overview", source: str = "", target: str = "", depth: int = 2
+) -> dict:
+    return query_repository_graph(
+        _summary(repo_id), query, source=source, target=target, depth=depth
+    )
 
 
 @app.get("/repositories/{repo_id}/architecture-explorer", dependencies=PROTECTED)
@@ -211,14 +215,22 @@ def repository_architecture_explorer(repo_id: str) -> dict:
 
 @app.post("/repositories/{repo_id}/pr-risk", dependencies=PROTECTED)
 def repository_pr_risk(repo_id: str, request: PRRiskRequest) -> dict:
-    if not request.changed_files and not request.pr_url:
-        raise HTTPException(status_code=400, detail="Provide changed_files or pr_url.")
+    if (
+        not request.changed_files
+        and not request.pr_url
+        and not (request.repository and request.pr_number)
+    ):
+        raise HTTPException(
+            status_code=400, detail="Provide changed_files, pr_url, or repository and pr_number."
+        )
     return analyze_pr_risk(
         _summary(repo_id),
         request.changed_files,
         request.title,
         request.description,
         request.pr_url,
+        request.repository,
+        request.pr_number,
     )
 
 

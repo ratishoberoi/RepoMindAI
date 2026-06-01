@@ -27,6 +27,8 @@ def architecture_fingerprint(summary: dict[str, Any]) -> dict[str, Any]:
         "route_files": sorted(arch.get("route_files", [])),
         "database_model_files": sorted(arch.get("database_model_files", [])),
         "security_hotspots": sorted(item.get("path") for item in kg.get("hotspots", [])[:20]),
+        "ownership": _ownership(summary),
+        "security_posture": _security_posture(summary),
         "scores": {
             key: summary.get("scores", {}).get(key)
             for key in ("security", "maintainability", "production_readiness", "cto")
@@ -62,6 +64,10 @@ def detect_architecture_drift(
         left["external_integrations"], right["external_integrations"]
     )
     api_surface_changes = _set_changes(left["api_surface"], right["api_surface"])
+    ownership_changes = _ownership_changes(left["ownership"], right["ownership"])
+    security_posture_changes = _security_posture_changes(
+        left["security_posture"], right["security_posture"]
+    )
     ref_changes = (
         _git_ref_changes(current, baseline_ref, target_ref) if compare_type != "repository" else {}
     )
@@ -77,6 +83,8 @@ def detect_architecture_drift(
         + len(integration_changes["added"]) * 6
         + len(api_surface_changes["added"]) * 6
         + len(api_surface_changes["removed"]) * 8
+        + len(ownership_changes["orphaned_added"]) * 8
+        + max(0, security_posture_changes["severity_score_delta"]) * 2
         + sum(8 for value in score_delta.values() if value <= -10),
     )
     findings = _findings(
@@ -121,6 +129,8 @@ def detect_architecture_drift(
             "added": sorted(set(right["security_hotspots"]) - set(left["security_hotspots"])),
             "removed": sorted(set(left["security_hotspots"]) - set(right["security_hotspots"])),
         },
+        "ownership_changes": ownership_changes,
+        "security_posture_changes": security_posture_changes,
         "frameworks_added": sorted(set(right["frameworks"]) - set(left["frameworks"])),
         "frameworks_removed": sorted(set(left["frameworks"]) - set(right["frameworks"])),
         "recommendations": _recommendations(drift_score, domain_added, domain_removed, score_delta),
@@ -134,6 +144,8 @@ def detect_architecture_drift(
             dependency_changes,
             api_surface_changes,
             score_delta,
+            ownership_changes,
+            security_posture_changes,
         ),
         "visual_diff": _visual_diff(
             domain_added,
@@ -142,6 +154,8 @@ def detect_architecture_drift(
             dependency_changes,
             integration_changes,
             api_surface_changes,
+            ownership_changes,
+            security_posture_changes,
         ),
         "drift_report": _drift_report(
             drift_score,
@@ -153,6 +167,8 @@ def detect_architecture_drift(
             dependency_changes,
             integration_changes,
             api_surface_changes,
+            ownership_changes,
+            security_posture_changes,
         ),
         "baseline_snapshot": left,
         "current_snapshot": right,
@@ -188,6 +204,58 @@ def _api_surface(summary: dict[str, Any]) -> list[str]:
     return rows
 
 
+def _ownership(summary: dict[str, Any]) -> dict[str, Any]:
+    rows: dict[str, Any] = {}
+    for domain in summary.get("knowledge_graph", {}).get("domains", []):
+        name = str(domain.get("name", ""))
+        if not name:
+            continue
+        owner = _owner_for_domain(name)
+        rows[name] = {
+            "owner": owner,
+            "role": domain.get("role"),
+            "file_count": domain.get("file_count", 0),
+            "bus_factor": 1 if owner == "Core Engineering" else 2,
+        }
+    return rows
+
+
+def _owner_for_domain(domain: str) -> str:
+    lower = domain.lower()
+    if any(token in lower for token in ("auth", "security", "session")):
+        return "Security Platform"
+    if any(token in lower for token in ("db", "model", "data", "store")):
+        return "Data Platform"
+    if any(token in lower for token in ("front", "ui", "component", "page")):
+        return "Product Experience"
+    if any(token in lower for token in ("infra", "deploy", "docker", "ci")):
+        return "Infrastructure"
+    return "Core Engineering"
+
+
+def _security_posture(summary: dict[str, Any]) -> dict[str, Any]:
+    findings = summary.get("security", {}).get("findings", [])
+    severity_counts = {
+        severity: sum(1 for finding in findings if finding.get("severity") == severity)
+        for severity in ("critical", "high", "medium", "low")
+    }
+    severity_score = (
+        severity_counts["critical"] * 10
+        + severity_counts["high"] * 6
+        + severity_counts["medium"] * 3
+        + severity_counts["low"]
+    )
+    return {
+        "finding_count": len(findings),
+        "severity_counts": severity_counts,
+        "severity_score": severity_score,
+        "mapped_findings": sorted(
+            f"{item.get('path', '')}:{item.get('rule_id', item.get('title', 'finding'))}"
+            for item in findings[:200]
+        ),
+    }
+
+
 def _external_integrations(summary: dict[str, Any]) -> list[str]:
     tokens = []
     for item in summary.get("parsed", []):
@@ -206,6 +274,49 @@ def _set_changes(left: list[str], right: list[str]) -> dict[str, list[str]]:
         "added": sorted(set(right) - set(left)),
         "removed": sorted(set(left) - set(right)),
         "unchanged": sorted(set(left) & set(right))[:50],
+    }
+
+
+def _ownership_changes(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
+    added = sorted(set(right) - set(left))
+    removed = sorted(set(left) - set(right))
+    owner_changed = []
+    for name in sorted(set(left) & set(right)):
+        if left[name].get("owner") != right[name].get("owner"):
+            owner_changed.append(
+                {
+                    "service": name,
+                    "before": left[name].get("owner"),
+                    "after": right[name].get("owner"),
+                }
+            )
+    orphaned_added = [
+        name
+        for name, payload in right.items()
+        if payload.get("bus_factor", 0) <= 1 and name not in left
+    ]
+    return {
+        "added": added,
+        "removed": removed,
+        "owner_changed": owner_changed,
+        "orphaned_added": orphaned_added,
+    }
+
+
+def _security_posture_changes(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "finding_count_delta": int(right.get("finding_count", 0))
+        - int(left.get("finding_count", 0)),
+        "severity_score_delta": int(right.get("severity_score", 0))
+        - int(left.get("severity_score", 0)),
+        "severity_counts_before": left.get("severity_counts", {}),
+        "severity_counts_after": right.get("severity_counts", {}),
+        "added_findings": sorted(
+            set(right.get("mapped_findings", [])) - set(left.get("mapped_findings", []))
+        )[:50],
+        "removed_findings": sorted(
+            set(left.get("mapped_findings", [])) - set(right.get("mapped_findings", []))
+        )[:50],
     }
 
 
@@ -352,6 +463,8 @@ def _timeline(
     dependency_changes: dict[str, list[str]],
     api_changes: dict[str, list[str]],
     score_delta: dict[str, float],
+    ownership_changes: dict[str, Any],
+    security_posture_changes: dict[str, Any],
 ) -> list[dict[str, Any]]:
     baseline_label = baseline_ref or "baseline"
     target_label = target_ref or "current"
@@ -369,6 +482,8 @@ def _timeline(
                 f"{len(removed)} services removed",
                 f"{len(dependency_changes['added']) + len(dependency_changes['removed'])} dependency changes",
                 f"{len(api_changes['added']) + len(api_changes['removed'])} API surface changes",
+                f"{len(ownership_changes['owner_changed']) + len(ownership_changes['orphaned_added'])} ownership changes",
+                f"{security_posture_changes['severity_score_delta']} security posture delta",
             ],
             "score_delta": score_delta,
         },
@@ -387,6 +502,8 @@ def _visual_diff(
     dependency_changes: dict[str, list[str]],
     integration_changes: dict[str, list[str]],
     api_changes: dict[str, list[str]],
+    ownership_changes: dict[str, Any],
+    security_posture_changes: dict[str, Any],
 ) -> dict[str, Any]:
     nodes = []
     edges = []
@@ -398,6 +515,12 @@ def _visual_diff(
         ("integration", integration_changes["added"], "added"),
         ("api", api_changes["added"], "added"),
         ("api", api_changes["removed"], "removed"),
+        (
+            "owner",
+            [item.get("service", "") for item in ownership_changes["owner_changed"]],
+            "changed",
+        ),
+        ("security", security_posture_changes["added_findings"], "added"),
     ):
         for item in items[:50]:
             node_id = f"{kind}:{status}:{item}"
@@ -424,10 +547,17 @@ def _drift_report(
     dependency_changes: dict[str, list[str]] | None = None,
     integration_changes: dict[str, list[str]] | None = None,
     api_changes: dict[str, list[str]] | None = None,
+    ownership_changes: dict[str, Any] | None = None,
+    security_posture_changes: dict[str, Any] | None = None,
 ) -> str:
     dependency_changes = dependency_changes or {"added": [], "removed": []}
     integration_changes = integration_changes or {"added": [], "removed": []}
     api_changes = api_changes or {"added": [], "removed": []}
+    ownership_changes = ownership_changes or {"owner_changed": [], "orphaned_added": []}
+    security_posture_changes = security_posture_changes or {
+        "severity_score_delta": 0,
+        "added_findings": [],
+    }
     lines = [
         "# Architecture Drift Report",
         "",
@@ -458,6 +588,26 @@ def _drift_report(
         "## API Surface Changes",
         *([f"- Added `{item}`" for item in api_changes["added"]] or []),
         *([f"- Removed `{item}`" for item in api_changes["removed"]] or ["- None"]),
+        "",
+        "## Ownership Changes",
+        *(
+            [
+                f"- `{item.get('service')}` moved from `{item.get('before')}` to `{item.get('after')}`"
+                for item in ownership_changes["owner_changed"]
+            ]
+            or ["- None"]
+        ),
+        *([f"- Orphan risk added: `{item}`" for item in ownership_changes["orphaned_added"]] or []),
+        "",
+        "## Security Posture Changes",
+        f"- Severity score delta: `{security_posture_changes['severity_score_delta']}`",
+        *(
+            [
+                f"- Added finding `{item}`"
+                for item in security_posture_changes["added_findings"][:20]
+            ]
+            or []
+        ),
         "",
         "## Findings",
         *[

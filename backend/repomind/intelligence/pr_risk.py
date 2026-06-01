@@ -5,6 +5,8 @@ import urllib.request
 from pathlib import PurePosixPath
 from typing import Any
 
+from repomind.integrations.github import fetch_pull_request_intelligence
+
 
 def analyze_pr_risk(
     summary: dict[str, Any],
@@ -12,10 +14,31 @@ def analyze_pr_risk(
     title: str = "",
     description: str = "",
     pr_url: str = "",
+    repository: str = "",
+    pr_number: int | None = None,
 ) -> dict[str, Any]:
     normalized = [_normalize(path) for path in changed_files if path.strip()]
     inferred_from_url = False
     diff_metadata: dict[str, Any] = {"available": False, "files": []}
+    github_pr: dict[str, Any] = {"available": False}
+    if pr_url or (repository and pr_number):
+        github_pr = fetch_pull_request_intelligence(repository, pr_number, pr_url)
+        github_files = _files_from_github_pr(github_pr)
+        if github_files:
+            normalized = [item["path"] for item in github_files]
+            diff_metadata = {
+                "available": True,
+                "source": "github_api",
+                "files": github_files,
+                "total_additions": github_pr.get("additions", 0),
+                "total_deletions": github_pr.get("deletions", 0),
+                "commits": len(github_pr.get("commits", [])),
+                "checks": github_pr.get("checks", []),
+                "workflows": github_pr.get("workflows", []),
+            }
+            inferred_from_url = True
+            title = title or str(github_pr.get("title", ""))
+            description = description or str(github_pr.get("description", ""))
     if pr_url and not normalized:
         diff_metadata = _diff_from_pr_url(pr_url)
         normalized = [item["path"] for item in diff_metadata.get("files", [])]
@@ -71,11 +94,26 @@ def analyze_pr_risk(
     affected_services = _affected_services(summary, normalized, impacted_domains)
     reviewers = _recommended_reviewers(impacts, affected_services)
     test_impact = _test_impact(summary, normalized, impacted_domains)
+    dependency_changes = _dependency_changes(normalized, diff_metadata)
+    api_changes = _api_changes(summary, normalized)
+    security_sensitive = _security_sensitive_changes(normalized, impacts)
+    review_complexity = _review_complexity(score, normalized, diff_metadata, github_pr)
+    regression_probability = _regression_probability(
+        score, test_impact, dependency_changes, api_changes
+    )
+    ownership_routing = _ownership_routing(affected_services, reviewers, github_pr)
+    impact_timeline = _impact_timeline(github_pr, normalized, affected_services)
     return {
         "title": title,
         "description": description,
         "pr_url": pr_url,
-        "changed_files_source": "pr_url" if inferred_from_url else "manual",
+        "repository": repository or github_pr.get("repository", ""),
+        "pr_number": pr_number or github_pr.get("pr_number"),
+        "changed_files_source": "github_api"
+        if github_pr.get("available")
+        else "pr_url"
+        if inferred_from_url
+        else "manual",
         "changed_files": normalized,
         "risk_score": score,
         "risk_level": _risk_level(score),
@@ -89,9 +127,18 @@ def analyze_pr_risk(
             ],
         },
         "diff_metadata": diff_metadata,
+        "github_pr": github_pr,
         "affected_services": affected_services,
         "recommended_reviewers": reviewers,
+        "required_reviewers": reviewers,
+        "ownership_routing": ownership_routing,
         "test_impact_analysis": test_impact,
+        "review_complexity": review_complexity,
+        "regression_probability": regression_probability,
+        "dependency_changes": dependency_changes,
+        "api_changes": api_changes,
+        "security_sensitive_changes": security_sensitive,
+        "pr_impact_timeline": impact_timeline,
         "impact_prediction": _impact_prediction(score, affected_services, impacts),
         "impacted_domains": impacted_domains,
         "file_impacts": sorted(impacts, key=lambda item: item["risk"], reverse=True),
@@ -112,6 +159,9 @@ def analyze_pr_risk(
             affected_services,
             reviewers,
             test_impact,
+            review_complexity,
+            regression_probability,
+            impact_timeline,
         ),
         "summary": _summary(score, impacted_domains, impacts),
     }
@@ -119,6 +169,25 @@ def analyze_pr_risk(
 
 def _files_from_pr_url(pr_url: str) -> list[str]:
     return [item["path"] for item in _diff_from_pr_url(pr_url).get("files", [])]
+
+
+def _files_from_github_pr(github_pr: dict[str, Any]) -> list[dict[str, Any]]:
+    if not github_pr.get("available"):
+        return []
+    rows = []
+    for item in github_pr.get("changed_files", []):
+        path = _normalize(str(item.get("path", "")))
+        if path:
+            rows.append(
+                {
+                    "path": path,
+                    "status": item.get("status", ""),
+                    "additions": int(item.get("additions") or 0),
+                    "deletions": int(item.get("deletions") or 0),
+                    "changes": int(item.get("changes") or 0),
+                }
+            )
+    return rows
 
 
 def _diff_from_pr_url(pr_url: str) -> dict[str, Any]:
@@ -301,6 +370,9 @@ def _review_packet(
     affected_services: list[dict[str, Any]],
     reviewers: list[str],
     test_impact: dict[str, Any],
+    review_complexity: dict[str, Any],
+    regression_probability: dict[str, Any],
+    impact_timeline: list[dict[str, Any]],
 ) -> dict[str, Any]:
     return {
         "summary": _summary(score, domains, impacts),
@@ -312,6 +384,9 @@ def _review_packet(
         "recommended_reviewers": reviewers,
         "recommended_tests": tests,
         "test_impact_analysis": test_impact,
+        "review_complexity": review_complexity,
+        "regression_probability": regression_probability,
+        "impact_timeline": impact_timeline,
         "affected_services": affected_services,
         "deployment_risk": deployment_risk,
         "release_gate": _release_gate(score, deployment_risk),
@@ -416,3 +491,227 @@ def _release_gate(score: int, deployment_risk: dict[str, Any]) -> str:
     if score >= 35:
         return "targeted owner review"
     return "standard review"
+
+
+def _dependency_changes(
+    changed_files: list[str], diff_metadata: dict[str, Any]
+) -> list[dict[str, Any]]:
+    dependency_files = {
+        "requirements.txt",
+        "pyproject.toml",
+        "poetry.lock",
+        "package.json",
+        "package-lock.json",
+        "pnpm-lock.yaml",
+        "yarn.lock",
+        "go.mod",
+        "go.sum",
+        "Cargo.toml",
+        "Cargo.lock",
+        "pom.xml",
+        "build.gradle",
+        "Dockerfile",
+        "docker-compose.yml",
+    }
+    changes_by_path = {
+        item.get("path"): item
+        for item in diff_metadata.get("files", [])
+        if isinstance(item, dict) and item.get("path")
+    }
+    rows = []
+    for path in changed_files:
+        name = path.rsplit("/", 1)[-1]
+        if name in dependency_files:
+            meta = changes_by_path.get(path, {})
+            rows.append(
+                {
+                    "path": path,
+                    "surface": "runtime dependency"
+                    if name not in {"Dockerfile", "docker-compose.yml"}
+                    else "deployment dependency",
+                    "additions": meta.get("additions", 0),
+                    "deletions": meta.get("deletions", 0),
+                    "risk": "high"
+                    if name.endswith(".lock") or name in {"Dockerfile", "docker-compose.yml"}
+                    else "medium",
+                }
+            )
+    return rows
+
+
+def _api_changes(summary: dict[str, Any], changed_files: list[str]) -> list[dict[str, Any]]:
+    route_files = set(summary.get("architecture", {}).get("route_files", []))
+    parsed_by_path = {item.get("relative_path"): item for item in summary.get("parsed", [])}
+    rows = []
+    for path in changed_files:
+        parsed = parsed_by_path.get(path, {})
+        routes = parsed.get("routes", []) if isinstance(parsed, dict) else []
+        if path in route_files or routes or _layer(path) == "interface":
+            rows.append(
+                {
+                    "path": path,
+                    "routes": [
+                        f"{route.get('method', 'GET')} {route.get('path', '')}"
+                        for route in routes
+                        if isinstance(route, dict)
+                    ],
+                    "risk": "high" if routes else "medium",
+                    "evidence": "Changed file is part of the analyzed API surface.",
+                }
+            )
+    return rows
+
+
+def _security_sensitive_changes(
+    changed_files: list[str], impacts: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    sensitive_tokens = (
+        "auth",
+        "session",
+        "jwt",
+        "oauth",
+        "password",
+        "secret",
+        "token",
+        "permission",
+        "policy",
+        "cors",
+        ".env",
+        "settings",
+        "config",
+        "migration",
+        "schema",
+    )
+    impact_by_path = {item["path"]: item for item in impacts}
+    rows = []
+    for path in changed_files:
+        lower = path.lower()
+        matched = [token for token in sensitive_tokens if token in lower]
+        if matched:
+            rows.append(
+                {
+                    "path": path,
+                    "matched_signals": matched[:6],
+                    "layer": impact_by_path.get(path, {}).get("layer", _layer(path)),
+                    "risk": "high"
+                    if any(token in matched for token in ("auth", "secret", "token", "password"))
+                    else "medium",
+                }
+            )
+    return rows
+
+
+def _review_complexity(
+    score: int,
+    changed_files: list[str],
+    diff_metadata: dict[str, Any],
+    github_pr: dict[str, Any],
+) -> dict[str, Any]:
+    additions = int(diff_metadata.get("total_additions") or github_pr.get("additions") or 0)
+    deletions = int(diff_metadata.get("total_deletions") or github_pr.get("deletions") or 0)
+    commits = len(github_pr.get("commits", []))
+    raw = min(100, score + len(changed_files) * 2 + (additions + deletions) // 45 + commits * 3)
+    return {
+        "score": raw,
+        "level": _risk_level(raw),
+        "file_count": len(changed_files),
+        "line_delta": additions + deletions,
+        "commit_count": commits,
+        "review_comment_count": len(github_pr.get("comments", {}).get("review", []))
+        if github_pr.get("comments")
+        else 0,
+    }
+
+
+def _regression_probability(
+    score: int,
+    test_impact: dict[str, Any],
+    dependency_changes: list[dict[str, Any]],
+    api_changes: list[dict[str, Any]],
+) -> dict[str, Any]:
+    probability = score
+    if test_impact.get("coverage_confidence") == "low":
+        probability += 14
+    elif test_impact.get("coverage_confidence") == "high":
+        probability -= 10
+    probability += len(dependency_changes) * 6 + len(api_changes) * 7
+    probability = min(100, max(0, probability))
+    return {
+        "score": probability,
+        "level": _risk_level(probability),
+        "confidence": test_impact.get("coverage_confidence", "unknown"),
+        "evidence": [
+            f"{len(test_impact.get('related_tests', []))} related tests detected",
+            f"{len(dependency_changes)} dependency surfaces changed",
+            f"{len(api_changes)} API surfaces changed",
+        ],
+    }
+
+
+def _ownership_routing(
+    services: list[dict[str, Any]], reviewers: list[str], github_pr: dict[str, Any]
+) -> list[dict[str, Any]]:
+    requested = [
+        item.get("login", "")
+        for item in github_pr.get("reviewers", [])
+        if isinstance(item, dict) and item.get("login")
+    ]
+    rows = []
+    for service in services[:12]:
+        rows.append(
+            {
+                "service": service.get("service"),
+                "role": service.get("role"),
+                "required_reviewers": reviewers,
+                "requested_github_reviewers": requested,
+                "routing_reason": f"{service.get('risk', 'medium')} risk service affected by changed files.",
+            }
+        )
+    if not rows:
+        rows.append(
+            {
+                "service": "repository",
+                "role": "unmapped",
+                "required_reviewers": reviewers,
+                "requested_github_reviewers": requested,
+                "routing_reason": "No analyzed service ownership matched the changed files.",
+            }
+        )
+    return rows
+
+
+def _impact_timeline(
+    github_pr: dict[str, Any], changed_files: list[str], services: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    service_names = [str(item.get("service")) for item in services if item.get("service")]
+    if not github_pr.get("commits"):
+        return [
+            {
+                "label": "Changed files supplied manually",
+                "events": changed_files[:12],
+                "services": service_names[:8],
+                "modules": sorted({path.split("/", 1)[0] for path in changed_files})[:8],
+            }
+        ]
+    timeline = []
+    for commit in github_pr.get("commits", [])[:20]:
+        message = str(commit.get("message", "Commit"))
+        touched = [
+            path
+            for path in changed_files
+            if any(token and token.lower() in path.lower() for token in message.lower().split()[:6])
+        ][:8]
+        timeline.append(
+            {
+                "sha": str(commit.get("sha", ""))[:12],
+                "label": message,
+                "author": commit.get("author", ""),
+                "date": commit.get("date", ""),
+                "files": touched or changed_files[:6],
+                "modules": sorted(
+                    {path.split("/", 1)[0] for path in (touched or changed_files[:6])}
+                ),
+                "services": service_names[:8],
+            }
+        )
+    return timeline

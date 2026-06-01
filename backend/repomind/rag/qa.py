@@ -17,6 +17,9 @@ class RepositoryAnswer(BaseModel):
     citations: list[dict]
     related_files: list[str] = Field(default_factory=list)
     follow_ups: list[str] = Field(default_factory=list)
+    evidence: list[dict[str, Any]] = Field(default_factory=list)
+    affected_services: list[dict[str, Any]] = Field(default_factory=list)
+    confidence: float = 0.0
     model_status: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -34,6 +37,9 @@ def answer_question(repo_id: str, question: str) -> dict:
                 "citations": [],
                 "related_files": _related_files(summary, []),
                 "follow_ups": _follow_ups(question, summary, []),
+                "evidence": [],
+                "affected_services": [],
+                "confidence": 0.0,
                 "model_status": _model_status_payload("not_used", None),
             }
         )
@@ -48,6 +54,9 @@ def answer_question(repo_id: str, question: str) -> dict:
                 "citations": citations_for(chunks),
                 "related_files": _related_files(summary, chunks),
                 "follow_ups": _follow_ups(question, summary, chunks),
+                "evidence": _evidence_payload(question, chunks, summary),
+                "affected_services": _affected_services(question, summary, chunks),
+                "confidence": _confidence(chunks, summary),
                 "model_status": _model_status_payload("not_needed", None),
             }
         )
@@ -79,6 +88,9 @@ def answer_question(repo_id: str, question: str) -> dict:
             "citations": citations_for(chunks),
             "related_files": _related_files(summary, chunks),
             "follow_ups": _follow_ups(question, summary, chunks),
+            "evidence": _evidence_payload(question, chunks, summary),
+            "affected_services": _affected_services(question, summary, chunks),
+            "confidence": _confidence(chunks, summary),
             "model_status": model_status,
         }
     )
@@ -447,6 +459,107 @@ def _related_files(summary: dict, chunks: list[dict]) -> list[str]:
     paths.extend(summary.get("architecture", {}).get("important_files", [])[:8])
     paths.extend(item.get("relative_path") for item in summary.get("files", [])[:12])
     return [path for index, path in enumerate(paths) if path and path not in paths[:index]][:10]
+
+
+def _evidence_payload(question: str, chunks: list[dict], summary: dict) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for citation in citations_for(chunks)[:8]:
+        rows.append(
+            {
+                "kind": "retrieval",
+                "file": citation.get("file") or citation.get("path"),
+                "line_start": citation.get("line_start") or citation.get("start_line"),
+                "line_end": citation.get("line_end") or citation.get("end_line"),
+                "evidence": citation.get("text", "")[:500],
+                "confidence": 0.8,
+            }
+        )
+    lower = question.lower()
+    if any(token in lower for token in ("security", "risk", "secret", "vulnerability")):
+        for finding in summary.get("security", {}).get("findings", [])[:6]:
+            rows.append(
+                {
+                    "kind": "security_finding",
+                    "file": finding.get("path") or finding.get("file"),
+                    "line_start": finding.get("line", 1),
+                    "line_end": finding.get("line", 1),
+                    "severity": finding.get("severity"),
+                    "evidence": finding.get("message") or finding.get("title", "Security finding"),
+                    "confidence": 0.72,
+                }
+            )
+    if any(token in lower for token in ("architecture", "flow", "service", "dependency")):
+        for domain in summary.get("knowledge_graph", {}).get("domains", [])[:6]:
+            rows.append(
+                {
+                    "kind": "architecture_domain",
+                    "file": ", ".join(domain.get("sample_files", [])[:3]),
+                    "evidence": f"{domain.get('name')} domain: {domain.get('file_count', 0)} files, {domain.get('routes', 0)} routes, {domain.get('data_models', 0)} data models.",
+                    "confidence": 0.68,
+                }
+            )
+    if any(token in lower for token in ("acquisition", "investor", "cto", "executive")):
+        for key, item in summary.get("score_evidence", {}).items():
+            rows.append(
+                {
+                    "kind": "score_evidence",
+                    "file": key,
+                    "evidence": item.get("calculation", ""),
+                    "score": item.get("score"),
+                    "confidence": item.get("confidence", 0.6),
+                }
+            )
+    seen = set()
+    unique = []
+    for row in rows:
+        marker = (row.get("kind"), row.get("file"), row.get("line_start"), row.get("evidence"))
+        if marker not in seen:
+            seen.add(marker)
+            unique.append(row)
+    return unique[:16]
+
+
+def _affected_services(question: str, summary: dict, chunks: list[dict]) -> list[dict[str, Any]]:
+    lower = question.lower()
+    chunk_paths = [str(chunk.get("path", "")).lower() for chunk in chunks]
+    services = []
+    for domain in summary.get("knowledge_graph", {}).get("domains", []):
+        name = str(domain.get("name", ""))
+        samples = [str(path).lower() for path in domain.get("sample_files", [])]
+        matched = name.lower() in lower or any(
+            sample and any(sample in path or path in sample for path in chunk_paths)
+            for sample in samples
+        )
+        if matched:
+            services.append(
+                {
+                    "service": name,
+                    "role": domain.get("role"),
+                    "files": domain.get("sample_files", [])[:5],
+                    "risk": "high"
+                    if domain.get("security_findings")
+                    else "medium"
+                    if domain.get("routes")
+                    else "low",
+                }
+            )
+    return services[:8]
+
+
+def _confidence(chunks: list[dict], summary: dict) -> float:
+    if not chunks:
+        return 0.0
+    base = min(0.9, 0.35 + len(chunks) * 0.07)
+    impl_count = sum(
+        1
+        for chunk in chunks
+        if not str(chunk.get("path", "")).startswith("docs/")
+        and "test" not in str(chunk.get("path", "")).lower()
+    )
+    base += min(0.08, impl_count * 0.02)
+    if summary.get("score_evidence"):
+        base += 0.04
+    return round(min(base, 0.96), 2)
 
 
 def _follow_ups(question: str, summary: dict, chunks: list[dict]) -> list[str]:
