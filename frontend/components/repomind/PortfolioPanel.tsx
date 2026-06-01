@@ -97,8 +97,8 @@ export function PortfolioPanel({
           {risks.slice(0, 9).map((risk, index) => (
             <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
               <Radar className="h-5 w-5 text-amber-200" />
-              <p className="mt-3 text-sm font-semibold text-white">{String(risk.title ?? risk.name ?? "Shared exposure")}</p>
-              <p className="mt-2 text-sm leading-5 text-slate-400">{String(risk.description ?? risk.message ?? risk.file ?? "")}</p>
+              <p className="mt-3 text-sm font-semibold text-white">{String(risk.title ?? risk.name ?? risk.risk ?? "Shared exposure")}</p>
+              <p className="mt-2 text-sm leading-5 text-slate-400">{String(risk.description ?? risk.message ?? risk.path ?? risk.file ?? risk.repo ?? "")}</p>
             </div>
           ))}
         </div>
@@ -110,8 +110,13 @@ export function PortfolioPanel({
 function normalizeDependencies(data: PortfolioIntelligence) {
   const shared = data.shared_dependencies ?? [];
   if (shared.length) return shared;
-  const frameworks = Object.entries(data.frameworks ?? {}).map(([name, count]) => ({ name, repository_count: count, ecosystem: "framework" }));
-  const languages = Object.entries(data.languages ?? {}).map(([name, count]) => ({ name, repository_count: count, ecosystem: "language" }));
+  const frameworks = entries(data.frameworks).map(([name, count]) => ({ name, repository_count: count, ecosystem: "framework" }));
+  const languages = entries(data.languages).map(([name, count]) => ({ name, repository_count: count, ecosystem: "language" }));
   const domains = (data.shared_domains ?? []).map((item) => ({ name: item.name ?? item.domain ?? "domain", repository_count: item.repository_count ?? item.count ?? 1, ecosystem: "domain" }));
   return [...frameworks, ...languages, ...domains];
+}
+
+function entries(value: unknown): Array<[string, number]> {
+  if (Array.isArray(value)) return value.map((item) => [String(item[0]), Number(item[1] ?? 0)]);
+  return Object.entries((value ?? {}) as Record<string, number>).map(([key, count]) => [key, Number(count)]);
 }
