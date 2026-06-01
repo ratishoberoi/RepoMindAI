@@ -64,12 +64,21 @@ def scan_security(
     findings.extend(_run_bandit(root, cancel_check))
     _checkpoint(cancel_check)
     findings.extend(_run_semgrep(root, cancel_check))
+    _checkpoint(cancel_check)
+    findings.extend(_run_trivy(root, cancel_check))
+    _checkpoint(cancel_check)
+    findings.extend(_run_dependency_audit(root, cancel_check))
+    _checkpoint(cancel_check)
+    findings.extend(_entropy_secret_scan(root, files, cancel_check))
     severity_counts: dict[str, int] = {}
     for finding in findings:
         severity_counts[finding["severity"]] = severity_counts.get(finding["severity"], 0) + 1
     scanner_status = {
         "bandit": bool(_tool("bandit")),
         "semgrep": bool(_tool("semgrep")),
+        "trivy": bool(_tool("trivy")),
+        "dependency_audit": bool(_tool("npm")) or bool(_tool("pip-audit")),
+        "secret_detection": True,
         "custom_rules": True,
     }
     return {
@@ -92,24 +101,40 @@ def _finding(rule_id: str, severity: str, path: str, line: int, message: str) ->
         "remediation": _remediation(rule_id),
         "owasp": taxonomy["owasp"],
         "cwe": taxonomy["cwe"],
+        "cvss": taxonomy["cvss"],
+        "exploitability": _exploitability(rule_id, severity),
+        "business_impact": _business_impact(rule_id, severity),
+        "scanner": _scanner_name(rule_id),
     }
 
 
 def _taxonomy(rule_id: str) -> dict[str, str]:
     lower = rule_id.lower()
     if "secret" in lower:
-        return {"owasp": "A02:2021-Cryptographic Failures", "cwe": "CWE-798"}
+        return {"owasp": "A02:2021-Cryptographic Failures", "cwe": "CWE-798", "cvss": 8.1}
     if "eval" in lower or "exec" in lower:
-        return {"owasp": "A03:2021-Injection", "cwe": "CWE-95"}
+        return {"owasp": "A03:2021-Injection", "cwe": "CWE-95", "cvss": 9.1}
     if "shell" in lower:
-        return {"owasp": "A03:2021-Injection", "cwe": "CWE-78"}
+        return {"owasp": "A03:2021-Injection", "cwe": "CWE-78", "cvss": 9.0}
     if "inner-html" in lower:
-        return {"owasp": "A03:2021-Injection", "cwe": "CWE-79"}
+        return {"owasp": "A03:2021-Injection", "cwe": "CWE-79", "cvss": 7.4}
     if "sql" in lower:
-        return {"owasp": "A03:2021-Injection", "cwe": "CWE-89"}
+        return {"owasp": "A03:2021-Injection", "cwe": "CWE-89", "cvss": 8.8}
+    if lower.startswith("trivy"):
+        return {
+            "owasp": "A06:2021-Vulnerable and Outdated Components",
+            "cwe": "CWE-937",
+            "cvss": 7.5,
+        }
+    if lower.startswith("dependency"):
+        return {
+            "owasp": "A06:2021-Vulnerable and Outdated Components",
+            "cwe": "CWE-1104",
+            "cvss": 7.2,
+        }
     if lower.startswith("b"):
-        return {"owasp": "A05:2021-Security Misconfiguration", "cwe": "CWE-693"}
-    return {"owasp": "A06:2021-Vulnerable and Outdated Components", "cwe": "CWE-20"}
+        return {"owasp": "A05:2021-Security Misconfiguration", "cwe": "CWE-693", "cvss": 6.5}
+    return {"owasp": "A06:2021-Vulnerable and Outdated Components", "cwe": "CWE-20", "cvss": 5.0}
 
 
 def _impact(rule_id: str, severity: str) -> str:
@@ -140,6 +165,37 @@ def _remediation(rule_id: str) -> str:
     if "sql" in lower:
         return "Use parameterized queries or ORM query builders."
     return "Review the finding, add a regression test, and document the accepted remediation."
+
+
+def _exploitability(rule_id: str, severity: str) -> str:
+    if severity in {"critical", "high"}:
+        return "high"
+    if any(token in rule_id.lower() for token in ("secret", "shell", "exec", "eval", "sql")):
+        return "medium"
+    return "low"
+
+
+def _business_impact(rule_id: str, severity: str) -> str:
+    if "secret" in rule_id.lower():
+        return "Potential credential exposure can create incident response, compliance, and customer trust risk."
+    if severity in {"critical", "high"}:
+        return "Could block enterprise adoption or require remediation before diligence approval."
+    return "Should be tracked as part of normal security debt management."
+
+
+def _scanner_name(rule_id: str) -> str:
+    lower = rule_id.lower()
+    if lower.startswith("trivy"):
+        return "trivy"
+    if lower.startswith("dependency"):
+        return "dependency-audit"
+    if lower.startswith("semgrep"):
+        return "semgrep"
+    if lower.startswith("b"):
+        return "bandit"
+    if "secret" in lower:
+        return "secret-detection"
+    return "custom-rules"
 
 
 def _is_example_path(path: str) -> bool:
@@ -227,6 +283,126 @@ def _run_semgrep(root: Path, cancel_check: CancelCheck | None = None) -> list[di
             )
         )
     return findings
+
+
+def _run_trivy(root: Path, cancel_check: CancelCheck | None = None) -> list[dict[str, Any]]:
+    trivy = _tool("trivy")
+    if not trivy:
+        return []
+    try:
+        proc = _run_subprocess(
+            [trivy, "fs", "--format", "json", "--quiet", str(root)],
+            timeout=120,
+            cancel_check=cancel_check,
+        )
+        payload = json.loads(proc.stdout or "{}")
+    except (subprocess.SubprocessError, json.JSONDecodeError):
+        return []
+    findings = []
+    for result in payload.get("Results", []):
+        target = result.get("Target", "")
+        for vuln in result.get("Vulnerabilities", [])[:200]:
+            severity = str(vuln.get("Severity", "medium")).lower()
+            findings.append(
+                _finding(
+                    f"trivy-{vuln.get('VulnerabilityID', 'vulnerability')}",
+                    _normalize_semgrep_severity(severity),
+                    target,
+                    1,
+                    f"{vuln.get('PkgName', 'dependency')} {vuln.get('VulnerabilityID', '')}: {vuln.get('Title', 'Vulnerable dependency')}",
+                )
+            )
+    return findings
+
+
+def _run_dependency_audit(
+    root: Path, cancel_check: CancelCheck | None = None
+) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    npm = _tool("npm")
+    if npm and (root / "package-lock.json").exists():
+        try:
+            proc = _run_subprocess(
+                [npm, "--prefix", str(root), "audit", "--json", "--audit-level=low"],
+                timeout=90,
+                cancel_check=cancel_check,
+            )
+            payload = json.loads(proc.stdout or "{}")
+            for name, vuln in (payload.get("vulnerabilities") or {}).items():
+                findings.append(
+                    _finding(
+                        f"dependency-npm-{name}",
+                        _normalize_semgrep_severity(str(vuln.get("severity", "medium"))),
+                        "package-lock.json",
+                        1,
+                        f"npm audit vulnerability in {name}",
+                    )
+                )
+        except (subprocess.SubprocessError, json.JSONDecodeError):
+            pass
+    pip_audit = _tool("pip-audit")
+    if pip_audit and ((root / "requirements.txt").exists() or (root / "pyproject.toml").exists()):
+        try:
+            proc = _run_subprocess(
+                [pip_audit, "--format", "json", "--path", str(root)],
+                timeout=90,
+                cancel_check=cancel_check,
+            )
+            payload = json.loads(proc.stdout or "{}")
+            for dep in payload.get("dependencies", []):
+                for vuln in dep.get("vulns", []):
+                    findings.append(
+                        _finding(
+                            f"dependency-pip-{vuln.get('id', dep.get('name', 'dependency'))}",
+                            "high" if vuln.get("fix_versions") else "medium",
+                            "pyproject.toml"
+                            if (root / "pyproject.toml").exists()
+                            else "requirements.txt",
+                            1,
+                            f"pip audit vulnerability in {dep.get('name')}: {vuln.get('id')}",
+                        )
+                    )
+        except (subprocess.SubprocessError, json.JSONDecodeError):
+            pass
+    return findings
+
+
+def _entropy_secret_scan(
+    root: Path, files: list[dict], cancel_check: CancelCheck | None = None
+) -> list[dict[str, Any]]:
+    findings = []
+    token_re = re.compile(r"['\"]([A-Za-z0-9_\-]{32,})['\"]")
+    for index, item in enumerate(files[:3000]):
+        if index % 50 == 0:
+            _checkpoint(cancel_check)
+        if item.get("size", 0) > 300_000:
+            continue
+        path = root / item["relative_path"]
+        text = path.read_text(errors="ignore")
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            for match in token_re.finditer(line):
+                token = match.group(1)
+                if _entropy(token) >= 4.1:
+                    severity = "low" if _is_example_path(item["relative_path"]) else "medium"
+                    findings.append(
+                        _finding(
+                            "hardcoded-secret-entropy",
+                            severity,
+                            item["relative_path"],
+                            line_no,
+                            "High-entropy token-like string detected.",
+                        )
+                    )
+                    break
+    return findings[:200]
+
+
+def _entropy(value: str) -> float:
+    from math import log2
+
+    counts = {char: value.count(char) for char in set(value)}
+    total = len(value)
+    return -sum((count / total) * log2(count / total) for count in counts.values())
 
 
 def _normalize_semgrep_severity(value: str) -> str:

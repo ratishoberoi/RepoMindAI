@@ -19,6 +19,7 @@ dependencies = [
   "sqlalchemy>=2.0.35",
   "alembic>=1.13.2",
   "psycopg[binary]>=3.2.1",
+  "neo4j>=5.25.0",
 ]
 
 [dependency-groups]
@@ -38,6 +39,7 @@ core = [
   "sqlalchemy>=2.0.35",
   "alembic>=1.13.2",
   "psycopg[binary]>=3.2.1",
+  "neo4j>=5.25.0",
 ]
 analysis = [
   "bandit>=1.7.9",

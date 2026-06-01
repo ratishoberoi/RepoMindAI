@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+import subprocess
+from pathlib import Path
 from typing import Any
 
 
 def architecture_fingerprint(summary: dict[str, Any]) -> dict[str, Any]:
     kg = summary.get("knowledge_graph", {})
     arch = summary.get("architecture", {})
+    integrations = _external_integrations(summary)
     return {
         "style": arch.get("style"),
         "frameworks": sorted(summary.get("stack", {}).get("frameworks", [])),
+        "dependencies": sorted(_dependencies(summary)),
+        "external_integrations": sorted(integrations),
+        "api_surface": sorted(_api_surface(summary)),
         "domains": {
             item["name"]: {
                 "role": item.get("role"),
@@ -28,7 +34,13 @@ def architecture_fingerprint(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def detect_architecture_drift(baseline: dict[str, Any], current: dict[str, Any]) -> dict[str, Any]:
+def detect_architecture_drift(
+    baseline: dict[str, Any],
+    current: dict[str, Any],
+    compare_type: str = "repository",
+    baseline_ref: str = "",
+    target_ref: str = "",
+) -> dict[str, Any]:
     left = architecture_fingerprint(baseline)
     right = architecture_fingerprint(current)
     domain_added = sorted(set(right["domains"]) - set(left["domains"]))
@@ -45,6 +57,14 @@ def detect_architecture_drift(baseline: dict[str, Any], current: dict[str, Any])
     }
     route_delta = len(right["route_files"]) - len(left["route_files"])
     model_delta = len(right["database_model_files"]) - len(left["database_model_files"])
+    dependency_changes = _set_changes(left["dependencies"], right["dependencies"])
+    integration_changes = _set_changes(
+        left["external_integrations"], right["external_integrations"]
+    )
+    api_surface_changes = _set_changes(left["api_surface"], right["api_surface"])
+    ref_changes = (
+        _git_ref_changes(current, baseline_ref, target_ref) if compare_type != "repository" else {}
+    )
     drift_score = min(
         100,
         len(domain_added) * 10
@@ -52,6 +72,11 @@ def detect_architecture_drift(baseline: dict[str, Any], current: dict[str, Any])
         + len(domain_changed) * 8
         + abs(route_delta) * 4
         + abs(model_delta) * 5
+        + len(dependency_changes["added"]) * 4
+        + len(dependency_changes["removed"]) * 5
+        + len(integration_changes["added"]) * 6
+        + len(api_surface_changes["added"]) * 6
+        + len(api_surface_changes["removed"]) * 8
         + sum(8 for value in score_delta.values() if value <= -10),
     )
     findings = _findings(
@@ -66,6 +91,9 @@ def detect_architecture_drift(baseline: dict[str, Any], current: dict[str, Any])
     return {
         "baseline": baseline.get("repository", {}),
         "current": current.get("repository", {}),
+        "compare_type": compare_type,
+        "baseline_ref": baseline_ref,
+        "target_ref": target_ref,
         "drift_score": drift_score,
         "drift_level": _level(drift_score),
         "domain_added": domain_added,
@@ -83,6 +111,10 @@ def detect_architecture_drift(baseline: dict[str, Any], current: dict[str, Any])
         "data_model_file_delta": model_delta,
         "score_delta": score_delta,
         "dependency_changes": domain_changed[:20],
+        "dependency_surface_changes": dependency_changes,
+        "external_integration_changes": integration_changes,
+        "api_surface_changes": api_surface_changes,
+        "git_ref_changes": ref_changes,
         "security_changes": {
             "baseline_hotspots": left["security_hotspots"],
             "current_hotspots": right["security_hotspots"],
@@ -93,8 +125,34 @@ def detect_architecture_drift(baseline: dict[str, Any], current: dict[str, Any])
         "frameworks_removed": sorted(set(left["frameworks"]) - set(right["frameworks"])),
         "recommendations": _recommendations(drift_score, domain_added, domain_removed, score_delta),
         "findings": findings,
+        "timeline": _timeline(
+            compare_type,
+            baseline_ref,
+            target_ref,
+            domain_added,
+            domain_removed,
+            dependency_changes,
+            api_surface_changes,
+            score_delta,
+        ),
+        "visual_diff": _visual_diff(
+            domain_added,
+            domain_removed,
+            domain_changed,
+            dependency_changes,
+            integration_changes,
+            api_surface_changes,
+        ),
         "drift_report": _drift_report(
-            drift_score, domain_added, domain_removed, domain_changed, findings
+            drift_score,
+            domain_added,
+            domain_removed,
+            domain_changed,
+            findings,
+            compare_type,
+            dependency_changes,
+            integration_changes,
+            api_surface_changes,
         ),
         "baseline_snapshot": left,
         "current_snapshot": right,
@@ -104,6 +162,76 @@ def detect_architecture_drift(baseline: dict[str, Any], current: dict[str, Any])
 
 def _number(value: Any) -> float:
     return float(value) if isinstance(value, (int, float)) else 0.0
+
+
+def _dependencies(summary: dict[str, Any]) -> list[str]:
+    deps = []
+    deps.extend(summary.get("stack", {}).get("frameworks", []))
+    deps.extend(summary.get("stack", {}).get("package_managers", []))
+    for file in summary.get("files", []):
+        path = str(file.get("relative_path", "")).lower()
+        if path.endswith(
+            ("requirements.txt", "pyproject.toml", "package.json", "package-lock.json")
+        ):
+            deps.append(path.rsplit("/", 1)[-1])
+    return [str(dep) for dep in deps if dep]
+
+
+def _api_surface(summary: dict[str, Any]) -> list[str]:
+    rows = []
+    for item in summary.get("parsed", []):
+        for route in item.get("routes", []):
+            if isinstance(route, dict):
+                rows.append(
+                    f"{route.get('method', 'GET')} {route.get('path', '')} {item.get('relative_path')}"
+                )
+    return rows
+
+
+def _external_integrations(summary: dict[str, Any]) -> list[str]:
+    tokens = []
+    for item in summary.get("parsed", []):
+        for env in item.get("env_vars", []):
+            name = str(env).lower()
+            if any(token in name for token in ("url", "api", "stripe", "s3", "slack", "github")):
+                tokens.append(str(env))
+    for dep in _dependencies(summary):
+        if any(token in dep.lower() for token in ("stripe", "slack", "aws", "s3", "github")):
+            tokens.append(dep)
+    return tokens
+
+
+def _set_changes(left: list[str], right: list[str]) -> dict[str, list[str]]:
+    return {
+        "added": sorted(set(right) - set(left)),
+        "removed": sorted(set(left) - set(right)),
+        "unchanged": sorted(set(left) & set(right))[:50],
+    }
+
+
+def _git_ref_changes(summary: dict[str, Any], baseline_ref: str, target_ref: str) -> dict[str, Any]:
+    repo_path = summary.get("repository", {}).get("path")
+    if not repo_path or not baseline_ref or not target_ref:
+        return {"available": False, "reason": "Repository path or refs unavailable."}
+    root = Path(repo_path)
+    if not (root / ".git").exists():
+        return {"available": False, "reason": "Local git history unavailable."}
+    try:
+        diff = subprocess.run(
+            ["git", "-C", str(root), "diff", "--name-status", baseline_ref, target_ref],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+    except Exception as exc:
+        return {"available": False, "reason": str(exc)}
+    files = []
+    for line in diff.stdout.splitlines():
+        parts = line.split(maxsplit=1)
+        if len(parts) == 2:
+            files.append({"status": parts[0], "path": parts[1]})
+    return {"available": True, "changed_files": files[:500], "change_count": len(files)}
 
 
 def _level(score: int) -> str:
@@ -215,16 +343,95 @@ def _findings(
     return findings[:20]
 
 
+def _timeline(
+    compare_type: str,
+    baseline_ref: str,
+    target_ref: str,
+    added: list[str],
+    removed: list[str],
+    dependency_changes: dict[str, list[str]],
+    api_changes: dict[str, list[str]],
+    score_delta: dict[str, float],
+) -> list[dict[str, Any]]:
+    baseline_label = baseline_ref or "baseline"
+    target_label = target_ref or "current"
+    return [
+        {
+            "label": baseline_label,
+            "type": compare_type,
+            "events": ["Baseline architecture fingerprint captured."],
+        },
+        {
+            "label": "diff",
+            "type": "analysis",
+            "events": [
+                f"{len(added)} services added",
+                f"{len(removed)} services removed",
+                f"{len(dependency_changes['added']) + len(dependency_changes['removed'])} dependency changes",
+                f"{len(api_changes['added']) + len(api_changes['removed'])} API surface changes",
+            ],
+            "score_delta": score_delta,
+        },
+        {
+            "label": target_label,
+            "type": compare_type,
+            "events": ["Current architecture fingerprint captured."],
+        },
+    ]
+
+
+def _visual_diff(
+    added: list[str],
+    removed: list[str],
+    changed: list[dict[str, Any]],
+    dependency_changes: dict[str, list[str]],
+    integration_changes: dict[str, list[str]],
+    api_changes: dict[str, list[str]],
+) -> dict[str, Any]:
+    nodes = []
+    edges = []
+    for kind, items, status in (
+        ("service", added, "added"),
+        ("service", removed, "removed"),
+        ("dependency", dependency_changes["added"], "added"),
+        ("dependency", dependency_changes["removed"], "removed"),
+        ("integration", integration_changes["added"], "added"),
+        ("api", api_changes["added"], "added"),
+        ("api", api_changes["removed"], "removed"),
+    ):
+        for item in items[:50]:
+            node_id = f"{kind}:{status}:{item}"
+            nodes.append({"id": node_id, "label": item, "kind": kind, "status": status})
+            edges.append({"source": "baseline", "target": node_id, "relation": status})
+    for item in changed[:50]:
+        node_id = f"service:changed:{item.get('name')}"
+        nodes.append(
+            {"id": node_id, "label": item.get("name"), "kind": "service", "status": "changed"}
+        )
+    return {
+        "nodes": [{"id": "baseline", "label": "Architecture baseline", "kind": "baseline"}, *nodes],
+        "edges": edges,
+    }
+
+
 def _drift_report(
     score: int,
     added: list[str],
     removed: list[str],
     changed: list[dict[str, Any]],
     findings: list[dict[str, Any]],
+    compare_type: str = "repository",
+    dependency_changes: dict[str, list[str]] | None = None,
+    integration_changes: dict[str, list[str]] | None = None,
+    api_changes: dict[str, list[str]] | None = None,
 ) -> str:
+    dependency_changes = dependency_changes or {"added": [], "removed": []}
+    integration_changes = integration_changes or {"added": [], "removed": []}
+    api_changes = api_changes or {"added": [], "removed": []}
     lines = [
         "# Architecture Drift Report",
         "",
+        f"Comparison type: **{compare_type}**",
         f"Drift level: **{_level(score)}** ({score}/100)",
         "",
         "## Services Added",
@@ -234,6 +441,8 @@ def _drift_report(
         *([f"- `{item}`" for item in removed] or ["- None"]),
         "",
         "## Dependency Changes",
+        *([f"- Added `{item}`" for item in dependency_changes["added"]] or []),
+        *([f"- Removed `{item}`" for item in dependency_changes["removed"]] or []),
         *(
             [
                 f"- `{item.get('name')}` changed from `{item.get('before')}` to `{item.get('after')}`"
@@ -241,6 +450,14 @@ def _drift_report(
             ]
             or ["- None"]
         ),
+        "",
+        "## External Integration Changes",
+        *([f"- Added `{item}`" for item in integration_changes["added"]] or []),
+        *([f"- Removed `{item}`" for item in integration_changes["removed"]] or ["- None"]),
+        "",
+        "## API Surface Changes",
+        *([f"- Added `{item}`" for item in api_changes["added"]] or []),
+        *([f"- Removed `{item}`" for item in api_changes["removed"]] or ["- None"]),
         "",
         "## Findings",
         *[

@@ -100,6 +100,9 @@ class Settings(BaseSettings):
     max_zip_compression_ratio: int = 100
     redact_secrets: bool = True
     trust_remote_model_code: bool = False
+    neo4j_uri: str | None = None
+    neo4j_user: str = "neo4j"
+    neo4j_password: str | None = None
 
     @model_validator(mode="after")
     def normalize_and_validate_paths(self) -> "Settings":

@@ -15,8 +15,10 @@ def analyze_pr_risk(
 ) -> dict[str, Any]:
     normalized = [_normalize(path) for path in changed_files if path.strip()]
     inferred_from_url = False
+    diff_metadata: dict[str, Any] = {"available": False, "files": []}
     if pr_url and not normalized:
-        normalized = _files_from_pr_url(pr_url)
+        diff_metadata = _diff_from_pr_url(pr_url)
+        normalized = [item["path"] for item in diff_metadata.get("files", [])]
         inferred_from_url = bool(normalized)
     files = {item["relative_path"]: item for item in summary.get("files", [])}
     kg = summary.get("knowledge_graph", {})
@@ -66,6 +68,9 @@ def analyze_pr_risk(
     review_plan = _required_review(score, impacted_domains, impacts)
     tests = _test_strategy(impacted_domains, impacts)
     deployment_risk = _deployment_risk(score, impacts, impacted_domains)
+    affected_services = _affected_services(summary, normalized, impacted_domains)
+    reviewers = _recommended_reviewers(impacts, affected_services)
+    test_impact = _test_impact(summary, normalized, impacted_domains)
     return {
         "title": title,
         "description": description,
@@ -83,6 +88,11 @@ def analyze_pr_risk(
                 for item in sorted(impacts, key=lambda row: row["risk"], reverse=True)[:8]
             ],
         },
+        "diff_metadata": diff_metadata,
+        "affected_services": affected_services,
+        "recommended_reviewers": reviewers,
+        "test_impact_analysis": test_impact,
+        "impact_prediction": _impact_prediction(score, affected_services, impacts),
         "impacted_domains": impacted_domains,
         "file_impacts": sorted(impacts, key=lambda item: item["risk"], reverse=True),
         "findings": findings,
@@ -91,31 +101,59 @@ def analyze_pr_risk(
         "test_strategy": tests,
         "recommended_tests": tests,
         "deployment_risk": deployment_risk,
+        "release_gate_recommendation": _release_gate(score, deployment_risk),
         "pr_review_packet": _review_packet(
-            score, impacted_domains, impacts, review_plan, tests, deployment_risk
+            score,
+            impacted_domains,
+            impacts,
+            review_plan,
+            tests,
+            deployment_risk,
+            affected_services,
+            reviewers,
+            test_impact,
         ),
         "summary": _summary(score, impacted_domains, impacts),
     }
 
 
 def _files_from_pr_url(pr_url: str) -> list[str]:
+    return [item["path"] for item in _diff_from_pr_url(pr_url).get("files", [])]
+
+
+def _diff_from_pr_url(pr_url: str) -> dict[str, Any]:
     match = re.match(r"^https://github\.com/([^/]+)/([^/]+)/pull/(\d+)(?:[/?#].*)?$", pr_url)
     if not match:
-        return []
+        return {"available": False, "reason": "Unsupported PR URL.", "files": []}
     owner, repo, number = match.groups()
     url = f"https://github.com/{owner}/{repo}/pull/{number}.diff"
     try:
         with urllib.request.urlopen(url, timeout=8) as response:
             diff = response.read(1_000_000).decode("utf-8", errors="ignore")
     except Exception:
-        return []
-    paths = []
+        return {"available": False, "reason": "Unable to fetch PR diff.", "files": []}
+    files: dict[str, dict[str, Any]] = {}
+    current = ""
     for line in diff.splitlines():
         if line.startswith("+++ b/"):
-            path = line.removeprefix("+++ b/").strip()
-            if path and path != "/dev/null":
-                paths.append(_normalize(path))
-    return [path for index, path in enumerate(paths) if path and path not in paths[:index]][:200]
+            current = _normalize(line.removeprefix("+++ b/").strip())
+            if current and current != "/dev/null":
+                files.setdefault(
+                    current, {"path": current, "additions": 0, "deletions": 0, "hunks": 0}
+                )
+        elif current and line.startswith("@@"):
+            files[current]["hunks"] += 1
+        elif current and line.startswith("+") and not line.startswith("+++"):
+            files[current]["additions"] += 1
+        elif current and line.startswith("-") and not line.startswith("---"):
+            files[current]["deletions"] += 1
+    return {
+        "available": True,
+        "source": url,
+        "files": list(files.values())[:200],
+        "total_additions": sum(item["additions"] for item in files.values()),
+        "total_deletions": sum(item["deletions"] for item in files.values()),
+    }
 
 
 def _impacted_domains(
@@ -260,6 +298,9 @@ def _review_packet(
     review_plan: list[str],
     tests: list[str],
     deployment_risk: dict[str, Any],
+    affected_services: list[dict[str, Any]],
+    reviewers: list[str],
+    test_impact: dict[str, Any],
 ) -> dict[str, Any]:
     return {
         "summary": _summary(score, domains, impacts),
@@ -268,11 +309,110 @@ def _review_packet(
             "files": [item.get("path") for item in impacts],
         },
         "review_plan": review_plan,
+        "recommended_reviewers": reviewers,
         "recommended_tests": tests,
+        "test_impact_analysis": test_impact,
+        "affected_services": affected_services,
         "deployment_risk": deployment_risk,
-        "release_gate": "block"
-        if score >= 75
-        else "staff review"
-        if score >= 55
-        else "standard review",
+        "release_gate": _release_gate(score, deployment_risk),
     }
+
+
+def _affected_services(
+    summary: dict[str, Any], changed_files: list[str], domains: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    services = []
+    for domain in domains:
+        name = str(domain.get("name", ""))
+        services.append(
+            {
+                "service": name,
+                "role": domain.get("role"),
+                "changed_files": [
+                    path
+                    for path in changed_files
+                    if name and (path.startswith(f"{name}/") or name in path)
+                ],
+                "risk": "high"
+                if domain.get("security_findings") or domain.get("data_models")
+                else "medium"
+                if domain.get("routes")
+                else "low",
+            }
+        )
+    if services:
+        return services[:12]
+    for path in changed_files[:12]:
+        services.append(
+            {
+                "service": path.split("/", 1)[0],
+                "role": _layer(path),
+                "changed_files": [path],
+                "risk": _risk_level(30),
+            }
+        )
+    return services
+
+
+def _recommended_reviewers(
+    impacts: list[dict[str, Any]], services: list[dict[str, Any]]
+) -> list[str]:
+    reviewers = {"code owner"}
+    layers = {item["layer"] for item in impacts}
+    if "security" in layers or any(service["risk"] == "high" for service in services):
+        reviewers.add("security owner")
+    if "data" in layers:
+        reviewers.add("data platform owner")
+    if "interface" in layers:
+        reviewers.add("API owner")
+    if len(services) >= 3:
+        reviewers.add("staff engineer")
+    return sorted(reviewers)
+
+
+def _test_impact(
+    summary: dict[str, Any], changed_files: list[str], domains: list[dict[str, Any]]
+) -> dict[str, Any]:
+    test_files = [
+        file.get("relative_path", "")
+        for file in summary.get("files", [])
+        if "test" in file.get("relative_path", "").lower()
+    ]
+    related = []
+    for changed in changed_files:
+        stem = changed.rsplit("/", 1)[-1].split(".", 1)[0].lower()
+        related.extend(path for path in test_files if stem and stem in path.lower())
+    return {
+        "related_tests": sorted(set(related))[:20],
+        "coverage_confidence": "high" if related else "medium" if test_files else "low",
+        "missing_test_warning": not bool(related),
+        "domain_count": len(domains),
+    }
+
+
+def _impact_prediction(
+    score: int, services: list[dict[str, Any]], impacts: list[dict[str, Any]]
+) -> dict[str, Any]:
+    return {
+        "user_impact": "high"
+        if any(item["layer"] == "interface" for item in impacts)
+        else "medium"
+        if services
+        else "low",
+        "operational_impact": "high" if score >= 70 else "medium" if score >= 40 else "low",
+        "most_likely_failure_mode": "auth/data regression"
+        if any(item["layer"] in {"security", "data"} for item in impacts)
+        else "API or service behavior regression"
+        if services
+        else "localized code regression",
+    }
+
+
+def _release_gate(score: int, deployment_risk: dict[str, Any]) -> str:
+    if score >= 75 or deployment_risk.get("level") == "critical":
+        return "block until staff/security approval"
+    if score >= 55 or deployment_risk.get("level") == "high":
+        return "staff review required"
+    if score >= 35:
+        return "targeted owner review"
+    return "standard review"

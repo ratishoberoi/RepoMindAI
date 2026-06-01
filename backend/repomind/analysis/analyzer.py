@@ -12,6 +12,7 @@ from repomind.analysis.graph import build_dependency_graph
 from repomind.analysis.parser import parse_file
 from repomind.core.config import get_settings
 from repomind.intelligence.evidence import build_score_evidence
+from repomind.intelligence.graph_store import sync_repository_graph
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
 from repomind.rag.indexer import index_repository
 from repomind.reports.generator import generate_reports
@@ -198,6 +199,7 @@ def build_summary(
         "knowledge_graph": knowledge_graph,
     }
     summary["score_evidence"] = build_score_evidence(summary)
+    summary["graph_store"] = sync_repository_graph(summary)
     return summary
 
 

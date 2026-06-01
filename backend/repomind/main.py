@@ -23,6 +23,7 @@ from repomind.intelligence.architecture_explorer import build_architecture_explo
 from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.due_diligence import build_cto_due_diligence
 from repomind.intelligence.executive_reports import build_executive_report_pack
+from repomind.intelligence.graph_store import query_repository_graph
 from repomind.intelligence.portfolio import build_multi_repository_intelligence
 from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.registry import local_model
@@ -77,6 +78,7 @@ def runtime_config() -> dict:
         "analysis_workers": settings.analysis_workers,
         "redact_secrets": settings.redact_secrets,
         "trust_remote_model_code": settings.trust_remote_model_code,
+        "graph_backend": "neo4j" if settings.neo4j_uri else "projection",
     }
 
 
@@ -197,6 +199,11 @@ def repository_knowledge_graph(repo_id: str) -> dict:
     )
 
 
+@app.get("/repositories/{repo_id}/graph-query", dependencies=PROTECTED)
+def repository_graph_query(repo_id: str, query: str = "overview") -> dict:
+    return query_repository_graph(_summary(repo_id), query)
+
+
 @app.get("/repositories/{repo_id}/architecture-explorer", dependencies=PROTECTED)
 def repository_architecture_explorer(repo_id: str) -> dict:
     return build_architecture_explorer(_summary(repo_id))
@@ -256,8 +263,20 @@ def compare_repositories(left_id: str, right_id: str) -> dict:
 
 
 @app.get("/repositories/{repo_id}/architecture-drift", dependencies=PROTECTED)
-def repository_architecture_drift(repo_id: str, baseline_id: str) -> dict:
-    return detect_architecture_drift(_summary(baseline_id), _summary(repo_id))
+def repository_architecture_drift(
+    repo_id: str,
+    baseline_id: str,
+    compare_type: str = "repository",
+    baseline_ref: str = "",
+    target_ref: str = "",
+) -> dict:
+    return detect_architecture_drift(
+        _summary(baseline_id),
+        _summary(repo_id),
+        compare_type=compare_type,
+        baseline_ref=baseline_ref,
+        target_ref=target_ref,
+    )
 
 
 @app.get("/repositories/{repo_id}/reports/{report_name}", dependencies=PROTECTED)

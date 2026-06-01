@@ -112,9 +112,12 @@ export async function prRisk(repoId: string, changed_files: string[], title = ""
   return res.json();
 }
 
-export async function architectureDrift(repoId: string, baselineId: string) {
+export async function architectureDrift(repoId: string, baselineId: string, compare_type = "repository", baseline_ref = "", target_ref = "") {
   const url = new URL(`${API_BASE}/repositories/${repoId}/architecture-drift`);
   url.searchParams.set("baseline_id", baselineId);
+  url.searchParams.set("compare_type", compare_type);
+  if (baseline_ref) url.searchParams.set("baseline_ref", baseline_ref);
+  if (target_ref) url.searchParams.set("target_ref", target_ref);
   const res = await fetch(withApiKey(url.toString()), { cache: "no-store", headers: authHeaders() });
   if (!res.ok) throw new Error(await errorText(res));
   return res.json();

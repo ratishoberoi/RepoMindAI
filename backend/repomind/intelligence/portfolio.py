@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from typing import Any
 
+from repomind.intelligence.graph_store import build_graph_projection
+
 
 def build_multi_repository_intelligence(repositories: list[dict[str, Any]]) -> dict[str, Any]:
     analyzed = [repo for repo in repositories if repo.get("summary")]
@@ -14,6 +16,7 @@ def build_multi_repository_intelligence(repositories: list[dict[str, Any]]) -> d
     service_index: dict[str, list[dict[str, str]]] = defaultdict(list)
     vulnerability_index: dict[str, list[dict[str, str]]] = defaultdict(list)
     risks = []
+    ownership = _ownership_map(analyzed)
     for repo in analyzed:
         summary = repo["summary"]
         language = summary.get("languages", {}).get("primary")
@@ -50,6 +53,14 @@ def build_multi_repository_intelligence(repositories: list[dict[str, Any]]) -> d
         "languages": language_counts.most_common(),
         "frameworks": framework_counts.most_common(),
         "dependency_overlap_graph": _dependency_overlap_graph(analyzed, dependency_counts),
+        "ownership_map": ownership,
+        "team_ownership": ownership["teams"],
+        "service_ownership": ownership["services"],
+        "owner_relationships": ownership["relationships"],
+        "bus_factor": ownership["bus_factor"],
+        "orphaned_services": ownership["orphaned_services"],
+        "single_points_of_failure": ownership["single_points_of_failure"],
+        "ownership_graph": ownership["graph"],
         "shared_dependencies": [
             {"name": name, "repository_count": count, "ecosystem": "dependency"}
             for name, count in dependency_counts.most_common(30)
@@ -298,3 +309,190 @@ def _remediation_center(
             }
         )
     return sorted(actions, key=lambda item: item["impact"], reverse=True)[:12]
+
+
+def _ownership_map(repositories: list[dict[str, Any]]) -> dict[str, Any]:
+    teams: dict[str, dict[str, Any]] = {}
+    services = []
+    relationships = []
+    graph_nodes = []
+    graph_edges = []
+    for repo in repositories:
+        summary = repo["summary"]
+        projection = build_graph_projection(summary)
+        repo_node = {
+            "id": f"repo:{repo['id']}",
+            "label": repo["name"],
+            "kind": "repository",
+        }
+        graph_nodes.append(repo_node)
+        domains = summary.get("knowledge_graph", {}).get("domains", [])
+        for domain in domains:
+            name = str(domain.get("name", "domain"))
+            owner = _infer_owner(repo["name"], name)
+            team = teams.setdefault(
+                owner["team"],
+                {
+                    "team": owner["team"],
+                    "owners": set(),
+                    "repositories": set(),
+                    "services": [],
+                    "critical_services": 0,
+                    "bus_factor": owner["bus_factor"],
+                    "confidence": owner["confidence"],
+                },
+            )
+            service_id = f"service:{repo['id']}:{name}"
+            service = {
+                "id": service_id,
+                "name": name,
+                "repository": repo["name"],
+                "repo_id": repo["id"],
+                "team": owner["team"],
+                "owner": owner["owner"],
+                "domain": name,
+                "role": domain.get("role", "Application domain"),
+                "file_count": domain.get("file_count", 0),
+                "risk_score": _service_risk(domain, summary),
+                "critical": domain.get("file_count", 0) >= 5
+                or domain.get("security_findings", 0) > 0,
+                "confidence": owner["confidence"],
+            }
+            services.append(service)
+            team["owners"].add(owner["owner"])
+            team["repositories"].add(repo["name"])
+            team["services"].append(name)
+            team["critical_services"] += 1 if service["critical"] else 0
+            relationships.append(
+                {
+                    "team": owner["team"],
+                    "owner": owner["owner"],
+                    "service": name,
+                    "domain": name,
+                    "repository": repo["name"],
+                    "relationship": "owns",
+                    "confidence": owner["confidence"],
+                }
+            )
+            graph_nodes.extend(
+                [
+                    {"id": f"team:{owner['team']}", "label": owner["team"], "kind": "team"},
+                    {"id": f"owner:{owner['owner']}", "label": owner["owner"], "kind": "owner"},
+                    {
+                        "id": service_id,
+                        "label": name,
+                        "kind": "service",
+                        "risk_score": service["risk_score"],
+                    },
+                ]
+            )
+            graph_edges.extend(
+                [
+                    {
+                        "source": f"team:{owner['team']}",
+                        "target": f"owner:{owner['owner']}",
+                        "relation": "has_owner",
+                    },
+                    {"source": f"owner:{owner['owner']}", "target": service_id, "relation": "owns"},
+                    {"source": repo_node["id"], "target": service_id, "relation": "contains"},
+                ]
+            )
+        if not domains:
+            graph_nodes.extend(projection["nodes"][:20])
+            graph_edges.extend(projection["edges"][:40])
+    team_rows = []
+    for team in teams.values():
+        team_rows.append(
+            {
+                **team,
+                "owners": sorted(team["owners"]),
+                "repositories": sorted(team["repositories"]),
+                "service_count": len(team["services"]),
+                "services": sorted(team["services"])[:20],
+                "concentration_risk": "high"
+                if team["bus_factor"] <= 1 and team["critical_services"]
+                else "medium"
+                if team["critical_services"] >= 3
+                else "low",
+            }
+        )
+    orphaned = [
+        service
+        for service in services
+        if service["confidence"] < 0.6 or service["team"] == "Core Engineering"
+    ]
+    single_points = [
+        {
+            "team": team["team"],
+            "bus_factor": team["bus_factor"],
+            "critical_services": team["critical_services"],
+            "repositories": team["repositories"],
+            "risk": "single point of failure",
+        }
+        for team in team_rows
+        if team["bus_factor"] <= 1 and team["critical_services"] > 0
+    ]
+    unique_nodes = {node["id"]: node for node in graph_nodes}
+    return {
+        "teams": sorted(
+            team_rows,
+            key=lambda row: (row["concentration_risk"], row["service_count"]),
+            reverse=True,
+        ),
+        "services": sorted(services, key=lambda row: row["risk_score"], reverse=True),
+        "relationships": relationships,
+        "bus_factor": {
+            "portfolio_min": min((team["bus_factor"] for team in team_rows), default=0),
+            "critical_team_count": len(single_points),
+            "average": round(sum(team["bus_factor"] for team in team_rows) / len(team_rows), 1)
+            if team_rows
+            else 0,
+        },
+        "orphaned_services": orphaned[:20],
+        "single_points_of_failure": single_points[:20],
+        "graph": {"nodes": list(unique_nodes.values())[:500], "edges": graph_edges[:1000]},
+    }
+
+
+def _infer_owner(repo_name: str, domain: str) -> dict[str, Any]:
+    lower = f"{repo_name}/{domain}".lower()
+    if any(token in lower for token in ("auth", "security", "session")):
+        return {
+            "team": "Security Platform",
+            "owner": "security-lead",
+            "bus_factor": 2,
+            "confidence": 0.78,
+        }
+    if any(token in lower for token in ("db", "model", "data", "store")):
+        return {"team": "Data Platform", "owner": "data-lead", "bus_factor": 2, "confidence": 0.72}
+    if any(token in lower for token in ("front", "ui", "component", "page")):
+        return {
+            "team": "Product Experience",
+            "owner": "frontend-lead",
+            "bus_factor": 3,
+            "confidence": 0.68,
+        }
+    if any(token in lower for token in ("infra", "deploy", "docker", "ci")):
+        return {
+            "team": "Infrastructure",
+            "owner": "platform-lead",
+            "bus_factor": 2,
+            "confidence": 0.7,
+        }
+    return {
+        "team": "Core Engineering",
+        "owner": "core-maintainer",
+        "bus_factor": 1,
+        "confidence": 0.55,
+    }
+
+
+def _service_risk(domain: dict[str, Any], summary: dict[str, Any]) -> float:
+    files = max(summary.get("statistics", {}).get("files", 1), 1)
+    concentration = domain.get("file_count", 0) / files
+    risk = concentration * 45 + domain.get("security_findings", 0) * 18
+    if domain.get("routes", 0):
+        risk += 10
+    if domain.get("data_models", 0):
+        risk += 12
+    return round(min(100, risk), 1)

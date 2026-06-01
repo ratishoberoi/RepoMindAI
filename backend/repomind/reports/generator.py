@@ -452,8 +452,10 @@ def _sarif_result(item: dict[str, Any]) -> dict[str, Any]:
 def _html_summary(summary: dict[str, Any]) -> str:
     scores = summary.get("scores", {})
     stats = summary.get("statistics", {})
+    findings = summary.get("security", {}).get("findings", [])
+    evidence = summary.get("score_evidence", {})
     rows = "".join(
-        f"<tr><th>{escape(str(key))}</th><td>{escape(str(value))}</td></tr>"
+        f"<div class='metric'><span>{escape(str(key))}</span><strong>{escape(str(value))}</strong></div>"
         for key, value in {
             "Repository": summary.get("repository", {}).get("name"),
             "Files": stats.get("files"),
@@ -463,24 +465,57 @@ def _html_summary(summary: dict[str, Any]) -> str:
             "Production readiness": scores.get("production_readiness"),
         }.items()
     )
+    scorecards = "".join(
+        f"<section class='score'><h3>{escape(str(item.get('label', key)))}</h3><div class='bar'><i style='width:{float(item.get('score', 0))}%'></i></div><p>{escape(str(item.get('calculation', '')))}</p></section>"
+        for key, item in evidence.items()
+    )
+    risk_rows = (
+        "".join(
+            f"<article class='risk'><b>{escape(str(item.get('severity', 'medium')).upper())}</b><span>{escape(str(item.get('message', item.get('title', 'Finding'))))}</span><small>{escape(str(item.get('path', item.get('file', ''))))}:{escape(str(item.get('line', 1)))}</small></article>"
+            for item in findings[:12]
+        )
+        or "<article class='risk'><b>LOW</b><span>No high-confidence security findings.</span><small>Scanner output</small></article>"
+    )
     return (
         "<!doctype html><html><head><meta charset='utf-8'><title>RepoMind Executive Summary</title>"
-        "<style>body{font-family:Inter,Arial,sans-serif;margin:40px;color:#111827}"
-        "table{border-collapse:collapse}th,td{border:1px solid #d1d5db;padding:8px 12px;text-align:left}</style>"
-        "</head><body><h1>RepoMind Executive Summary</h1>"
-        f"<p>{escape(summary.get('architecture', {}).get('summary', 'No architecture summary available.'))}</p>"
-        f"<table>{rows}</table></body></html>"
+        "<style>"
+        "@page{size:A4;margin:22mm}body{font-family:Inter,Arial,sans-serif;background:#f8fafc;color:#0f172a;margin:0}"
+        ".cover{padding:40px;border-radius:28px;background:linear-gradient(135deg,#020617,#0f766e);color:white}"
+        ".eyebrow{letter-spacing:.22em;text-transform:uppercase;color:#a5f3fc;font-size:11px;font-weight:700}"
+        "h1{font-size:42px;line-height:1.05;margin:14px 0}h2{font-size:18px;margin-top:28px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}"
+        ".metric,.score,.risk{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(15,23,42,.06)}"
+        ".metric span{display:block;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.12em}.metric strong{display:block;font-size:26px;margin-top:8px}"
+        ".bar{height:9px;background:#e2e8f0;border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#06b6d4,#22c55e,#facc15)}"
+        ".risks{display:grid;grid-template-columns:1fr 1fr;gap:10px}.risk b{color:#be123c;margin-right:8px}.risk small{display:block;color:#64748b;margin-top:8px}"
+        "</style></head><body>"
+        "<section class='cover'><p class='eyebrow'>RepoMindAI CTO Intelligence Platform</p>"
+        f"<h1>{escape(str(summary.get('repository', {}).get('name', 'Repository')))} Executive Summary</h1>"
+        f"<p>{escape(summary.get('architecture', {}).get('summary', 'No architecture summary available.'))}</p></section>"
+        f"<h2>Board Scorecard</h2><div class='grid'>{rows}</div>"
+        f"<h2>Explainable Scores</h2>{scorecards}"
+        f"<h2>Risk Register</h2><div class='risks'>{risk_rows}</div>"
+        "</body></html>"
     )
 
 
 def _pdf_summary(summary: dict[str, Any]) -> bytes:
+    html = _html_summary(summary)
+    try:
+        from weasyprint import HTML
+
+        return HTML(string=html).write_pdf()
+    except Exception:
+        pass
     lines = [
-        "RepoMind Executive Summary",
+        "RepoMindAI CTO Intelligence Platform",
+        "Investor-Grade Executive Summary",
         f"Repository: {summary.get('repository', {}).get('name')}",
         f"Files: {summary.get('statistics', {}).get('files')}",
         f"Security: {summary.get('scores', {}).get('security')}",
         f"Maintainability: {summary.get('scores', {}).get('maintainability')}",
         f"Production readiness: {summary.get('scores', {}).get('production_readiness')}",
+        f"Top findings: {len(summary.get('security', {}).get('findings', []))}",
+        "Generated from repository evidence, graph signals, security findings, and score breakdowns.",
     ]
     stream = (
         "BT /F1 12 Tf 72 760 Td "

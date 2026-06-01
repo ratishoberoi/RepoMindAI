@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, Layers3, Network, Radar, ShieldAlert } from "lucide-react";
+import { Building2, Layers3, Network, Radar, ShieldAlert, UserRoundCheck, Users } from "lucide-react";
 import type { PortfolioIntelligence } from "./types";
 import { Badge, Button, EmptyState, MetricCard, Panel, ScoreBar, SeverityBadge } from "./ui";
 import { asScore, compactNumber } from "./utils";
@@ -30,6 +30,10 @@ export function PortfolioPanel({
   const duplicateServices = data.duplicate_services ?? [];
   const frameworkRisk = data.framework_concentration_risk ?? [];
   const ownershipRisk = data.ownership_concentration_risk ?? [];
+  const teams = data.team_ownership ?? [];
+  const services = data.service_ownership ?? [];
+  const orphaned = data.orphaned_services ?? [];
+  const singlePoints = data.single_points_of_failure ?? [];
   const insights = (data.strategic_insights?.length
     ? data.strategic_insights
     : [...(data.recommendations ?? []), ...frameworkRisk.slice(0, 3).map((item) => `${String(item.framework)} appears in ${String(item.portfolio_share)}% of analyzed repositories.`)].map((item, index) => ({ title: `Portfolio move ${index + 1}`, description: item, severity: index === 0 ? "high" : "medium" }))) as Array<Record<string, unknown>>;
@@ -42,6 +46,63 @@ export function PortfolioPanel({
         <MetricCard label="Repositories" value={compactNumber(repositoryCount)} detail="Analyzed assets" icon={<Layers3 size={18} />} />
         <MetricCard label="Shared Risks" value={compactNumber(risks.length)} detail="Repeated exposure patterns" icon={<ShieldAlert size={18} />} />
         <MetricCard label="Dependency Clusters" value={compactNumber(sharedDependencies.length)} detail="Concentration map" icon={<Network size={18} />} />
+      </div>
+
+      <Panel title="Ownership Command Map" eyebrow="teams, owners, services, domains">
+        <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid gap-3 md:grid-cols-2">
+            {teams.slice(0, 8).map((team, index) => (
+              <div key={index} className="rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.06] p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{String(team.team)}</p>
+                    <p className="mt-1 text-xs text-cyan-100/70">{String(team.service_count ?? 0)} services across {String((team.repositories as string[] | undefined)?.length ?? 0)} repos</p>
+                  </div>
+                  <SeverityBadge severity={String(team.concentration_risk ?? "low")} />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {((team.owners as string[] | undefined) ?? []).slice(0, 4).map((owner) => (
+                    <Badge key={owner} className="border-white/10 bg-black/20 text-slate-200"><UserRoundCheck size={12} /> {owner}</Badge>
+                  ))}
+                </div>
+                <ScoreBar label={`Bus factor ${String(team.bus_factor ?? "--")}`} value={Math.min(100, Number(team.bus_factor ?? 0) * 25)} />
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-3">
+            <MetricCard label="Portfolio Bus Factor" value={String(data.bus_factor?.portfolio_min ?? "--")} detail={`${String(data.bus_factor?.critical_team_count ?? 0)} critical team risks`} icon={<Users size={18} />} />
+            <MetricCard label="Orphaned Services" value={orphaned.length} detail="Low-confidence ownership assignments" />
+            <MetricCard label="Single Points" value={singlePoints.length} detail="Critical services with low bus factor" />
+          </div>
+        </div>
+      </Panel>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Panel title="Critical Service Ownership" eyebrow="who owns what">
+          <div className="space-y-3">
+            {services.slice(0, 10).map((service, index) => (
+              <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-white">{String(service.name)}</p>
+                  <Badge className="border-cyan-300/20 bg-cyan-300/10 text-cyan-100">{String(service.team)}</Badge>
+                </div>
+                <p className="mt-1 text-xs text-slate-400">{String(service.repository)} / {String(service.role)} / owner {String(service.owner)}</p>
+                <ScoreBar label="Service risk" value={Number(service.risk_score ?? 0)} />
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Single Points of Failure" eyebrow="ownership concentration">
+          <div className="space-y-3">
+            {singlePoints.slice(0, 10).map((item, index) => (
+              <div key={index} className="rounded-xl border border-rose-300/15 bg-rose-500/[0.08] p-3">
+                <p className="text-sm font-semibold text-white">{String(item.team)}</p>
+                <p className="mt-1 text-xs text-rose-100/75">Bus factor {String(item.bus_factor)} with {String(item.critical_services)} critical services.</p>
+              </div>
+            ))}
+            {!singlePoints.length ? <p className="text-sm text-slate-400">No critical single-owner service concentration detected.</p> : null}
+          </div>
+        </Panel>
       </div>
 
       <Panel title="Dependency Overlap Graph" eyebrow="shared frameworks, libraries, and package surfaces">

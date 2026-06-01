@@ -23,11 +23,14 @@ export function RiskAndDriftCenter({
   driftResult: DriftResult | null;
   busy: boolean;
   onPrRisk: (files: string[], prUrl: string) => void;
-  onDrift: (baselineId: string) => void;
+  onDrift: (baselineId: string, compareType: string, baselineRef: string, targetRef: string) => void;
 }) {
   const [files, setFiles] = useState("backend/repomind/main.py\nfrontend/components/RepoMindDashboard.tsx");
   const [prUrl, setPrUrl] = useState("");
   const [baseline, setBaseline] = useState("");
+  const [compareType, setCompareType] = useState("repository");
+  const [baselineRef, setBaselineRef] = useState("");
+  const [targetRef, setTargetRef] = useState("");
   const completeRepos = repositories.filter((repo) => repo.status === "complete" && repo.id !== activeRepo?.id);
 
   return (
@@ -65,12 +68,28 @@ export function RiskAndDriftCenter({
           {prResult ? <PrRiskResultView result={prResult} /> : <div className="mt-4"><EmptyState title="No PR risk run" text="Paste a PR URL or changed files to estimate affected domains, review intensity, deployment risk, and test strategy." /></div>}
         </Panel>
 
-        <Panel title="Architecture Drift Center" eyebrow="Baseline comparison" action={<Button onClick={() => baseline && onDrift(baseline)} disabled={!baseline || !activeRepo || busy}>Compare</Button>}>
+        <Panel title="Architecture Drift Center" eyebrow="commit, branch, release, repository" action={<Button onClick={() => baseline && onDrift(baseline, compareType, baselineRef, targetRef)} disabled={!baseline || !activeRepo || busy}>Compare</Button>}>
           <label className="block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Baseline repository</label>
           <select className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100 outline-none focus:border-cyan-300/45" value={baseline} onChange={(event) => setBaseline(event.target.value)}>
             <option value="">Select complete baseline</option>
             {completeRepos.map((repo) => <option key={repo.id} value={repo.id}>{repo.name}</option>)}
           </select>
+          <div className="mt-3 grid gap-3 md:grid-cols-3">
+            <label className="block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+              Compare
+              <select className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100 outline-none focus:border-cyan-300/45" value={compareType} onChange={(event) => setCompareType(event.target.value)}>
+                {["repository", "commit", "branch", "release"].map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </label>
+            <label className="block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+              Baseline ref
+              <input className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45" value={baselineRef} onChange={(event) => setBaselineRef(event.target.value)} placeholder="main, v1.0, sha" />
+            </label>
+            <label className="block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+              Target ref
+              <input className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45" value={targetRef} onChange={(event) => setTargetRef(event.target.value)} placeholder="feature, v2.0, sha" />
+            </label>
+          </div>
           {driftResult ? <DriftResultView result={driftResult} /> : <div className="mt-4"><EmptyState title="No drift comparison" text="Compare against a prior analysis or sibling repo to identify architecture change and operational drift." /></div>}
         </Panel>
       </div>
@@ -109,11 +128,34 @@ function PrRiskResultView({ result }: { result: PrRiskResult }) {
       </Panel>
       <Panel title="PR Review Packet" eyebrow="Release gate and deployment risk">
         <div className="grid gap-3 md:grid-cols-3">
-          <PacketItem label="Release gate" value={String(result.pr_review_packet?.release_gate ?? "standard review")} />
+          <PacketItem label="Release gate" value={String(result.release_gate_recommendation ?? result.pr_review_packet?.release_gate ?? "standard review")} />
           <PacketItem label="Blast radius" value={`${String(result.blast_radius?.domain_count ?? 0)} domains`} />
           <PacketItem label="Source" value={String(result.changed_files_source ?? "manual")} />
         </div>
       </Panel>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Panel title="Affected Services" eyebrow="impact prediction">
+          <div className="space-y-2">
+            {(result.affected_services ?? []).slice(0, 6).map((service, index) => (
+              <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <p className="text-sm font-semibold text-white">{String(service.service)}</p>
+                <p className="mt-1 text-xs text-slate-400">{String(service.role ?? service.risk ?? "service")}</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Recommended Reviewers" eyebrow="ownership routing">
+          <div className="space-y-2">
+            {(result.recommended_reviewers ?? []).map((reviewer) => <ChecklistItem key={reviewer} text={reviewer} />)}
+          </div>
+        </Panel>
+        <Panel title="Test Impact" eyebrow={String(result.test_impact_analysis?.coverage_confidence ?? "unknown")}>
+          <div className="space-y-2">
+            {((result.test_impact_analysis?.related_tests as string[] | undefined) ?? []).slice(0, 6).map((test) => <ChecklistItem key={test} text={test} tone="test" />)}
+            {!(result.test_impact_analysis?.related_tests as string[] | undefined)?.length ? <p className="text-sm text-slate-400">No directly related tests detected for changed files.</p> : null}
+          </div>
+        </Panel>
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
         {(result.findings ?? []).slice(0, 6).map((finding, index) => (
           <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
@@ -140,6 +182,21 @@ function DriftResultView({ result }: { result: DriftResult }) {
       </div>
       <ScoreBar label="Architecture stability" value={100 - score} />
       {result.drift_report ? <pre className="max-h-72 overflow-auto rounded-xl border border-white/10 bg-black/25 p-4 text-xs leading-5 text-slate-300">{result.drift_report}</pre> : null}
+      <Panel title="Architecture Drift Timeline" eyebrow={result.compare_type ?? "repository"}>
+        <div className="space-y-3">
+          {(result.timeline ?? []).map((event, index) => (
+            <div key={index} className="rounded-xl border border-cyan-300/15 bg-cyan-400/[0.06] p-3">
+              <p className="text-sm font-semibold text-white">{String(event.label ?? `Step ${index + 1}`)}</p>
+              <p className="mt-1 text-xs text-cyan-100/75">{((event.events as string[] | undefined) ?? []).join(" | ")}</p>
+            </div>
+          ))}
+        </div>
+      </Panel>
+      <div className="grid gap-3 md:grid-cols-3">
+        <DriftSignal label="Dependencies" value={result.dependency_surface_changes} />
+        <DriftSignal label="Integrations" value={result.external_integration_changes} />
+        <DriftSignal label="API Surface" value={result.api_surface_changes} />
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
         {(result.findings ?? []).slice(0, 6).map((finding, index) => (
           <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
@@ -149,6 +206,17 @@ function DriftResultView({ result }: { result: DriftResult }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function DriftSignal({ label, value }: { label: string; value?: Record<string, unknown> }) {
+  const added = (value?.added as unknown[] | undefined)?.length ?? 0;
+  const removed = (value?.removed as unknown[] | undefined)?.length ?? 0;
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+      <p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-2 text-sm font-semibold text-white">+{added} / -{removed}</p>
     </div>
   );
 }

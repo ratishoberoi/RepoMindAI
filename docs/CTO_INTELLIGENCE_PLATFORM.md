@@ -22,6 +22,8 @@ RepoMindAI turns repository analysis artifacts into CTO, diligence, and portfoli
 ## Knowledge Graph 3.0
 
 - API: `GET /repositories/{repo_id}/knowledge-graph`
+- Graph query API: `GET /repositories/{repo_id}/graph-query?query=overview|hotspots|ownership`
+- Neo4j integration is enabled with `REPOMIND_NEO4J_URI`, `REPOMIND_NEO4J_USER`, and `REPOMIND_NEO4J_PASSWORD`. Without Neo4j, RepoMindAI uses the same graph projection locally so the product remains functional.
 - Adds cluster evidence for Auth, API, Database, Security, Payments, Infrastructure, Frontend, and Application domains.
 - Adds graph insights for large symbol concentration, dependency bottlenecks, architecture hotspots, security hotspots, critical paths, and git timeline events when local git history is available.
 
@@ -42,19 +44,30 @@ RepoMindAI turns repository analysis artifacts into CTO, diligence, and portfoli
 - API: `POST /repositories/{repo_id}/pr-risk`
 - Inputs: changed file paths, PR title/description, or a public GitHub PR URL.
 - For GitHub PR URLs, RepoMindAI fetches the `.diff` representation and extracts changed files. Private PRs or inaccessible URLs fail closed into the normal no-files validation instead of fabricating changes.
-- Outputs: blast radius, affected domains, risk score, review plan, required reviewers, recommended tests, deployment risk, and PR review packet.
+- Outputs: blast radius, affected domains, affected services, recommended reviewers, test impact analysis, impact prediction, risk score, review plan, deployment risk, release gate recommendation, and PR review packet.
 
 ## Architecture Drift Engine
 
 - API: `GET /repositories/{repo_id}/architecture-drift?baseline_repo_id=...`
-- Compares current summary against a baseline snapshot.
-- Detects new/removed services, domain changes, dependency changes, security changes, and produces a drift report narrative.
+- Compares repository vs repository, branch vs branch, commit vs commit, or release vs release metadata when refs are provided.
+- Detects new/removed services, domain changes, dependency changes, security changes, external integration changes, API surface changes, and produces a drift timeline, visual diff, and drift report narrative.
 
 ## Security Center 2.0
 
 - Source: normalized security scanner findings.
-- Findings are enriched with OWASP category, CWE mapping, impact, remediation, affected files, severity, source path, and source line.
+- Scanners: custom rules, high-entropy secret detection, Bandit, Semgrep, Trivy when installed, npm audit when lockfiles exist, and pip-audit when installed.
+- Findings are enriched with OWASP category, CWE mapping, CVSS, exploitability, business impact, remediation, affected files, severity, source path, and source line.
 - Frontend surfaces include security score, severity mix, OWASP/CWE heatmap, risk matrix, and remediation evidence cards.
+
+## Portfolio Ownership Intelligence
+
+- Multi-repository intelligence maps teams, owners, services, domains, repositories, and ownership relationships.
+- Outputs include bus factor, critical ownership concentration, orphaned services, single points of failure, ownership graph, dependency overlap graph, shared vulnerabilities, and portfolio remediation actions.
+
+## Investor-Grade PDF Pipeline
+
+- `EXECUTIVE_SUMMARY.html` is now a board-ready HTML document with cover section, scorecards, explainable score sections, and risk register.
+- `EXECUTIVE_SUMMARY.pdf` uses HTML-to-PDF rendering through WeasyPrint when available and falls back to a deterministic PDF writer when the optional renderer is not installed.
 
 ## Acquisition Intelligence
 

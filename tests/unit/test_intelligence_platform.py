@@ -8,6 +8,7 @@ from repomind.intelligence.architecture_explorer import build_architecture_explo
 from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.evidence import build_score_evidence
 from repomind.intelligence.executive_reports import build_executive_report_pack
+from repomind.intelligence.graph_store import build_graph_projection, query_repository_graph
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
 from repomind.intelligence.portfolio import build_multi_repository_intelligence
 from repomind.intelligence.pr_risk import analyze_pr_risk
@@ -106,6 +107,8 @@ def test_architecture_explorer_traces_login_flow() -> None:
     assert "ONBOARDING" in explorer["onboarding_markdown"]
     assert explorer["architecture_review"]["coupling_analysis"]["level"]
     assert explorer["ai_architect_review"]
+    assert explorer["ai_architect_review"][0]["confidence"] > 0
+    assert explorer["ai_architect_review"][0]["evidence"]
 
 
 def test_score_evidence_explains_scores_with_citations() -> None:
@@ -155,6 +158,10 @@ def test_pr_risk_packet_includes_blast_radius_and_deployment_risk() -> None:
     assert result["blast_radius"]["file_count"] == 2
     assert result["deployment_risk"]["level"] in {"low", "medium", "high", "critical"}
     assert result["pr_review_packet"]["recommended_tests"]
+    assert result["affected_services"]
+    assert result["recommended_reviewers"]
+    assert result["test_impact_analysis"]["coverage_confidence"]
+    assert result["release_gate_recommendation"]
     assert result["findings"]
 
 
@@ -172,10 +179,15 @@ def test_drift_report_detects_changed_services_dependencies_and_security() -> No
         }
     )
 
-    result = detect_architecture_drift(baseline, current)
+    result = detect_architecture_drift(
+        baseline, current, compare_type="branch", baseline_ref="main", target_ref="feature"
+    )
 
     assert "workers" in result["new_services"]
     assert "Celery" in result["frameworks_added"]
+    assert result["timeline"]
+    assert result["visual_diff"]["nodes"]
+    assert result["dependency_surface_changes"]["added"]
     assert result["drift_report"]
 
 
@@ -184,6 +196,9 @@ def test_security_findings_include_taxonomy_and_remediation() -> None:
 
     assert finding["owasp"] == "A02:2021-Cryptographic Failures"
     assert finding["cwe"] == "CWE-798"
+    assert finding["cvss"] >= 8
+    assert finding["exploitability"]
+    assert finding["business_impact"]
     assert finding["impact"]
     assert finding["remediation"]
 
@@ -196,7 +211,22 @@ def test_portfolio_intelligence_v2_detects_overlap() -> None:
     assert portfolio["dependency_overlap_graph"]["edges"]
     assert portfolio["shared_vulnerabilities"]
     assert portfolio["framework_concentration_risk"][0]["framework"] == "FastAPI"
+    assert portfolio["team_ownership"]
+    assert portfolio["service_ownership"]
+    assert portfolio["bus_factor"]["portfolio_min"] >= 1
+    assert portfolio["ownership_graph"]["nodes"]
     assert portfolio["portfolio_remediation_center"]
+
+
+def test_graph_projection_supports_repository_queries() -> None:
+    summary = sample_summary()
+    projection = build_graph_projection(summary)
+    query = query_repository_graph(summary, "ownership")
+
+    assert projection["metrics"]["node_count"] > 0
+    assert projection["edges"]
+    assert query["query"] == "ownership"
+    assert query["nodes"]
 
 
 def test_report_generation_creates_enterprise_aliases(tmp_path, monkeypatch) -> None:

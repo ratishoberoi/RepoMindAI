@@ -92,6 +92,8 @@ export function SecurityCenter({ summary }: { summary: RepositorySummary | null 
                       <SeverityBadge severity={finding.severity} />
                       {finding.owasp ? <Badge className="border-cyan-300/20 bg-cyan-300/10 text-cyan-100">{finding.owasp}</Badge> : null}
                       {finding.cwe ? <Badge className="border-amber-300/20 bg-amber-300/10 text-amber-100">{finding.cwe}</Badge> : null}
+                      {finding.cvss ? <Badge className="border-rose-300/20 bg-rose-300/10 text-rose-100">CVSS {finding.cvss}</Badge> : null}
+                      {finding.scanner ? <Badge className="border-white/10 bg-black/20 text-slate-300">{finding.scanner}</Badge> : null}
                     </div>
                     <p className="mt-3 text-sm font-semibold text-white">{finding.message ?? finding.title ?? "Security finding"}</p>
                     <p className="mt-1 text-xs text-slate-500">
@@ -103,6 +105,8 @@ export function SecurityCenter({ summary }: { summary: RepositorySummary | null 
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   <EvidenceBox icon={<AlertTriangle size={14} />} title="Impact" text={finding.impact ?? "Impact requires manual triage."} />
                   <EvidenceBox icon={<FileWarning size={14} />} title="Remediation" text={finding.remediation ?? finding.recommendation ?? "Review and remediate this finding."} />
+                  <EvidenceBox icon={<ShieldCheck size={14} />} title="Business impact" text={finding.business_impact ?? "Business impact requires triage."} />
+                  <EvidenceBox icon={<ShieldAlert size={14} />} title="Exploitability" text={finding.exploitability ?? "unknown"} />
                 </div>
                 {(finding.affected_files ?? []).length ? (
                   <div className="mt-3 flex flex-wrap gap-2">

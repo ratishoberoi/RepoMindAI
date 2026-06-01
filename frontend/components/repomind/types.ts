@@ -71,6 +71,14 @@ export type PortfolioIntelligence = {
   duplicate_services?: Array<Record<string, unknown>>;
   framework_concentration_risk?: Array<Record<string, unknown>>;
   ownership_concentration_risk?: Array<Record<string, unknown>>;
+  team_ownership?: Array<Record<string, unknown>>;
+  service_ownership?: Array<Record<string, unknown>>;
+  owner_relationships?: Array<Record<string, unknown>>;
+  ownership_map?: Record<string, unknown>;
+  ownership_graph?: { nodes?: Array<Record<string, unknown>>; edges?: Array<Record<string, unknown>> };
+  bus_factor?: Record<string, unknown>;
+  orphaned_services?: Array<Record<string, unknown>>;
+  single_points_of_failure?: Array<Record<string, unknown>>;
   portfolio_remediation_center?: Array<Record<string, unknown>>;
   frameworks?: Record<string, number>;
   languages?: Record<string, number>;
@@ -94,6 +102,10 @@ export type Finding = {
   remediation?: string;
   owasp?: string;
   cwe?: string;
+  cvss?: number;
+  exploitability?: string;
+  business_impact?: string;
+  scanner?: string;
   affected_files?: string[];
 };
 
@@ -114,6 +126,12 @@ export type PrRiskResult = {
   recommended_tests?: string[];
   deployment_risk?: Record<string, unknown>;
   pr_review_packet?: Record<string, unknown>;
+  diff_metadata?: Record<string, unknown>;
+  affected_services?: Array<Record<string, unknown>>;
+  recommended_reviewers?: string[];
+  test_impact_analysis?: Record<string, unknown>;
+  impact_prediction?: Record<string, unknown>;
+  release_gate_recommendation?: string;
   summary?: string;
 };
 
@@ -130,6 +148,12 @@ export type DriftResult = {
   changed_dependencies?: Array<Record<string, unknown>>;
   dependency_changes?: Array<Record<string, unknown>>;
   security_changes?: Record<string, unknown>;
+  dependency_surface_changes?: Record<string, unknown>;
+  external_integration_changes?: Record<string, unknown>;
+  api_surface_changes?: Record<string, unknown>;
+  timeline?: Array<Record<string, unknown>>;
+  visual_diff?: { nodes?: Array<Record<string, unknown>>; edges?: Array<Record<string, unknown>> };
+  compare_type?: string;
   findings?: Finding[];
   drift_report?: string;
 };
