@@ -42,6 +42,7 @@ import {
 } from "lucide-react";
 import {
   analyze,
+  architectureDrift,
   cancelAnalysis,
   chat,
   cloneRepo,
@@ -92,6 +93,8 @@ export function RepoMindDashboard() {
   const [answer, setAnswer] = useState<any>(null);
   const [riskInput, setRiskInput] = useState("backend/repomind/main.py\nbackend/repomind/core/store.py");
   const [riskResult, setRiskResult] = useState<any>(null);
+  const [baselineRepoId, setBaselineRepoId] = useState("");
+  const [driftResult, setDriftResult] = useState<any>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState("Overview");
@@ -324,6 +327,47 @@ export function RepoMindDashboard() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </GlassPanel>
+          ) : null}
+
+          {repoSummary && tab === "Drift" ? (
+            <GlassPanel title="Architecture Drift Detection">
+              <div className="grid gap-4 xl:grid-cols-[360px_1fr]">
+                <div>
+                  <ControlLabel>Baseline repository</ControlLabel>
+                  <select className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm text-slate-100" value={baselineRepoId} onChange={(event) => setBaselineRepoId(event.target.value)}>
+                    <option value="">Select baseline</option>
+                    {repositories.filter((repo) => repo.id !== activeRepo?.id && repo.status === "complete").map((repo) => (
+                      <option key={repo.id} value={repo.id}>{repo.name}</option>
+                    ))}
+                  </select>
+                  <button className="mt-3 rounded-md bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50" disabled={!activeRepo || !baselineRepoId} onClick={async () => {
+                    if (!activeRepo || !baselineRepoId) return;
+                    setDriftResult(await architectureDrift(activeRepo.id, baselineRepoId));
+                  }}>
+                    Detect Drift
+                  </button>
+                </div>
+                <div>
+                  {!driftResult ? <Empty text="Compare this analyzed repository against another complete repository to detect architecture drift." /> : (
+                    <div className="space-y-4">
+                      <div className="grid gap-3 md:grid-cols-4">
+                        <Info label="Drift" value={`${driftResult.drift_level} (${driftResult.drift_score}/100)`} />
+                        <Info label="Domains added" value={String(driftResult.domain_added?.length ?? 0)} />
+                        <Info label="Domains removed" value={String(driftResult.domain_removed?.length ?? 0)} />
+                        <Info label="Changed" value={String(driftResult.domain_changed?.length ?? 0)} />
+                      </div>
+                      <p className="text-sm leading-6 text-slate-300">{driftResult.summary}</p>
+                      <EvidenceList title="Recommendations" items={driftResult.recommendations ?? []} />
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <EvidenceList title="Added domains" items={driftResult.domain_added ?? []} />
+                        <EvidenceList title="Removed domains" items={driftResult.domain_removed ?? []} />
+                      </div>
+                      <pre className="max-h-56 overflow-auto rounded-md border border-white/10 bg-black/30 p-3 text-xs text-slate-300">{JSON.stringify(driftResult.score_delta ?? {}, null, 2)}</pre>
                     </div>
                   )}
                 </div>

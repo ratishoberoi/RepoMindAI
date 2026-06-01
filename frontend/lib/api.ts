@@ -100,6 +100,14 @@ export async function prRisk(repoId: string, changed_files: string[], title = ""
   return res.json();
 }
 
+export async function architectureDrift(repoId: string, baselineId: string) {
+  const url = new URL(`${API_BASE}/repositories/${repoId}/architecture-drift`);
+  url.searchParams.set("baseline_id", baselineId);
+  const res = await fetch(withApiKey(url.toString()), { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
 export async function fetchReport(repoId: string, name: string): Promise<string> {
   const res = await fetch(reportUrl(repoId, name), { cache: "no-store", headers: authHeaders() });
   if (!res.ok) throw new Error(await errorText(res));

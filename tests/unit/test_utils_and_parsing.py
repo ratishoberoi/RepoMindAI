@@ -8,6 +8,7 @@ from repomind.core import cleanup
 from repomind.core.config import Settings
 from repomind.core.store import RepositoryStore
 from repomind.ingestion import ingestor
+from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
 from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.adapters import detect_model
@@ -133,6 +134,38 @@ def test_pr_risk_uses_knowledge_graph_hotspots() -> None:
     assert risk["risk_level"] in {"high", "critical"}
     assert "security review" in risk["required_review"]
     assert risk["impacted_domains"][0]["name"] == "backend/api"
+
+
+def test_architecture_drift_detects_domain_changes() -> None:
+    baseline = {
+        "repository": {"id": "old", "name": "old"},
+        "stack": {"frameworks": ["FastAPI"]},
+        "architecture": {"style": "API service", "route_files": [], "database_model_files": []},
+        "scores": {"security": 90, "maintainability": 90, "production_readiness": 90, "cto": 90},
+        "knowledge_graph": {
+            "domains": [{"name": "backend/api", "role": "API boundary", "file_count": 1}]
+        },
+    }
+    current = {
+        "repository": {"id": "new", "name": "new"},
+        "stack": {"frameworks": ["FastAPI", "Next.js"]},
+        "architecture": {
+            "style": "Full-stack application",
+            "route_files": ["backend/api/users.py"],
+            "database_model_files": ["backend/db/models.py"],
+        },
+        "scores": {"security": 70, "maintainability": 90, "production_readiness": 80, "cto": 82},
+        "knowledge_graph": {
+            "domains": [
+                {"name": "backend/api", "role": "API boundary", "file_count": 3},
+                {"name": "frontend/app", "role": "User experience", "file_count": 2},
+            ]
+        },
+    }
+    drift = detect_architecture_drift(baseline, current)
+    assert drift["drift_level"] in {"minor", "material", "major"}
+    assert "frontend/app" in drift["domain_added"]
+    assert drift["score_delta"]["security"] == -20
 
 
 def test_chunks_are_stable() -> None:

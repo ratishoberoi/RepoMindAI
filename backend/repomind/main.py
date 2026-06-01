@@ -18,6 +18,7 @@ from repomind.core.security import (
 )
 from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
+from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.registry import local_model
 from repomind.rag.qa import answer_question
@@ -214,6 +215,11 @@ def compare_repositories(left_id: str, right_id: str) -> dict:
     left = _summary(left_id)
     right = _summary(right_id)
     return compare_summaries(left, right)
+
+
+@app.get("/repositories/{repo_id}/architecture-drift", dependencies=PROTECTED)
+def repository_architecture_drift(repo_id: str, baseline_id: str) -> dict:
+    return detect_architecture_drift(_summary(baseline_id), _summary(repo_id))
 
 
 @app.get("/repositories/{repo_id}/reports/{report_name}", dependencies=PROTECTED)

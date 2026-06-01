@@ -15,6 +15,7 @@ export const tabs = [
   "Overview",
   "Knowledge",
   "PR Risk",
+  "Drift",
   "Architecture",
   "Dependencies",
   "Security",

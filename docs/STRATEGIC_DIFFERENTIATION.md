@@ -28,3 +28,16 @@ User value:
 
 - Teams can judge blast radius before merging a PR.
 - CTOs get an evidence-backed review checklist that coding assistants do not infer from a whole-repo graph by default.
+
+## Architecture Drift Detection
+
+Architecture:
+
+- Each analyzed repository can be converted into a stable architecture fingerprint.
+- `/repositories/{repo_id}/architecture-drift?baseline_id=...` compares domains, route surfaces, data models, frameworks, hotspots, and score regressions.
+- The dashboard turns drift into release-review recommendations.
+
+User value:
+
+- Teams can detect whether a repo is drifting from its intended architecture.
+- Investors and CTOs can compare snapshots or branches as evidence of architectural control.
