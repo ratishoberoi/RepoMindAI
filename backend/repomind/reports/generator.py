@@ -8,7 +8,10 @@ from pathlib import Path
 from typing import Any
 
 from repomind.core.config import get_settings
-from repomind.intelligence.architecture_explorer import render_onboarding_markdown
+from repomind.intelligence.architecture_explorer import (
+    build_architecture_explorer,
+    render_onboarding_markdown,
+)
 from repomind.intelligence.due_diligence import (
     build_cto_due_diligence,
     render_cto_due_diligence_markdown,
@@ -33,6 +36,13 @@ REPORT_NAMES = [
     "ONBOARDING.md",
     "ROADMAP.md",
     "PROJECT_STATUS.md",
+    "README_REPORT.md",
+    "ARCHITECTURE_REPORT.md",
+    "CTO_REPORT.md",
+    "INVESTOR_REPORT.md",
+    "DUE_DILIGENCE_REPORT.md",
+    "ROADMAP_REPORT.md",
+    "EXECUTIVE_SUMMARY.md",
 ]
 EXTRA_REPORT_NAMES = ["SECURITY.sarif", "EXECUTIVE_SUMMARY.html", "EXECUTIVE_SUMMARY.pdf"]
 CancelCheck = CollectionsCallable[[], bool]
@@ -58,6 +68,13 @@ def generate_reports(
         "ONBOARDING.md": _onboarding,
         "ROADMAP.md": _roadmap,
         "PROJECT_STATUS.md": _status,
+        "README_REPORT.md": _readme,
+        "ARCHITECTURE_REPORT.md": _architecture_report,
+        "CTO_REPORT.md": _cto,
+        "INVESTOR_REPORT.md": _investor_report,
+        "DUE_DILIGENCE_REPORT.md": _due_diligence,
+        "ROADMAP_REPORT.md": _roadmap,
+        "EXECUTIVE_SUMMARY.md": _executive_summary_md,
     }
     paths: dict[str, str] = {}
     for name in REPORT_NAMES:
@@ -128,7 +145,7 @@ def _readme(summary: dict[str, Any], ai: dict[str, str]) -> str:
     return (
         _header("RepoMind AI Repository Brief", summary)
         + f"## Overview\n\n{summary['architecture']['summary']}\n\n"
-        + f"## Key Stats\n\n- Files analyzed: {stats['files']}\n- Functions: {stats['functions']}\n- Methods: {stats['methods']}\n- Classes: {stats['classes']}\n- Routes: {stats['routes']}\n- Database models: {stats['database_models']}\n- Indexed chunks: {stats['indexed_chunks']}\n\n"
+        + f"## Key Stats\n\n- Files analyzed: {stats.get('files', 0)}\n- Functions: {stats.get('functions', 0)}\n- Methods: {stats.get('methods', 0)}\n- Classes: {stats.get('classes', 0)}\n- Routes: {stats.get('routes', 0)}\n- Database models: {stats.get('database_models', 0)}\n- Indexed chunks: {stats.get('indexed_chunks', 0)}\n\n"
         + f"## Detected Stack\n\n- Primary language: {summary['languages']['primary']}\n- Frameworks: {', '.join(summary['stack']['frameworks']) or 'None detected'}\n- Package managers: {', '.join(summary['stack']['package_managers']) or 'None detected'}\n\n"
         + _ai_section("Local Model Brief", ai["overview"])
         + "## Generated Reports\n\n- ARCHITECTURE.md\n- SECURITY_REPORT.md\n- TECH_DEBT.md\n- RECRUITER_REVIEW.md\n- CTO_REVIEW.md\n- ROADMAP.md\n"
@@ -138,11 +155,12 @@ def _readme(summary: dict[str, Any], ai: dict[str, str]) -> str:
 def _architecture(summary: dict[str, Any], ai: dict[str, str]) -> str:
     arch = summary["architecture"]
     important = (
-        "\n".join(f"- `{path}`" for path in arch["important_files"])
+        "\n".join(f"- `{path}`" for path in arch.get("important_files", []))
         or "- No graph centrality signals found."
     )
     dirs = (
-        "\n".join(f"- `{path}`" for path in arch["top_level_directories"]) or "- Flat repository."
+        "\n".join(f"- `{path}`" for path in arch.get("top_level_directories", []))
+        or "- Flat repository."
     )
     diagrams = arch.get("diagrams", {})
     diagram_blocks = "\n\n".join(
@@ -158,10 +176,54 @@ def _architecture(summary: dict[str, Any], ai: dict[str, str]) -> str:
     )
     return (
         _header("Architecture", summary)
-        + f"## Inferred Style\n\n{arch['style']}\n\n## Summary\n\n{arch['summary']}\n\n"
+        + f"## Inferred Style\n\n{arch.get('style', 'Unknown')}\n\n## Summary\n\n{arch.get('summary', 'No architecture summary available.')}\n\n"
         + f"## Top-Level Directories\n\n{dirs}\n\n## Important Files\n\n{important}\n\n"
         + _ai_section("Architecture Explanation", ai["architecture"])
         + diagram_blocks
+        + "\n"
+    )
+
+
+def _architecture_report(summary: dict[str, Any], ai: dict[str, str]) -> str:
+    explorer = build_architecture_explorer(summary)
+    review = explorer.get("architecture_review", {})
+    architect_findings = explorer.get("ai_architect_review", [])
+    review_sections = "\n".join(
+        [
+            _review_list("Architecture Strengths", review.get("strengths", [])),
+            _review_list("Architecture Weaknesses", review.get("weaknesses", [])),
+            _review_list("Current Risks", review.get("current_risks", [])),
+            _review_list("Future Risks", review.get("future_risks", [])),
+            _review_list("Refactoring Opportunities", review.get("refactoring_opportunities", [])),
+            _review_list("Scaling Risks", review.get("scaling_risks", [])),
+            _review_list("Tech Debt Risks", review.get("tech_debt_risks", [])),
+        ]
+    )
+    findings = (
+        "\n".join(
+            "- **{severity}** {risk}\n  - Impact: {impact}\n  - Recommendation: {recommendation}\n  - Files: {files}".format(
+                severity=item.get("severity", "medium"),
+                risk=item.get("risk", "Architecture risk"),
+                impact=item.get("impact", "Impact requires review."),
+                recommendation=item.get("recommendation", "Review architecture boundary."),
+                files=", ".join(f"`{path}`" for path in item.get("affected_files", [])[:8])
+                or "No file evidence",
+            )
+            for item in architect_findings[:12]
+        )
+        or "- No high-confidence AI architect findings detected."
+    )
+    return (
+        _architecture(summary, ai)
+        + "\n## Architecture Review\n\n"
+        + f"- Coupling: {review.get('coupling_analysis', {}).get('level', 'unknown')}\n"
+        + f"- Scalability: {review.get('scalability_analysis', {}).get('level', 'unknown')}\n"
+        + f"- Service boundaries: {review.get('service_boundary_analysis', {}).get('level', 'unknown')}\n"
+        + f"- Modularity: {review.get('modularity_analysis', {}).get('level', 'unknown')}\n"
+        + f"- Maintainability: {review.get('maintainability_analysis', {}).get('level', 'unknown')}\n\n"
+        + review_sections
+        + "\n## AI Architect Review\n\n"
+        + findings
         + "\n"
     )
 
@@ -170,7 +232,10 @@ def _security(summary: dict[str, Any], ai: dict[str, str]) -> str:
     findings = summary["security"]["findings"]
     rows = (
         "\n".join(
-            f"- **{item['severity']}** `{item['path']}:{item['line']}` `{item['rule_id']}` - {item['message']}"
+            f"- **{item.get('severity', 'medium')}** `{item.get('path', item.get('file', 'unknown'))}:{item.get('line', 1)}` `{item.get('rule_id', 'repomind')}` - {item.get('message', item.get('title', 'Security finding'))}"
+            f"\n  - OWASP: {item.get('owasp', 'Unmapped')}; CWE: {item.get('cwe', 'Unmapped')}"
+            f"\n  - Impact: {item.get('impact', 'Review finding impact.')}"
+            f"\n  - Remediation: {item.get('remediation', 'Review and remediate this finding.')}"
             for item in findings[:100]
         )
         or "- No high-confidence findings from enabled scanners."
@@ -179,8 +244,8 @@ def _security(summary: dict[str, Any], ai: dict[str, str]) -> str:
         _header("Security Report", summary)
         + f"Security score: **{summary['scores']['security']} / 100**\n\n"
         + _score_details("security", summary)
-        + f"Scanner status: `{summary['security']['scanner_status']}`\n\n"
-        + f"Severity counts: `{summary['security']['severity_counts']}`\n\n## Findings\n\n{rows}\n\n"
+        + f"Scanner status: `{summary['security'].get('scanner_status', {})}`\n\n"
+        + f"Severity counts: `{summary['security'].get('severity_counts', {})}`\n\n## Findings\n\n{rows}\n\n"
         + _ai_section("Local Model Security Assessment", ai["technical"])
         + "## Next Steps\n\n- Review high severity findings first.\n- Add scanner execution to CI before public release.\n- Keep generated reports private when they include sensitive paths or secrets.\n"
     )
@@ -213,7 +278,7 @@ def _debt(summary: dict[str, Any], ai: dict[str, str]) -> str:
 def _recruiter(summary: dict[str, Any], ai: dict[str, str]) -> str:
     return (
         _header("Recruiter Review", summary)
-        + f"Recruiter score: **{summary['scores']['recruiter']} / 100**\n\n"
+        + f"Recruiter score: **{summary['scores'].get('recruiter', summary['scores'].get('cto', 0))} / 100**\n\n"
         + _score_details("recruiter", summary)
         + "## Hiring Signal\n\n"
         + ai["recruiter"]
@@ -226,7 +291,7 @@ def _recruiter(summary: dict[str, Any], ai: dict[str, str]) -> str:
 def _cto(summary: dict[str, Any], ai: dict[str, str]) -> str:
     return (
         _header("CTO Review", summary)
-        + f"CTO score: **{summary['scores']['cto']} / 100**\n\n"
+        + f"CTO score: **{summary['scores'].get('cto', 0)} / 100**\n\n"
         + _score_details("cto", summary)
         + "## Executive View\n\n"
         + ai["cto"]
@@ -242,6 +307,68 @@ def _due_diligence(summary: dict[str, Any], ai: dict[str, str]) -> str:
 
 def _executive_pack(summary: dict[str, Any], ai: dict[str, str]) -> str:
     return render_report_pack_markdown(build_executive_report_pack(summary))
+
+
+def _investor_report(summary: dict[str, Any], ai: dict[str, str]) -> str:
+    pack = build_executive_report_pack(summary)
+    investor = pack.get("investor_report", {})
+    lines = [
+        _header("Investor Report", summary),
+        investor.get("summary", ""),
+        "",
+        "## Scorecard",
+        "",
+    ]
+    lines.extend(
+        f"- {key.replace('_', ' ').title()}: {value}"
+        for key, value in investor.get("scorecard", {}).items()
+    )
+    lines.extend(["", "## Technical Moat", "", str(investor.get("technical_moat", ""))])
+    lines.extend(["", "## Technical Risks", ""])
+    lines.extend(f"- {_format_item(item)}" for item in investor.get("technical_risks", [])[:10])
+    lines.extend(["", "## Recommendations", ""])
+    lines.extend(f"- {item}" for item in investor.get("recommendations", [])[:10])
+    return "\n".join(lines) + "\n"
+
+
+def _executive_summary_md(summary: dict[str, Any], ai: dict[str, str]) -> str:
+    evidence = summary.get("score_evidence", {})
+    lines = [
+        _header("Executive Summary", summary),
+        summary.get("architecture", {}).get("summary", "Architecture summary unavailable."),
+        "",
+        "## Explainable Scores",
+        "",
+    ]
+    for key in ("health", "security", "architecture", "investment", "acquisition", "risk"):
+        item = evidence.get(key)
+        if not item:
+            continue
+        lines.extend(
+            [
+                f"### {item.get('label', key.title())}",
+                "",
+                f"- Score: {item.get('score')}/100",
+                f"- Confidence: {item.get('confidence')}",
+                f"- Calculation: {item.get('calculation')}",
+                "",
+                "Weighted factors:",
+            ]
+        )
+        lines.extend(
+            f"- {factor.get('label')}: {factor.get('value')} x {factor.get('weight')}"
+            for factor in item.get("factors", [])[:8]
+        )
+        citations = item.get("citations", [])[:8]
+        if citations:
+            lines.extend(["", "Evidence:"])
+            lines.extend(
+                f"- `{citation.get('file')}`:{citation.get('line', 1)} - {citation.get('evidence', citation.get('reason', 'Evidence'))}"
+                for citation in citations
+            )
+        lines.append("")
+    lines.extend(["## Executive Recommendation", "", ai["cto"]])
+    return "\n".join(lines) + "\n"
 
 
 def _onboarding(summary: dict[str, Any], ai: dict[str, str]) -> str:
@@ -403,6 +530,17 @@ def _score_details(score_name: str, summary: dict[str, Any]) -> str:
         f"Positive contributors:\n\n{positives or '- None'}\n\n"
         f"Negative contributors:\n\n{negatives or '- None'}\n\n"
     )
+
+
+def _review_list(title: str, items: list[Any]) -> str:
+    rows = "\n".join(f"- {_format_item(item)}" for item in items[:12]) or "- No signal detected."
+    return f"### {title}\n\n{rows}\n\n"
+
+
+def _format_item(item: Any) -> str:
+    if isinstance(item, dict):
+        return ", ".join(f"{key}: {value}" for key, value in item.items())
+    return str(item)
 
 
 def _ai_section(title: str, generated: str) -> str:

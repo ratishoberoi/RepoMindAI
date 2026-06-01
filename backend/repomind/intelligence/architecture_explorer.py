@@ -35,6 +35,8 @@ def build_architecture_explorer(summary: dict[str, Any]) -> dict[str, Any]:
         "external_integrations": external,
         "request_flows": flows,
         "dependency_flows": dependency_flows,
+        "architecture_review": _architecture_review(summary, services, dependency_flows),
+        "ai_architect_review": _ai_architect_review(summary, services, dependency_flows),
         "narratives": _narratives(summary, flows, dependency_flows),
         "onboarding_markdown": render_onboarding_markdown(summary, flows, dependency_flows),
     }
@@ -439,6 +441,283 @@ def _narratives(
         "engineering": f"RepoMind mapped {len(summary.get('files', []))} files, {summary.get('statistics', {}).get('routes', 0)} routes, {summary.get('statistics', {}).get('database_models', 0)} data models, and {len(dependency_flows)} dependency paths. Use the sequence diagrams to trace request entry points to services and persistence.",
         "onboarding": "Start with the highlighted request flows, then inspect critical files and dependency paths before editing hotspots.",
     }
+
+
+def _architecture_review(
+    summary: dict[str, Any], services: list[dict[str, Any]], dependency_flows: list[dict[str, Any]]
+) -> dict[str, Any]:
+    kg = summary.get("knowledge_graph", {})
+    domains = kg.get("domains", [])
+    hotspots = kg.get("hotspots", [])
+    scores = summary.get("scores", {})
+    coupling = _coupling_analysis(summary, dependency_flows)
+    modularity = _modularity_analysis(summary)
+    scalability = _scalability_analysis(summary)
+    boundaries = _service_boundary_analysis(domains, services)
+    maintainability = _maintainability_analysis(summary)
+    weaknesses = []
+    if coupling["score"] < 65:
+        weaknesses.append("Dependency paths and hotspot centrality indicate coupling risk.")
+    if scalability["score"] < 65:
+        weaknesses.append(
+            "Operational scaling evidence is limited by weak CI, Docker, or test signals."
+        )
+    if boundaries["score"] < 65:
+        weaknesses.append("Service boundaries are not clearly separated by repository structure.")
+    if maintainability["score"] < 70:
+        weaknesses.append("Maintainability evidence is below enterprise threshold.")
+    strengths = []
+    if summary.get("statistics", {}).get("routes", 0):
+        strengths.append("Route entry points were detected and can be traced.")
+    if domains:
+        strengths.append(
+            f"{len(domains)} architecture domains were mapped from repository structure."
+        )
+    if summary.get("stack", {}).get("frameworks"):
+        strengths.append("Framework signals are explicit enough for architecture classification.")
+    return {
+        "score": round(
+            coupling["score"] * 0.25
+            + scalability["score"] * 0.20
+            + boundaries["score"] * 0.20
+            + modularity["score"] * 0.20
+            + maintainability["score"] * 0.15,
+            1,
+        ),
+        "strengths": strengths or ["Repository contains analyzable architecture evidence."],
+        "weaknesses": weaknesses
+        or ["No severe architecture weakness detected from static evidence."],
+        "coupling_analysis": coupling,
+        "scalability_analysis": scalability,
+        "service_boundary_analysis": boundaries,
+        "modularity_analysis": modularity,
+        "maintainability_analysis": maintainability,
+        "current_risks": _current_risks(summary, hotspots),
+        "future_risks": _future_risks(summary),
+        "refactoring_opportunities": _refactoring_opportunities(summary, hotspots),
+        "scaling_risks": _scaling_risks(summary),
+        "tech_debt_risks": _tech_debt_risks(summary),
+        "summary": (
+            f"Architecture review score {round(scores.get('production_readiness', 0), 1)} production readiness, "
+            f"{len(domains)} domains, {len(hotspots)} hotspots, and {len(dependency_flows)} dependency paths."
+        ),
+    }
+
+
+def _ai_architect_review(
+    summary: dict[str, Any], services: list[dict[str, Any]], dependency_flows: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    reviews: list[dict[str, Any]] = []
+    security_services = [service for service in services if service.get("layer") == "Security"]
+    api_services = [service for service in services if service.get("layer") == "API"]
+    data_services = [service for service in services if service.get("layer") == "Database"]
+    if security_services and api_services:
+        overlap = [
+            service["file"]
+            for service in security_services
+            if any(service["domain"] == api.get("domain") for api in api_services)
+        ]
+        if overlap:
+            reviews.append(
+                _architect_finding(
+                    "Auth and API boundaries share a domain.",
+                    "medium",
+                    "Security logic may be coupled to transport-layer request handling.",
+                    "Separate authentication policy from route handlers and add authorization regression tests.",
+                    overlap,
+                )
+            )
+    for service in api_services:
+        if service.get("routes", 0) and service.get("symbols", 0) >= 5:
+            reviews.append(
+                _architect_finding(
+                    "Business logic mixed with transport layer.",
+                    "medium",
+                    "Route file owns multiple symbols and request handling, increasing review and test burden.",
+                    "Move business rules into service modules and keep route handlers thin.",
+                    [service["file"]],
+                )
+            )
+    if data_services and dependency_flows:
+        terminal_counts = Counter(
+            flow.get("path", [""])[-1] for flow in dependency_flows if flow.get("path")
+        )
+        if terminal_counts:
+            file, count = terminal_counts.most_common(1)[0]
+            if file and count >= 2:
+                reviews.append(
+                    _architect_finding(
+                        "Database dependency concentration detected.",
+                        "high",
+                        "Multiple dependency paths converge on one persistence surface.",
+                        "Introduce repository interfaces, transactional boundaries, and focused integration tests.",
+                        [file],
+                    )
+                )
+    for hotspot in summary.get("knowledge_graph", {}).get("hotspots", [])[:5]:
+        reviews.append(
+            _architect_finding(
+                "Architecture hotspot requires owner review.",
+                "high" if hotspot.get("risk_score", 0) >= 20 else "medium",
+                f"{hotspot.get('reason')} with connectivity {hotspot.get('connectivity')}.",
+                "Add code owner, tests, and an architecture decision record before expanding this area.",
+                [hotspot.get("path", "")],
+            )
+        )
+    return reviews[:12]
+
+
+def _architect_finding(
+    risk: str, severity: str, impact: str, recommendation: str, files: list[str]
+) -> dict[str, Any]:
+    return {
+        "risk": risk,
+        "severity": severity,
+        "impact": impact,
+        "recommendation": recommendation,
+        "affected_files": [file for file in files if file],
+    }
+
+
+def _coupling_analysis(
+    summary: dict[str, Any], dependency_flows: list[dict[str, Any]]
+) -> dict[str, Any]:
+    hotspots = summary.get("knowledge_graph", {}).get("hotspots", [])
+    max_path = max((flow.get("length", 0) for flow in dependency_flows), default=0)
+    max_hotspot = max((item.get("connectivity", 0) for item in hotspots), default=0)
+    score = max(0, 100 - max_path * 5 - max_hotspot * 4 - len(hotspots) * 2)
+    return {
+        "score": round(score, 1),
+        "level": _analysis_level(score),
+        "dependency_path_count": len(dependency_flows),
+        "longest_path": max_path,
+        "hotspot_count": len(hotspots),
+        "finding": "Coupling is elevated where dependency paths are long or central files have high fan-in/fan-out.",
+    }
+
+
+def _scalability_analysis(summary: dict[str, Any]) -> dict[str, Any]:
+    stack = summary.get("stack", {})
+    score = 45 + (15 if stack.get("docker") else 0) + (20 if stack.get("ci_cd") else 0)
+    score += min(15, summary.get("statistics", {}).get("routes", 0) * 3)
+    score -= min(18, len(summary.get("knowledge_graph", {}).get("hotspots", [])) * 2)
+    return {
+        "score": round(max(0, min(100, score)), 1),
+        "level": _analysis_level(score),
+        "docker": bool(stack.get("docker")),
+        "ci_cd": bool(stack.get("ci_cd")),
+        "route_count": summary.get("statistics", {}).get("routes", 0),
+        "finding": "Scalability confidence is driven by deployment evidence, route boundaries, and hotspot concentration.",
+    }
+
+
+def _service_boundary_analysis(
+    domains: list[dict[str, Any]], services: list[dict[str, Any]]
+) -> dict[str, Any]:
+    api_domains = {domain.get("name") for domain in domains if domain.get("role") == "API boundary"}
+    service_domains = {service.get("domain") for service in services}
+    overlap = sorted(api_domains & service_domains)
+    score = min(100, 45 + len(domains) * 5 + len(api_domains) * 8 - len(overlap) * 3)
+    return {
+        "score": round(score, 1),
+        "level": _analysis_level(score),
+        "domain_count": len(domains),
+        "api_domains": sorted(api_domains),
+        "overlap": overlap,
+        "finding": "Clear boundaries improve when routes, data, security, and services occupy recognizable domains.",
+    }
+
+
+def _modularity_analysis(summary: dict[str, Any]) -> dict[str, Any]:
+    domains = summary.get("knowledge_graph", {}).get("domains", [])
+    files = max(summary.get("statistics", {}).get("files", 1), 1)
+    largest = max((domain.get("file_count", 0) for domain in domains), default=0)
+    concentration = largest / files
+    score = max(0, min(100, 85 - concentration * 75 + min(15, len(domains) * 2)))
+    return {
+        "score": round(score, 1),
+        "level": _analysis_level(score),
+        "largest_domain_share": round(concentration * 100, 1),
+        "domain_count": len(domains),
+        "finding": "Modularity drops as one domain owns a large share of repository files.",
+    }
+
+
+def _maintainability_analysis(summary: dict[str, Any]) -> dict[str, Any]:
+    debt = summary.get("technical_debt", {})
+    return {
+        "score": round(float(summary.get("scores", {}).get("maintainability", 0)), 1),
+        "level": _analysis_level(float(summary.get("scores", {}).get("maintainability", 0))),
+        "complexity_items": len(debt.get("items", [])),
+        "todos": len(debt.get("todos", [])),
+        "large_files": len(debt.get("large_files", [])),
+        "finding": "Maintainability reflects complexity metrics, TODO/FIXME markers, and large-file concentration.",
+    }
+
+
+def _current_risks(summary: dict[str, Any], hotspots: list[dict[str, Any]]) -> list[dict[str, str]]:
+    risks = [
+        {
+            "risk": "Security finding in architecture surface",
+            "evidence": f"{item.get('path')}:{item.get('line', 1)}",
+        }
+        for item in summary.get("security", {}).get("findings", [])[:6]
+    ]
+    risks.extend(
+        {"risk": "Dependency hotspot", "evidence": item.get("path", "")} for item in hotspots[:6]
+    )
+    return risks[:10]
+
+
+def _future_risks(summary: dict[str, Any]) -> list[str]:
+    risks = []
+    if not summary.get("stack", {}).get("ci_cd"):
+        risks.append("Release risk increases without CI/CD evidence.")
+    if not any(
+        "test" in item.get("relative_path", "").lower() for item in summary.get("files", [])
+    ):
+        risks.append("Regression risk increases without test files.")
+    if len(summary.get("knowledge_graph", {}).get("hotspots", [])) > 5:
+        risks.append("Team scaling risk increases around central architecture hotspots.")
+    return risks or ["No major future architecture risks detected from static evidence."]
+
+
+def _refactoring_opportunities(
+    summary: dict[str, Any], hotspots: list[dict[str, Any]]
+) -> list[str]:
+    items = [f"Create boundary interfaces around `{item.get('path')}`." for item in hotspots[:5]]
+    if summary.get("statistics", {}).get("routes", 0):
+        items.append("Keep route handlers thin and move business rules into service modules.")
+    return items or ["No high-confidence refactoring opportunity detected."]
+
+
+def _scaling_risks(summary: dict[str, Any]) -> list[str]:
+    risks = []
+    if not summary.get("stack", {}).get("docker"):
+        risks.append("Containerization evidence is missing.")
+    if not summary.get("stack", {}).get("ci_cd"):
+        risks.append("CI/CD evidence is missing.")
+    return risks or ["Deployment scaling evidence is acceptable for current repository signals."]
+
+
+def _tech_debt_risks(summary: dict[str, Any]) -> list[str]:
+    debt = summary.get("technical_debt", {})
+    risks = []
+    if debt.get("items"):
+        risks.append(f"{len(debt.get('items', []))} complexity findings require triage.")
+    if debt.get("todos"):
+        risks.append(f"{len(debt.get('todos', []))} TODO/FIXME markers require ownership.")
+    return risks or ["No major technical debt risk detected."]
+
+
+def _analysis_level(score: float) -> str:
+    if score >= 80:
+        return "strong"
+    if score >= 65:
+        return "moderate"
+    if score >= 45:
+        return "watch"
+    return "weak"
 
 
 def _matches(text: str, tokens: tuple[str, ...]) -> bool:

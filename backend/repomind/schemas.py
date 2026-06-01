@@ -16,9 +16,10 @@ class ChatRequest(BaseModel):
 
 
 class PRRiskRequest(BaseModel):
-    changed_files: list[str] = Field(min_length=1, max_length=200)
+    changed_files: list[str] = Field(default_factory=list, max_length=200)
     title: str = Field(default="", max_length=300)
     description: str = Field(default="", max_length=2000)
+    pr_url: str = Field(default="", max_length=500)
 
 
 class RepositoryResponse(BaseModel):

@@ -22,10 +22,11 @@ export function RiskAndDriftCenter({
   prResult: PrRiskResult | null;
   driftResult: DriftResult | null;
   busy: boolean;
-  onPrRisk: (files: string[]) => void;
+  onPrRisk: (files: string[], prUrl: string) => void;
   onDrift: (baselineId: string) => void;
 }) {
   const [files, setFiles] = useState("backend/repomind/main.py\nfrontend/components/RepoMindDashboard.tsx");
+  const [prUrl, setPrUrl] = useState("");
   const [baseline, setBaseline] = useState("");
   const completeRepos = repositories.filter((repo) => repo.status === "complete" && repo.id !== activeRepo?.id);
 
@@ -46,14 +47,22 @@ export function RiskAndDriftCenter({
         </div>
       </section>
       <div className="grid gap-5 xl:grid-cols-2">
-        <Panel title="PR Risk Center" eyebrow="Pre-merge blast radius" action={<Button onClick={() => onPrRisk(splitChangedFiles(files))} disabled={!activeRepo || busy}>Analyze PR</Button>}>
+        <Panel title="PR Risk Center" eyebrow="Pre-merge blast radius" action={<Button onClick={() => onPrRisk(splitChangedFiles(files), prUrl)} disabled={!activeRepo || busy || (!splitChangedFiles(files).length && !prUrl.trim())}>Analyze PR</Button>}>
+          <label className="block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">PR URL</label>
+          <input
+            className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45"
+            value={prUrl}
+            onChange={(event) => setPrUrl(event.target.value)}
+            placeholder="https://github.com/org/repo/pull/123"
+          />
+          <label className="mt-4 block text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Changed files</label>
           <textarea
-            className="min-h-40 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45"
+            className="mt-2 min-h-40 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-slate-100 outline-none placeholder:text-slate-600 focus:border-cyan-300/45"
             value={files}
             onChange={(event) => setFiles(event.target.value)}
             placeholder="One changed file per line"
           />
-          {prResult ? <PrRiskResultView result={prResult} /> : <div className="mt-4"><EmptyState title="No PR risk run" text="Paste changed files to estimate affected domains, review intensity, and test strategy." /></div>}
+          {prResult ? <PrRiskResultView result={prResult} /> : <div className="mt-4"><EmptyState title="No PR risk run" text="Paste a PR URL or changed files to estimate affected domains, review intensity, deployment risk, and test strategy." /></div>}
         </Panel>
 
         <Panel title="Architecture Drift Center" eyebrow="Baseline comparison" action={<Button onClick={() => baseline && onDrift(baseline)} disabled={!baseline || !activeRepo || busy}>Compare</Button>}>
@@ -80,9 +89,10 @@ function PrRiskResultView({ result }: { result: PrRiskResult }) {
         <div className="grid gap-3 md:grid-cols-3">
           <MetricCard label="Files" value={result.changed_files?.length ?? 0} detail="Changed paths analyzed" icon={<GitPullRequest size={18} />} />
           <MetricCard label="Domains" value={result.impacted_domains?.length ?? 0} detail="Potential blast radius" icon={<Target size={18} />} />
-          <MetricCard label="Findings" value={result.findings?.length ?? 0} detail="Review exceptions" icon={<AlertOctagon size={18} />} />
+          <MetricCard label="Deploy Risk" value={String(result.deployment_risk?.level ?? "--")} detail={`Score ${String(result.deployment_risk?.score ?? "--")}`} icon={<AlertOctagon size={18} />} />
         </div>
       </div>
+      {result.summary ? <div className="rounded-xl border border-amber-300/20 bg-amber-300/[0.08] p-4 text-sm leading-6 text-amber-50">{result.summary}</div> : null}
       <div className="grid gap-4 md:grid-cols-2">
         <Panel title="PR Risk Matrix" eyebrow="Impact x likelihood">
           <RiskMatrix items={(result.findings ?? []).map((finding, index) => ({ label: finding.title ?? finding.file ?? `Finding ${index}`, severity: finding.severity, likelihood: Math.min(5, 2 + (index % 4)) }))} />
@@ -93,8 +103,15 @@ function PrRiskResultView({ result }: { result: PrRiskResult }) {
       </div>
       <Panel title="Review Plan">
         <div className="space-y-2">
-          {(result.review_plan ?? []).map((item, index) => <ChecklistItem key={index} text={item} />)}
-          {(result.test_strategy ?? []).map((item, index) => <ChecklistItem key={`test-${index}`} text={item} tone="test" />)}
+          {((result.review_plan ?? result.required_review) ?? []).map((item, index) => <ChecklistItem key={index} text={item} />)}
+          {((result.recommended_tests ?? result.test_strategy) ?? []).map((item, index) => <ChecklistItem key={`test-${index}`} text={item} tone="test" />)}
+        </div>
+      </Panel>
+      <Panel title="PR Review Packet" eyebrow="Release gate and deployment risk">
+        <div className="grid gap-3 md:grid-cols-3">
+          <PacketItem label="Release gate" value={String(result.pr_review_packet?.release_gate ?? "standard review")} />
+          <PacketItem label="Blast radius" value={`${String(result.blast_radius?.domain_count ?? 0)} domains`} />
+          <PacketItem label="Source" value={String(result.changed_files_source ?? "manual")} />
         </div>
       </Panel>
       <div className="grid gap-3 md:grid-cols-2">
@@ -122,6 +139,7 @@ function DriftResultView({ result }: { result: DriftResult }) {
         <MetricCard label="Removed domains" value={result.removed_domains?.length ?? 0} detail="Potential regressions" />
       </div>
       <ScoreBar label="Architecture stability" value={100 - score} />
+      {result.drift_report ? <pre className="max-h-72 overflow-auto rounded-xl border border-white/10 bg-black/25 p-4 text-xs leading-5 text-slate-300">{result.drift_report}</pre> : null}
       <div className="grid gap-3 md:grid-cols-2">
         {(result.findings ?? []).slice(0, 6).map((finding, index) => (
           <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
@@ -149,6 +167,15 @@ function ChecklistItem({ text, tone = "review" }: { text: string; tone?: "review
     <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3">
       <Badge className={tone === "test" ? "border-emerald-300/25 bg-emerald-300/10 text-emerald-100" : "border-cyan-300/25 bg-cyan-300/10 text-cyan-100"}>{tone}</Badge>
       <p className="text-sm leading-5 text-slate-300">{text}</p>
+    </div>
+  );
+}
+
+function PacketItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+      <p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-2 text-sm font-semibold text-white">{value}</p>
     </div>
   );
 }

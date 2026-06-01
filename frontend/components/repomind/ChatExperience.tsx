@@ -27,8 +27,10 @@ export function ChatExperience({
   onAsk: (question: string) => void;
 }) {
   const [question, setQuestion] = useState("What are the highest leverage risks in this repository?");
+  const [selectedCitation, setSelectedCitation] = useState(0);
   const files = useMemo(() => answer?.related_files?.length ? answer.related_files : evidenceFiles(summary, 7), [answer?.related_files, summary]);
   const citations = answer?.citations ?? [];
+  const activeCitation = citations[selectedCitation] ?? citations[0];
   const modelMode = String(answer?.model_status?.mode ?? "");
   const ask = (nextQuestion = question) => {
     setQuestion(nextQuestion);
@@ -88,17 +90,28 @@ export function ChatExperience({
           {citations.length ? (
             <div className="space-y-3">
               {citations.map((citation, index) => (
-                <div key={`${citationPath(citation)}-${index}`} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <button key={`${citationPath(citation)}-${index}`} onClick={() => setSelectedCitation(index)} className={`w-full rounded-xl border p-3 text-left transition ${activeCitation === citation ? "border-cyan-300/35 bg-cyan-300/10" : "border-white/10 bg-white/[0.035] hover:bg-white/[0.06]"}`}>
                   <div className="flex items-start justify-between gap-3">
                     <p className="truncate text-sm font-medium text-white">{citationPath(citation)}{citationLineRange(citation)}</p>
                     <Badge className="border-cyan-300/25 bg-cyan-300/10 text-cyan-100">#{citation.id ?? index + 1}</Badge>
                   </div>
                   {citation.text ? <p className="mt-2 line-clamp-4 text-xs leading-5 text-slate-400">{citation.text}</p> : null}
-                </div>
+                </button>
               ))}
             </div>
           ) : (
             <EmptyState title="No citations yet" text="Source evidence appears here after a cited answer is generated." action={error ? <AlertTriangle className="mx-auto h-5 w-5 text-amber-200" /> : null} />
+          )}
+        </Panel>
+
+        <Panel title="Source Preview" eyebrow="click citation to inspect evidence">
+          {activeCitation ? (
+            <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+              <p className="text-sm font-semibold text-white">{citationPath(activeCitation)}{citationLineRange(activeCitation)}</p>
+              <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg border border-white/10 bg-black/30 p-3 text-xs leading-5 text-slate-300">{activeCitation.text || "No source preview text returned for this citation."}</pre>
+            </div>
+          ) : (
+            <EmptyState title="No source selected" text="Ask a question and click a citation to inspect the file and line evidence." />
           )}
         </Panel>
 

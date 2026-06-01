@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BookOpen, Database, GitBranch, Network, Route, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowRight, BookOpen, Database, GitBranch, Network, Route, Sparkles } from "lucide-react";
 import { Badge, Button, EmptyState, LoadingInline, Panel } from "./ui";
 import { Heatmap } from "./visuals";
 import type { ArchitectureExplorerResult } from "./types";
@@ -20,6 +20,8 @@ export function ArchitectureExplorerPanel({
   const activeFlow = flows.find((flow) => flow.id === activeFlowId) ?? flows[0];
   const dependencyFlows = data?.dependency_flows ?? [];
   const onboarding = data?.onboarding_markdown ?? "";
+  const review = data?.architecture_review ?? {};
+  const architectFindings = data?.ai_architect_review ?? [];
   const heat = useMemo(
     () =>
       flows.map((flow) => ({
@@ -142,6 +144,41 @@ export function ArchitectureExplorerPanel({
           </div>
         </Panel>
       </div>
+
+      <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+        <Panel title="Architecture Review" eyebrow="strengths, weaknesses, coupling, scalability, modularity">
+          <div className="grid gap-3 md:grid-cols-2">
+            <ReviewMetric label="Architecture score" value={Number(review.score ?? 0)} />
+            <ReviewMetric label="Coupling" value={Number((review.coupling_analysis as any)?.score ?? 0)} />
+            <ReviewMetric label="Scalability" value={Number((review.scalability_analysis as any)?.score ?? 0)} />
+            <ReviewMetric label="Modularity" value={Number((review.modularity_analysis as any)?.score ?? 0)} />
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <ReviewList title="Strengths" items={(review.strengths as string[]) ?? []} tone="emerald" />
+            <ReviewList title="Weaknesses" items={(review.weaknesses as string[]) ?? []} tone="amber" />
+            <ReviewList title="Current Risks" items={((review.current_risks as Array<Record<string, unknown>>) ?? []).map((item) => `${String(item.risk)} - ${String(item.evidence)}`)} tone="rose" />
+            <ReviewList title="Refactoring Opportunities" items={(review.refactoring_opportunities as string[]) ?? []} tone="cyan" />
+          </div>
+        </Panel>
+        <Panel title="AI Architect Review" eyebrow="risk, impact, recommendation, affected files">
+          <div className="space-y-3">
+            {architectFindings.map((finding, index) => (
+              <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-white">{String(finding.risk ?? "Architecture risk")}</p>
+                  <Badge className={String(finding.severity) === "high" ? "border-rose-300/25 bg-rose-500/10 text-rose-100" : "border-amber-300/25 bg-amber-500/10 text-amber-100"}>{String(finding.severity ?? "medium")}</Badge>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{String(finding.impact ?? "")}</p>
+                <p className="mt-2 text-sm leading-6 text-cyan-100">{String(finding.recommendation ?? "")}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {((finding.affected_files as string[]) ?? []).map((file) => <Badge key={file} className="border-white/10 bg-black/20 text-slate-300">{file}</Badge>)}
+                </div>
+              </div>
+            ))}
+            {!architectFindings.length ? <EmptyState title="No architect findings" text="No high-confidence architecture review issues were detected." /> : null}
+          </div>
+        </Panel>
+      </div>
     </div>
   );
 }
@@ -154,6 +191,34 @@ function Signal({ icon, label, value }: { icon: React.ReactNode; label: string; 
         <span className="text-cyan-200">{icon}</span>
       </div>
       <p className="mt-3 text-2xl font-semibold text-white">{value}</p>
+    </div>
+  );
+}
+
+function ReviewMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+      <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-white">{Math.round(value)}</p>
+    </div>
+  );
+}
+
+function ReviewList({ title, items, tone }: { title: string; items: string[]; tone: "emerald" | "amber" | "rose" | "cyan" }) {
+  const toneClass = {
+    emerald: "border-emerald-300/20 bg-emerald-300/[0.07] text-emerald-50",
+    amber: "border-amber-300/20 bg-amber-300/[0.07] text-amber-50",
+    rose: "border-rose-300/20 bg-rose-300/[0.07] text-rose-50",
+    cyan: "border-cyan-300/20 bg-cyan-300/[0.07] text-cyan-50"
+  }[tone];
+  return (
+    <div>
+      <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"><AlertTriangle size={13} />{title}</p>
+      <div className="space-y-2">
+        {(items.length ? items : ["No high-confidence signal detected."]).slice(0, 5).map((item, index) => (
+          <div key={index} className={`rounded-xl border p-3 text-sm leading-5 ${toneClass}`}>{item}</div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import copy
+
+from repomind.core.config import get_settings
 from repomind.intelligence.acquisition import build_acquisition_intelligence
 from repomind.intelligence.architecture_explorer import build_architecture_explorer
+from repomind.intelligence.drift import detect_architecture_drift
+from repomind.intelligence.evidence import build_score_evidence
 from repomind.intelligence.executive_reports import build_executive_report_pack
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
 from repomind.intelligence.portfolio import build_multi_repository_intelligence
+from repomind.intelligence.pr_risk import analyze_pr_risk
+from repomind.reports.generator import generate_reports
+from repomind.security.scanner import _finding
 
 
 def sample_summary() -> dict:
@@ -96,6 +104,21 @@ def test_architecture_explorer_traces_login_flow() -> None:
     assert login["entry_points"]
     assert "sequenceDiagram" in login["sequence_diagram"]
     assert "ONBOARDING" in explorer["onboarding_markdown"]
+    assert explorer["architecture_review"]["coupling_analysis"]["level"]
+    assert explorer["ai_architect_review"]
+
+
+def test_score_evidence_explains_scores_with_citations() -> None:
+    evidence = build_score_evidence(sample_summary())
+
+    assert {"health", "security", "architecture", "investment", "acquisition", "risk"} <= set(
+        evidence
+    )
+    security = evidence["security"]
+    assert security["calculation"]
+    assert security["factors"]
+    assert security["confidence"] > 0
+    assert any(citation["file"] == "backend/api/auth.py" for citation in security["citations"])
 
 
 def test_knowledge_graph_30_adds_clusters_and_insights() -> None:
@@ -121,6 +144,50 @@ def test_acquisition_and_executive_reports_are_evidence_backed() -> None:
     assert reports["engineering_roadmap"]["timeline"]
 
 
+def test_pr_risk_packet_includes_blast_radius_and_deployment_risk() -> None:
+    result = analyze_pr_risk(
+        sample_summary(),
+        ["backend/api/auth.py", "frontend/pages/login.tsx"],
+        title="Auth hardening",
+    )
+
+    assert result["risk_score"] > 0
+    assert result["blast_radius"]["file_count"] == 2
+    assert result["deployment_risk"]["level"] in {"low", "medium", "high", "critical"}
+    assert result["pr_review_packet"]["recommended_tests"]
+    assert result["findings"]
+
+
+def test_drift_report_detects_changed_services_dependencies_and_security() -> None:
+    baseline = sample_summary()
+    current = copy.deepcopy(baseline)
+    current["stack"]["frameworks"].append("Celery")
+    current["knowledge_graph"]["domains"].append(
+        {
+            "name": "workers",
+            "role": "Background processing",
+            "file_count": 4,
+            "routes": 0,
+            "data_models": 0,
+        }
+    )
+
+    result = detect_architecture_drift(baseline, current)
+
+    assert "workers" in result["new_services"]
+    assert "Celery" in result["frameworks_added"]
+    assert result["drift_report"]
+
+
+def test_security_findings_include_taxonomy_and_remediation() -> None:
+    finding = _finding("hardcoded-secret", "high", "auth.py", 5, "Hardcoded secret")
+
+    assert finding["owasp"] == "A02:2021-Cryptographic Failures"
+    assert finding["cwe"] == "CWE-798"
+    assert finding["impact"]
+    assert finding["remediation"]
+
+
 def test_portfolio_intelligence_v2_detects_overlap() -> None:
     repo = {"id": "repo-1", "name": "sample", "summary": sample_summary()}
     other = {"id": "repo-2", "name": "sample-copy", "summary": sample_summary()}
@@ -130,3 +197,30 @@ def test_portfolio_intelligence_v2_detects_overlap() -> None:
     assert portfolio["shared_vulnerabilities"]
     assert portfolio["framework_concentration_risk"][0]["framework"] == "FastAPI"
     assert portfolio["portfolio_remediation_center"]
+
+
+def test_report_generation_creates_enterprise_aliases(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("REPOMIND_REPORTS_DIR", str(tmp_path / "reports"))
+    monkeypatch.setenv("REPOMIND_EXPORTS_DIR", str(tmp_path / "exports"))
+    monkeypatch.setenv("REPOMIND_DATA_DIR", str(tmp_path / "data"))
+    get_settings.cache_clear()
+    summary = sample_summary()
+    summary["score_evidence"] = build_score_evidence(summary)
+    repo = {"id": "repo-1", "name": "sample"}
+
+    try:
+        paths = generate_reports(repo, summary)
+
+        for name in (
+            "README_REPORT.md",
+            "ARCHITECTURE_REPORT.md",
+            "CTO_REPORT.md",
+            "INVESTOR_REPORT.md",
+            "DUE_DILIGENCE_REPORT.md",
+            "ROADMAP_REPORT.md",
+            "EXECUTIVE_SUMMARY.md",
+        ):
+            assert name in paths
+            assert "sample" in open(paths[name], encoding="utf-8").read()
+    finally:
+        get_settings.cache_clear()

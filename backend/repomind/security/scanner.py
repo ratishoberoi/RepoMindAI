@@ -80,13 +80,66 @@ def scan_security(
 
 
 def _finding(rule_id: str, severity: str, path: str, line: int, message: str) -> dict[str, Any]:
+    taxonomy = _taxonomy(rule_id)
     return {
         "rule_id": rule_id,
         "severity": severity,
         "path": path,
         "line": line,
         "message": message,
+        "affected_files": [path],
+        "impact": _impact(rule_id, severity),
+        "remediation": _remediation(rule_id),
+        "owasp": taxonomy["owasp"],
+        "cwe": taxonomy["cwe"],
     }
+
+
+def _taxonomy(rule_id: str) -> dict[str, str]:
+    lower = rule_id.lower()
+    if "secret" in lower:
+        return {"owasp": "A02:2021-Cryptographic Failures", "cwe": "CWE-798"}
+    if "eval" in lower or "exec" in lower:
+        return {"owasp": "A03:2021-Injection", "cwe": "CWE-95"}
+    if "shell" in lower:
+        return {"owasp": "A03:2021-Injection", "cwe": "CWE-78"}
+    if "inner-html" in lower:
+        return {"owasp": "A03:2021-Injection", "cwe": "CWE-79"}
+    if "sql" in lower:
+        return {"owasp": "A03:2021-Injection", "cwe": "CWE-89"}
+    if lower.startswith("b"):
+        return {"owasp": "A05:2021-Security Misconfiguration", "cwe": "CWE-693"}
+    return {"owasp": "A06:2021-Vulnerable and Outdated Components", "cwe": "CWE-20"}
+
+
+def _impact(rule_id: str, severity: str) -> str:
+    lower = rule_id.lower()
+    if "secret" in lower:
+        return "Credential disclosure can allow unauthorized access to systems or data."
+    if "eval" in lower or "exec" in lower or "shell" in lower:
+        return "Untrusted input could reach command or code execution paths."
+    if "inner-html" in lower:
+        return "Untrusted HTML rendering can expose users to cross-site scripting."
+    if "sql" in lower:
+        return "Dynamic SQL construction can expose data to injection and leakage."
+    return f"{severity.title()} security finding requires engineering review before release."
+
+
+def _remediation(rule_id: str) -> str:
+    lower = rule_id.lower()
+    if "secret" in lower:
+        return "Move secrets into environment or secret manager, rotate exposed values, and add secret scanning to CI."
+    if "eval" in lower or "exec" in lower:
+        return (
+            "Replace dynamic code execution with explicit parsing or allowlisted command dispatch."
+        )
+    if "shell" in lower:
+        return "Use subprocess argument arrays with shell disabled and validate all inputs."
+    if "inner-html" in lower:
+        return "Render sanitized content only and prefer framework-safe text rendering."
+    if "sql" in lower:
+        return "Use parameterized queries or ORM query builders."
+    return "Review the finding, add a regression test, and document the accepted remediation."
 
 
 def _is_example_path(path: str) -> bool:

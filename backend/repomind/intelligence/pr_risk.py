@@ -1,13 +1,23 @@
 from __future__ import annotations
 
+import re
+import urllib.request
 from pathlib import PurePosixPath
 from typing import Any
 
 
 def analyze_pr_risk(
-    summary: dict[str, Any], changed_files: list[str], title: str = ""
+    summary: dict[str, Any],
+    changed_files: list[str],
+    title: str = "",
+    description: str = "",
+    pr_url: str = "",
 ) -> dict[str, Any]:
     normalized = [_normalize(path) for path in changed_files if path.strip()]
+    inferred_from_url = False
+    if pr_url and not normalized:
+        normalized = _files_from_pr_url(pr_url)
+        inferred_from_url = bool(normalized)
     files = {item["relative_path"]: item for item in summary.get("files", [])}
     kg = summary.get("knowledge_graph", {})
     hotspots = {item["path"]: item for item in kg.get("hotspots", [])}
@@ -52,17 +62,60 @@ def analyze_pr_risk(
         score += max(0, file_score)
     score += len(impacted_domains) * 8
     score = min(100, max(0, score))
+    findings = _findings_from_impacts(impacts, impacted_domains)
+    review_plan = _required_review(score, impacted_domains, impacts)
+    tests = _test_strategy(impacted_domains, impacts)
+    deployment_risk = _deployment_risk(score, impacts, impacted_domains)
     return {
         "title": title,
+        "description": description,
+        "pr_url": pr_url,
+        "changed_files_source": "pr_url" if inferred_from_url else "manual",
         "changed_files": normalized,
         "risk_score": score,
         "risk_level": _risk_level(score),
+        "blast_radius": {
+            "file_count": len(normalized),
+            "domain_count": len(impacted_domains),
+            "affected_domains": [domain.get("name") for domain in impacted_domains],
+            "highest_risk_files": [
+                item["path"]
+                for item in sorted(impacts, key=lambda row: row["risk"], reverse=True)[:8]
+            ],
+        },
         "impacted_domains": impacted_domains,
         "file_impacts": sorted(impacts, key=lambda item: item["risk"], reverse=True),
-        "required_review": _required_review(score, impacted_domains, impacts),
-        "test_strategy": _test_strategy(impacted_domains, impacts),
+        "findings": findings,
+        "required_review": review_plan,
+        "review_plan": review_plan,
+        "test_strategy": tests,
+        "recommended_tests": tests,
+        "deployment_risk": deployment_risk,
+        "pr_review_packet": _review_packet(
+            score, impacted_domains, impacts, review_plan, tests, deployment_risk
+        ),
         "summary": _summary(score, impacted_domains, impacts),
     }
+
+
+def _files_from_pr_url(pr_url: str) -> list[str]:
+    match = re.match(r"^https://github\.com/([^/]+)/([^/]+)/pull/(\d+)(?:[/?#].*)?$", pr_url)
+    if not match:
+        return []
+    owner, repo, number = match.groups()
+    url = f"https://github.com/{owner}/{repo}/pull/{number}.diff"
+    try:
+        with urllib.request.urlopen(url, timeout=8) as response:
+            diff = response.read(1_000_000).decode("utf-8", errors="ignore")
+    except Exception:
+        return []
+    paths = []
+    for line in diff.splitlines():
+        if line.startswith("+++ b/"):
+            path = line.removeprefix("+++ b/").strip()
+            if path and path != "/dev/null":
+                paths.append(_normalize(path))
+    return [path for index, path in enumerate(paths) if path and path not in paths[:index]][:200]
 
 
 def _impacted_domains(
@@ -150,3 +203,76 @@ def _summary(score: int, domains: list[dict[str, Any]], impacts: list[dict[str, 
 
 def _normalize(path: str) -> str:
     return PurePosixPath(path.strip().replace("\\", "/")).as_posix()
+
+
+def _findings_from_impacts(
+    impacts: list[dict[str, Any]], domains: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    findings = []
+    for item in sorted(impacts, key=lambda row: row["risk"], reverse=True)[:12]:
+        if item["risk"] <= 0:
+            continue
+        findings.append(
+            {
+                "title": f"{item['layer'].title()} change risk",
+                "severity": _risk_level(min(100, item["risk"] + len(domains) * 8)),
+                "file": item["path"],
+                "message": ", ".join(item.get("reasons", [])),
+                "recommendation": _file_recommendation(item),
+            }
+        )
+    return findings
+
+
+def _file_recommendation(item: dict[str, Any]) -> str:
+    layer = item.get("layer")
+    if layer == "security":
+        return "Require security owner review and authentication/authorization regression tests."
+    if layer == "data":
+        return "Require migration, rollback, and data compatibility tests."
+    if layer == "interface":
+        return "Require API contract tests and backwards compatibility review."
+    return "Require owner review and targeted regression tests."
+
+
+def _deployment_risk(
+    score: int, impacts: list[dict[str, Any]], domains: list[dict[str, Any]]
+) -> dict[str, Any]:
+    layers = {item["layer"] for item in impacts}
+    risk = score
+    if {"security", "data"} & layers:
+        risk += 12
+    if len(domains) >= 3:
+        risk += 10
+    risk = min(100, risk)
+    return {
+        "score": risk,
+        "level": _risk_level(risk),
+        "reasons": [f"{layer} layer touched" for layer in sorted(layers)]
+        + ([f"{len(domains)} domains affected"] if domains else []),
+    }
+
+
+def _review_packet(
+    score: int,
+    domains: list[dict[str, Any]],
+    impacts: list[dict[str, Any]],
+    review_plan: list[str],
+    tests: list[str],
+    deployment_risk: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "summary": _summary(score, domains, impacts),
+        "blast_radius": {
+            "domains": [domain.get("name") for domain in domains],
+            "files": [item.get("path") for item in impacts],
+        },
+        "review_plan": review_plan,
+        "recommended_tests": tests,
+        "deployment_risk": deployment_risk,
+        "release_gate": "block"
+        if score >= 75
+        else "staff review"
+        if score >= 55
+        else "standard review",
+    }

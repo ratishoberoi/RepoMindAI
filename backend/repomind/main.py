@@ -204,7 +204,15 @@ def repository_architecture_explorer(repo_id: str) -> dict:
 
 @app.post("/repositories/{repo_id}/pr-risk", dependencies=PROTECTED)
 def repository_pr_risk(repo_id: str, request: PRRiskRequest) -> dict:
-    return analyze_pr_risk(_summary(repo_id), request.changed_files, request.title)
+    if not request.changed_files and not request.pr_url:
+        raise HTTPException(status_code=400, detail="Provide changed_files or pr_url.")
+    return analyze_pr_risk(
+        _summary(repo_id),
+        request.changed_files,
+        request.title,
+        request.description,
+        request.pr_url,
+    )
 
 
 @app.get("/repositories/{repo_id}/due-diligence", dependencies=PROTECTED)

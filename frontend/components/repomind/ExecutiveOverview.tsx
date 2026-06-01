@@ -5,6 +5,7 @@ import type { RepositorySummary } from "./types";
 import { asScore, compactNumber, executiveScore, evidenceFiles, riskLevel, topFindings } from "./utils";
 import { Badge, EmptyState, Panel, ScoreBar, SeverityBadge, Timeline } from "./ui";
 import { ExecutiveSignalCard, Heatmap, InsightTicker, RadarChart, RiskMatrix, ScoreOrb } from "./visuals";
+import { ScoreEvidencePanel } from "./ScoreEvidencePanel";
 
 export function ExecutiveOverview({ summary, onNavigate }: { summary: RepositorySummary | null; onNavigate: (view: string) => void }) {
   if (!summary) {
@@ -90,6 +91,8 @@ export function ExecutiveOverview({ summary, onNavigate }: { summary: Repository
           <Heatmap values={heat} />
         </Panel>
       </div>
+
+      <ScoreEvidencePanel evidence={summary.score_evidence} />
 
       <div className="grid gap-5 xl:grid-cols-2">
         <Panel title="Evidence Docket" eyebrow="Files worth opening first">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Building2, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Route, Search, ShieldCheck } from "lucide-react";
+import { Building2, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Route, Search, ShieldAlert, ShieldCheck } from "lucide-react";
 import {
   analyze,
   architectureExplorer,
@@ -30,6 +30,7 @@ import { PortfolioPanel } from "@/components/repomind/PortfolioPanel";
 import { RepositoryRail } from "@/components/repomind/RepositoryRail";
 import { RiskAndDriftCenter } from "@/components/repomind/RiskAndDriftCenter";
 import { ReportsCenter } from "@/components/repomind/ReportsCenter";
+import { SecurityCenter } from "@/components/repomind/SecurityCenter";
 import { Badge, Button, EmptyState, Panel, SkeletonGrid } from "@/components/repomind/ui";
 import type { ArchitectureExplorerResult, ChatResult, DiligenceResult, DriftResult, NavItem, PortfolioIntelligence, PrRiskResult, RepositorySummary } from "@/components/repomind/types";
 import { asScore, compactNumber, executiveScore } from "@/components/repomind/utils";
@@ -39,6 +40,7 @@ const navItems: NavItem[] = [
   { id: "architecture", label: "Architecture", eyebrow: "flows", icon: Route },
   { id: "portfolio", label: "Portfolio", eyebrow: "multi-repo", icon: Building2 },
   { id: "knowledge", label: "Knowledge", eyebrow: "graph", icon: Network },
+  { id: "security", label: "Security", eyebrow: "owasp/cwe", icon: ShieldAlert },
   { id: "pr-risk", label: "PR Risk", eyebrow: "blast radius", icon: GitPullRequest },
   { id: "drift", label: "Drift", eyebrow: "baseline", icon: GitCompareArrows },
   { id: "diligence", label: "Diligence", eyebrow: "board pack", icon: ShieldCheck },
@@ -171,7 +173,7 @@ export function RepoMindDashboard() {
 
         <section className="min-w-0 space-y-4">
           <TopCommandBar activeRepo={activeRepo} view={view} setView={setView} stats={commandStats} />
-          <nav className="grid gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl md:grid-cols-3 xl:grid-cols-9">
+          <nav className="grid gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl md:grid-cols-3 xl:grid-cols-10">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = view === item.id || (item.id === "drift" && view === "pr-risk");
@@ -207,6 +209,7 @@ export function RepoMindDashboard() {
     if (view === "architecture") return <ArchitectureExplorerPanel data={architectureData} busy={busy === "architecture"} onGenerate={() => activeRepo && run("architecture", async () => setArchitectureData(await architectureExplorer(activeRepo.id)))} />;
     if (view === "portfolio") return <PortfolioPanel data={portfolio} busy={busy === "portfolio"} onRefresh={() => run("portfolio", async () => setPortfolio(await portfolioIntelligence()))} />;
     if (view === "knowledge") return <KnowledgeGraphPanel summary={repoSummary} />;
+    if (view === "security") return <SecurityCenter summary={repoSummary} />;
     if (view === "pr-risk" || view === "drift") {
       return (
         <RiskAndDriftCenter
@@ -215,7 +218,7 @@ export function RepoMindDashboard() {
           prResult={prResult}
           driftResult={driftResult}
           busy={Boolean(busy)}
-          onPrRisk={(files) => activeRepo && run("pr-risk", async () => setPrResult(await prRisk(activeRepo.id, files, "Frontend review")))}
+          onPrRisk={(files, prUrl) => activeRepo && run("pr-risk", async () => setPrResult(await prRisk(activeRepo.id, files, "Frontend review", prUrl)))}
           onDrift={(baseline) => activeRepo && run("drift", async () => setDriftResult(await architectureDrift(activeRepo.id, baseline)))}
         />
       );

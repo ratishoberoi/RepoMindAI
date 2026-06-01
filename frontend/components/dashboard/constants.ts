@@ -10,6 +10,13 @@ export const reports = [
   "ONBOARDING.md",
   "ROADMAP.md",
   "PROJECT_STATUS.md",
+  "README_REPORT.md",
+  "ARCHITECTURE_REPORT.md",
+  "CTO_REPORT.md",
+  "INVESTOR_REPORT.md",
+  "DUE_DILIGENCE_REPORT.md",
+  "ROADMAP_REPORT.md",
+  "EXECUTIVE_SUMMARY.md",
   "SECURITY.sarif",
   "EXECUTIVE_SUMMARY.html",
   "EXECUTIVE_SUMMARY.pdf"

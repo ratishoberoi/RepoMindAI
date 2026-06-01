@@ -102,11 +102,11 @@ export async function chat(repoId: string, question: string) {
   return res.json();
 }
 
-export async function prRisk(repoId: string, changed_files: string[], title = "") {
+export async function prRisk(repoId: string, changed_files: string[], title = "", pr_url = "") {
   const res = await fetch(`${API_BASE}/repositories/${repoId}/pr-risk`, {
     method: "POST",
     headers: jsonHeaders(),
-    body: JSON.stringify({ changed_files, title })
+    body: JSON.stringify({ changed_files, title, pr_url })
   });
   if (!res.ok) throw new Error(await errorText(res));
   return res.json();

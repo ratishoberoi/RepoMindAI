@@ -11,6 +11,7 @@ from repomind.analysis.debt import analyze_technical_debt
 from repomind.analysis.graph import build_dependency_graph
 from repomind.analysis.parser import parse_file
 from repomind.core.config import get_settings
+from repomind.intelligence.evidence import build_score_evidence
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
 from repomind.rag.indexer import index_repository
 from repomind.reports.generator import generate_reports
@@ -168,7 +169,7 @@ def build_summary(
     scores = score_repository(files, parsed, stack, security, debt)
     architecture = extract_architecture(files, parsed, stack, graph)
     knowledge_graph = build_repository_knowledge_graph(files, parsed, graph, security)
-    return {
+    summary = {
         "repository": {
             "id": repo["id"],
             "name": repo["name"],
@@ -196,6 +197,8 @@ def build_summary(
         "architecture": architecture,
         "knowledge_graph": knowledge_graph,
     }
+    summary["score_evidence"] = build_score_evidence(summary)
+    return summary
 
 
 def score_repository(

@@ -21,6 +21,7 @@ export type RepositorySummary = {
     routes?: Array<Record<string, unknown>>;
   };
   knowledge_graph?: KnowledgeGraph;
+  score_evidence?: Record<string, ScoreEvidence>;
   security?: {
     findings?: Finding[];
     summary?: Record<string, number>;
@@ -29,6 +30,19 @@ export type RepositorySummary = {
     findings?: Finding[];
   };
   files?: Array<{ relative_path?: string; language?: string; size?: number }>;
+};
+
+export type ScoreEvidence = {
+  id?: string;
+  label?: string;
+  score?: number;
+  confidence?: number;
+  calculation?: string;
+  positive_contributors?: string[];
+  negative_contributors?: string[];
+  factors?: Array<Record<string, unknown>>;
+  citations?: Array<Record<string, unknown>>;
+  higher_is_better?: boolean;
 };
 
 export type KnowledgeGraph = {
@@ -71,20 +85,36 @@ export type Finding = {
   title?: string;
   severity?: Severity | string;
   file?: string;
+  path?: string;
   line?: number;
   message?: string;
   evidence?: string;
   recommendation?: string;
+  impact?: string;
+  remediation?: string;
+  owasp?: string;
+  cwe?: string;
+  affected_files?: string[];
 };
 
 export type PrRiskResult = {
+  title?: string;
+  pr_url?: string;
+  changed_files_source?: string;
   risk_score?: number;
   risk_level?: string;
   changed_files?: string[];
+  blast_radius?: Record<string, unknown>;
   impacted_domains?: Array<Record<string, unknown>>;
   findings?: Finding[];
+  file_impacts?: Array<Record<string, unknown>>;
   review_plan?: string[];
+  required_review?: string[];
   test_strategy?: string[];
+  recommended_tests?: string[];
+  deployment_risk?: Record<string, unknown>;
+  pr_review_packet?: Record<string, unknown>;
+  summary?: string;
 };
 
 export type DriftResult = {
@@ -92,8 +122,16 @@ export type DriftResult = {
   drift_level?: string;
   added_domains?: Array<Record<string, unknown>>;
   removed_domains?: Array<Record<string, unknown>>;
+  domain_added?: string[];
+  domain_removed?: string[];
+  domain_changed?: Array<Record<string, unknown>>;
+  new_services?: string[];
+  removed_services?: string[];
   changed_dependencies?: Array<Record<string, unknown>>;
+  dependency_changes?: Array<Record<string, unknown>>;
+  security_changes?: Record<string, unknown>;
   findings?: Finding[];
+  drift_report?: string;
 };
 
 export type DiligenceResult = {
@@ -131,6 +169,8 @@ export type ArchitectureExplorerResult = {
   external_integrations?: Array<Record<string, unknown>>;
   request_flows?: Array<Record<string, unknown>>;
   dependency_flows?: Array<Record<string, unknown>>;
+  architecture_review?: Record<string, unknown>;
+  ai_architect_review?: Array<Record<string, unknown>>;
   narratives?: Record<string, string>;
   onboarding_markdown?: string;
 };
