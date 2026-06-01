@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections import Counter
 from typing import Any
 
 from repomind.core.store import store
@@ -19,6 +20,7 @@ def retrieve(repo_id: str, question: str, limit: int = 6) -> list[dict[str, Any]
             query_embeddings=[query_vector],
             n_results=max(limit * 12, 72),
             include=["documents", "metadatas", "distances"],
+            where={"sensitive": False},
         )
     except Exception as exc:
         raise RuntimeError(f"Chroma retrieval failed for repository {repo_id}: {exc}") from exc
@@ -44,9 +46,12 @@ def retrieve(repo_id: str, question: str, limit: int = 6) -> list[dict[str, Any]
                 "score": round(score, 4),
                 "vector_score": round(base, 4),
                 "rerank_score": round(lexical, 4),
+                "symbol": meta.get("symbol"),
+                "kind": meta.get("kind"),
             }
         )
     candidates.extend(_pinned_candidates(collection, repo_id, question, query_terms))
+    candidates.extend(_bm25_candidates(collection, question, query_terms, limit * 8))
     candidates = _dedupe(candidates)
     candidates.sort(key=lambda item: item["score"], reverse=True)
     return candidates[:limit]
@@ -63,6 +68,8 @@ def _pinned_candidates(collection: Any, repo_id: str, question: str, query_terms
         except Exception:
             continue
         for chunk_id, doc, meta in zip(payload.get("ids", []), payload.get("documents", []), payload.get("metadatas", [])):
+            if meta.get("sensitive"):
+                continue
             doc = redact_text(doc)
             lexical = _lexical_score(question, doc)
             score = 0.5 + lexical * 0.18 + _path_boost(str(meta.get("path", "")), query_terms)
@@ -76,9 +83,67 @@ def _pinned_candidates(collection: Any, repo_id: str, question: str, query_terms
                     "score": round(score, 4),
                     "vector_score": 0.5,
                     "rerank_score": round(lexical, 4),
+                    "symbol": meta.get("symbol"),
+                    "kind": meta.get("kind"),
                 }
             )
     return candidates
+
+
+def _bm25_candidates(collection: Any, question: str, query_terms: set[str], limit: int) -> list[dict[str, Any]]:
+    try:
+        payload = collection.get(include=["documents", "metadatas"], limit=2000)
+    except Exception:
+        return []
+    docs = [
+        (chunk_id, redact_text(doc), meta)
+        for chunk_id, doc, meta in zip(payload.get("ids", []), payload.get("documents", []), payload.get("metadatas", []))
+        if not meta.get("sensitive")
+    ]
+    if not docs:
+        return []
+    tokenized = [WORD_RE.findall(doc.lower()) for _, doc, _ in docs]
+    avg_len = sum(len(tokens) for tokens in tokenized) / max(len(tokenized), 1)
+    doc_freq = Counter(term for tokens in tokenized for term in set(tokens))
+    candidates = []
+    for (chunk_id, doc, meta), tokens in zip(docs, tokenized):
+        score = _bm25_score(query_terms, tokens, doc_freq, len(docs), avg_len)
+        if score <= 0:
+            continue
+        final_score = min(0.95, 0.42 + score / 18 + _path_boost(str(meta.get("path", "")), query_terms))
+        candidates.append(
+            {
+                "id": chunk_id,
+                "path": meta.get("path"),
+                "line_start": meta.get("line_start"),
+                "line_end": meta.get("line_end"),
+                "text": doc,
+                "score": round(final_score, 4),
+                "vector_score": 0.0,
+                "rerank_score": round(final_score, 4),
+                "symbol": meta.get("symbol"),
+                "kind": meta.get("kind"),
+            }
+        )
+    candidates.sort(key=lambda item: item["score"], reverse=True)
+    return candidates[:limit]
+
+
+def _bm25_score(query_terms: set[str], tokens: list[str], doc_freq: Counter[str], doc_count: int, avg_len: float) -> float:
+    if not query_terms or not tokens:
+        return 0.0
+    counts = Counter(tokens)
+    k1 = 1.5
+    b = 0.75
+    score = 0.0
+    for term in query_terms:
+        freq = counts.get(term, 0)
+        if not freq:
+            continue
+        idf = max(0.0, (doc_count - doc_freq[term] + 0.5) / (doc_freq[term] + 0.5))
+        denom = freq + k1 * (1 - b + b * len(tokens) / max(avg_len, 1))
+        score += idf * ((freq * (k1 + 1)) / denom)
+    return score
 
 
 def _pinned_paths(repo_id: str, question: str) -> list[str]:
@@ -168,6 +233,8 @@ def citations_for(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "score": chunk["score"],
             "vector_score": chunk["vector_score"],
             "rerank_score": chunk["rerank_score"],
+            "symbol": chunk.get("symbol"),
+            "kind": chunk.get("kind"),
         }
         for chunk in chunks
     ]

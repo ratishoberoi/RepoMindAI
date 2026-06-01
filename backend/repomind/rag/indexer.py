@@ -39,6 +39,9 @@ def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
                 "path": chunk["path"],
                 "line_start": chunk["line_start"],
                 "line_end": chunk["line_end"],
+                "kind": chunk.get("kind", "text"),
+                "symbol": chunk.get("symbol") or "",
+                "sensitive": _is_sensitive(chunk),
             }
             for chunk in chunks
         ]
@@ -68,6 +71,9 @@ def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
                 "id": chunk["id"],
                 "line_start": chunk["line_start"],
                 "line_end": chunk["line_end"],
+                "kind": chunk.get("kind", "text"),
+                "symbol": chunk.get("symbol"),
+                "sensitive": _is_sensitive(chunk),
             }
             for chunk in chunks
         ],
@@ -116,6 +122,11 @@ def _stored_text(chunk: dict) -> str:
     if not get_settings().redact_secrets:
         return chunk["text"]
     return redact_text(chunk["text"])
+
+
+def _is_sensitive(chunk: dict) -> bool:
+    text = chunk["text"]
+    return redact_text(text) != text
 
 
 def _elapsed(start: float) -> float:

@@ -5,7 +5,7 @@ from repomind.analysis.graph import build_dependency_graph
 from repomind.analysis.parser import parse_file
 from repomind.core.store import RepositoryStore
 from repomind.llm.adapters import detect_model
-from repomind.rag.chunking import chunk_text
+from repomind.rag.chunking import chunk_file, chunk_text
 from repomind.rag.embeddings import BGEEmbedder
 from repomind.security.redaction import redact_text
 from repomind.utils.hashing import file_sha256
@@ -46,6 +46,14 @@ def test_dependency_graph_building() -> None:
 def test_chunks_are_stable() -> None:
     chunks = chunk_text("hello world\n" * 400, "README.md")
     assert chunks
+
+
+def test_chunk_file_prefers_symbol_chunks(tmp_path: Path) -> None:
+    path = tmp_path / "service.py"
+    path.write_text("def alpha():\n    return 1\n\nclass Beta:\n    pass\n")
+    chunks = chunk_file(path, "service.py")
+    assert {chunk["symbol"] for chunk in chunks} == {"alpha", "Beta"}
+    assert all(chunk["kind"] == "symbol" for chunk in chunks)
 
 
 def test_embedding_uses_bge_model_name() -> None:
