@@ -14,12 +14,16 @@ def analyze_technical_debt(
     maintainability: list[dict[str, Any]] = []
     todos = []
     for item in parsed:
+        if _is_low_value_debt_path(item["relative_path"]):
+            continue
         for todo in item.get("todos", []):
             todos.append({"path": item["relative_path"], **todo})
-    for item in files:
+    python_items = [item for item in files if item["language"] == "Python"]
+    production_python = [
+        item for item in python_items if not _is_low_value_debt_path(item["relative_path"])
+    ]
+    for item in production_python or python_items:
         path = root / item["relative_path"]
-        if item["language"] != "Python":
-            continue
         text = path.read_text(errors="ignore")
         try:
             complexity = cc_visit(text)
@@ -68,3 +72,13 @@ def analyze_technical_debt(
         "large_files": large_files,
         "maintainability": maintainability,
     }
+
+
+def _is_low_value_debt_path(path: str) -> bool:
+    lower = path.lower()
+    parts = set(lower.split("/"))
+    return bool(
+        {"test", "tests", "docs", "doc", "docs_src", "examples", "example", "fixtures", "fixture"}
+        & parts
+        or lower.startswith(("docs_src/", "tests/", "test/"))
+    )

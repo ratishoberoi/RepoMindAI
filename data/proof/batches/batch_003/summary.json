@@ -1,0 +1,68 @@
+{
+  "repositories_attempted": 100,
+  "repositories_passed": 100,
+  "repositories_failed": 0,
+  "failure_rate": 0.0,
+  "language_mix": {
+    "Python": 20,
+    "TypeScript": 20,
+    "Java": 20,
+    "Go": 20,
+    "Rust": 20
+  },
+  "size_mix": {
+    "tiny": 53,
+    "small": 36,
+    "medium": 10,
+    "large": 1
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.775,
+  "mean_retrieval_accuracy": 0.775,
+  "mean_answer_accuracy": 0.765,
+  "mean_architecture_correctness": 0.848,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 1549.328
+    },
+    {
+      "stage": "indexing",
+      "seconds": 715.352
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 664.75
+    },
+    {
+      "stage": "security",
+      "seconds": 446.903
+    },
+    {
+      "stage": "embedding",
+      "seconds": 306.903
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 225.848
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 214.598
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 101.372
+    },
+    {
+      "stage": "reports",
+      "seconds": 50.694
+    }
+  ],
+  "failures": []
+}

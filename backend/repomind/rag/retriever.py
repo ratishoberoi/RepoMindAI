@@ -13,7 +13,9 @@ WORD_RE = re.compile(r"[A-Za-z0-9_./-]+")
 
 
 def retrieve(repo_id: str, question: str, limit: int = 6) -> list[dict[str, Any]]:
-    query_vector = embedder().embed(question)
+    query_terms = _expanded_query_terms(question)
+    query_text = f"{question} {' '.join(sorted(query_terms))}"
+    query_vector = embedder().embed(query_text)
     collection = _collection(repo_id)
     try:
         payload = collection.query(
@@ -30,12 +32,16 @@ def retrieve(repo_id: str, question: str, limit: int = 6) -> list[dict[str, Any]
     docs = payload.get("documents", [[]])[0]
     metas = payload.get("metadatas", [[]])[0]
     distances = payload.get("distances", [[]])[0]
-    query_terms = set(WORD_RE.findall(question.lower()))
     for chunk_id, doc, meta, distance in zip(ids, docs, metas, distances):
         base = 1.0 - float(distance or 0.0)
         doc = redact_text(doc)
-        lexical = _lexical_score(question, doc)
-        score = base * 0.72 + lexical * 0.18 + _path_boost(str(meta.get("path", "")), query_terms)
+        lexical = _lexical_score(query_terms, doc)
+        score = (
+            base * 0.66
+            + lexical * 0.22
+            + _path_boost(str(meta.get("path", "")), query_terms)
+            + _source_quality_boost(str(meta.get("path", "")), query_terms)
+        )
         candidates.append(
             {
                 "id": chunk_id,
@@ -64,7 +70,7 @@ def _pinned_candidates(
     if not paths:
         return []
     candidates = []
-    for path in paths[:12]:
+    for path in _rank_pinned_paths(paths)[:12]:
         try:
             payload = collection.get(
                 where={"path": path}, include=["documents", "metadatas"], limit=3
@@ -77,8 +83,13 @@ def _pinned_candidates(
             if meta.get("sensitive"):
                 continue
             doc = redact_text(doc)
-            lexical = _lexical_score(question, doc)
-            score = 0.5 + lexical * 0.18 + _path_boost(str(meta.get("path", "")), query_terms)
+            lexical = _lexical_score(query_terms, doc)
+            score = (
+                0.72
+                + lexical * 0.18
+                + _path_boost(str(meta.get("path", "")), query_terms)
+                + _source_quality_boost(str(meta.get("path", "")), query_terms)
+            )
             candidates.append(
                 {
                     "id": chunk_id,
@@ -121,7 +132,11 @@ def _bm25_candidates(
         if score <= 0:
             continue
         final_score = min(
-            0.95, 0.42 + score / 18 + _path_boost(str(meta.get("path", "")), query_terms)
+            0.95,
+            0.42
+            + score / 18
+            + _path_boost(str(meta.get("path", "")), query_terms)
+            + _source_quality_boost(str(meta.get("path", "")), query_terms),
         )
         candidates.append(
             {
@@ -179,7 +194,7 @@ def _pinned_paths(repo_id: str, question: str) -> list[str]:
             for item in parsed
             if any(
                 token in item.get("relative_path", "").lower()
-                for token in ("database", "db", "store", "storage", "indexer", "chroma")
+                for token in ("database", "db", "store", "storage", "repository", "sql")
             )
         )
     if any(token in lower for token in ("auth", "authentication", "login", "jwt", "session")):
@@ -188,10 +203,26 @@ def _pinned_paths(repo_id: str, question: str) -> list[str]:
             for item in parsed
             if any(
                 token in item.get("relative_path", "").lower()
-                for token in ("auth", "jwt", "middleware", "session", "login", "oauth")
+                for token in ("auth", "jwt", "middleware", "session", "login", "oauth", "security")
             )
         )
     return [path for index, path in enumerate(paths) if path and path not in paths[:index]]
+
+
+def _rank_pinned_paths(paths: list[str]) -> list[str]:
+    unique = [path for index, path in enumerate(paths) if path and path not in paths[:index]]
+    return sorted(unique, key=lambda path: (_low_value_path(path), path.count("/"), path))
+
+
+def _low_value_path(path: str) -> bool:
+    lower = path.lower()
+    parts = set(lower.split("/"))
+    return bool(
+        {"test", "tests", "docs", "doc", "docs_src", "examples", "example", "fixtures", "fixture"}
+        & parts
+        or lower.startswith(("docs_src/", "tests/", "test/", "scripts/", ".github/"))
+        or lower.endswith((".md", ".rst", ".txt", ".yml", ".yaml"))
+    )
 
 
 def _dedupe(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -203,8 +234,73 @@ def _dedupe(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return list(by_id.values())
 
 
-def _lexical_score(question: str, document: str) -> float:
-    query_terms = set(WORD_RE.findall(question.lower()))
+def _expanded_query_terms(question: str) -> set[str]:
+    terms = set(WORD_RE.findall(question.lower()))
+    if {"auth", "authentication", "login", "oauth", "jwt", "session"} & terms:
+        terms.update(
+            {
+                "auth",
+                "authentication",
+                "authenticate",
+                "authorization",
+                "authorize",
+                "login",
+                "jwt",
+                "oauth",
+                "session",
+                "password",
+                "middleware",
+                "guard",
+            }
+        )
+    if {"database", "db", "sql", "storage", "persist", "used"} & terms:
+        terms.update(
+            {
+                "database",
+                "db",
+                "sql",
+                "storage",
+                "store",
+                "repository",
+                "model",
+                "schema",
+                "migration",
+                "postgres",
+                "sqlite",
+                "mysql",
+                "redis",
+                "orm",
+                "prisma",
+                "mongoose",
+                "sequelize",
+                "gorm",
+                "sqlx",
+                "diesel",
+            }
+        )
+    if {"route", "routes", "routing", "api", "endpoint", "defined"} & terms:
+        terms.update(
+            {
+                "route",
+                "routes",
+                "router",
+                "routing",
+                "api",
+                "endpoint",
+                "controller",
+                "handler",
+                "server",
+                "get",
+                "post",
+                "put",
+                "patch",
+                "delete",
+            }
+        )
+    return terms
+
+
+def _lexical_score(query_terms: set[str], document: str) -> float:
     if not query_terms:
         return 0.0
     doc_terms = set(WORD_RE.findall(document.lower()))
@@ -223,7 +319,8 @@ def _path_boost(path: str, query_terms: set[str]) -> float:
             boost -= 0.12
     if {"authentication", "auth", "login", "oauth", "jwt", "session"} & query_terms:
         if any(
-            token in lower for token in ("auth", "jwt", "middleware", "session", "login", "oauth")
+            token in lower
+            for token in ("auth", "jwt", "middleware", "session", "login", "oauth", "security")
         ):
             boost += 0.34
         if lower.endswith(("semgrep_rules.yml", "scanner.py")):
@@ -251,13 +348,47 @@ def _path_boost(path: str, query_terms: set[str]) -> float:
             boost += 0.22
     if {"route", "routes", "routing", "api", "endpoint"} & query_terms:
         if any(
-            token in lower for token in ("route", "router", "api", "view", "endpoint", "controller")
+            token in lower
+            for token in ("route", "routing", "router", "view", "endpoint", "controller", "handler")
         ):
             boost += 0.16
         if lower.endswith(("main.py", "main.ts", "main.tsx")):
             boost += 0.28
     if "/compiled/" in lower or lower.endswith((".min.js", ".bundle.js")):
         boost -= 0.3
+    return boost
+
+
+def _source_quality_boost(path: str, query_terms: set[str]) -> float:
+    lower = path.lower()
+    implementation_query = bool(
+        {
+            "authentication",
+            "auth",
+            "login",
+            "database",
+            "db",
+            "route",
+            "routes",
+            "api",
+            "endpoint",
+        }
+        & query_terms
+    )
+    if not implementation_query:
+        return 0.0
+    boost = 0.0
+    if any(
+        part in lower.split("/")
+        for part in ("test", "tests", "docs", "doc", "docs_src", "examples", "scripts")
+    ):
+        boost -= 0.18
+    if lower.startswith(("docs_src/", "tests/", "test/", "scripts/", ".github/")):
+        boost -= 0.16
+    if lower.endswith((".md", ".rst", ".txt")):
+        boost -= 0.14
+    if lower.endswith((".py", ".ts", ".tsx", ".js", ".jsx", ".java", ".go", ".rs")):
+        boost += 0.08
     return boost
 
 

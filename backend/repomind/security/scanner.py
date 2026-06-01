@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -61,9 +63,9 @@ def scan_security(
                         _finding(rule_id, severity, item["relative_path"], line_no, message)
                     )
     _checkpoint(cancel_check)
-    findings.extend(_run_bandit(root, cancel_check))
+    findings.extend(_run_bandit(root, files, cancel_check))
     _checkpoint(cancel_check)
-    findings.extend(_run_semgrep(root, cancel_check))
+    findings.extend(_run_semgrep(root, files, cancel_check))
     _checkpoint(cancel_check)
     findings.extend(_run_trivy(root, cancel_check))
     _checkpoint(cancel_check)
@@ -207,14 +209,19 @@ def _is_example_path(path: str) -> bool:
     )
 
 
-def _run_bandit(root: Path, cancel_check: CancelCheck | None = None) -> list[dict[str, Any]]:
+def _run_bandit(
+    root: Path, files: list[dict], cancel_check: CancelCheck | None = None
+) -> list[dict[str, Any]]:
     bandit = _tool("bandit")
     if not bandit:
         return []
+    paths = _scanner_paths(root, files, {".py"}, limit=600)
+    if not paths:
+        return []
     try:
         proc = _run_subprocess(
-            [bandit, "-r", str(root), "-f", "json", "-q"],
-            timeout=60,
+            [bandit, "-f", "json", "-q", *paths],
+            timeout=25,
             cancel_check=cancel_check,
         )
         payload = json.loads(proc.stdout or "{}")
@@ -239,9 +246,19 @@ def _run_bandit(root: Path, cancel_check: CancelCheck | None = None) -> list[dic
     return results
 
 
-def _run_semgrep(root: Path, cancel_check: CancelCheck | None = None) -> list[dict[str, Any]]:
+def _run_semgrep(
+    root: Path, files: list[dict], cancel_check: CancelCheck | None = None
+) -> list[dict[str, Any]]:
     semgrep = _tool("semgrep")
     if not semgrep:
+        return []
+    paths = _scanner_paths(
+        root,
+        files,
+        {".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs"},
+        limit=800,
+    )
+    if not paths:
         return []
     try:
         proc = _run_subprocess(
@@ -254,10 +271,10 @@ def _run_semgrep(root: Path, cancel_check: CancelCheck | None = None) -> list[di
                 "--quiet",
                 "--error",
                 "--timeout",
-                "45",
-                str(root),
+                "12",
+                *paths,
             ],
-            timeout=90,
+            timeout=25,
             cancel_check=cancel_check,
         )
         payload = json.loads(proc.stdout or "{}")
@@ -313,6 +330,37 @@ def _run_trivy(root: Path, cancel_check: CancelCheck | None = None) -> list[dict
                 )
             )
     return findings
+
+
+def _scanner_paths(root: Path, files: list[dict], suffixes: set[str], limit: int) -> list[str]:
+    production_paths = []
+    fallback_paths = []
+    for item in files:
+        rel = item.get("relative_path", "")
+        if not rel:
+            continue
+        path = root / rel
+        if path.suffix.lower() not in suffixes or not path.exists():
+            continue
+        if _is_low_value_scan_path(rel):
+            fallback_paths.append(str(path))
+        else:
+            production_paths.append(str(path))
+        if len(production_paths) >= limit:
+            break
+    paths = production_paths or fallback_paths
+    return paths[:limit]
+
+
+def _is_low_value_scan_path(path: str) -> bool:
+    lower = path.lower()
+    parts = set(lower.split("/"))
+    return bool(
+        {"test", "tests", "docs", "doc", "docs_src", "examples", "example", "fixtures", "fixture"}
+        & parts
+        or lower.startswith(("docs_src/", "tests/", "test/"))
+        or lower.endswith((".md", ".rst", ".txt"))
+    )
 
 
 def _run_dependency_audit(
@@ -428,20 +476,31 @@ def _run_subprocess(
     command: list[str], timeout: int, cancel_check: CancelCheck | None = None
 ) -> subprocess.CompletedProcess[str]:
     start = time.monotonic()
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    proc = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True
+    )
     try:
         while proc.poll() is None:
             _checkpoint(cancel_check)
             if time.monotonic() - start > timeout:
-                proc.kill()
+                _kill_process_group(proc)
                 raise subprocess.TimeoutExpired(command, timeout)
             time.sleep(0.1)
         stdout, stderr = proc.communicate()
         return subprocess.CompletedProcess(command, proc.returncode, stdout, stderr)
     except Exception:
-        proc.kill()
+        _kill_process_group(proc)
         proc.communicate()
         raise
+
+
+def _kill_process_group(proc: subprocess.Popen[str]) -> None:
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        return
+    except Exception:
+        proc.kill()
 
 
 def _checkpoint(cancel_check: CancelCheck | None) -> None:

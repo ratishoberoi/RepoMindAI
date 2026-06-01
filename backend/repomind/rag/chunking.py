@@ -12,13 +12,50 @@ SYMBOL_RE = re.compile(
     r"^(?:export\s+)?(?:async\s+)?(?:function|class)\s+(?P<js>[A-Za-z_][A-Za-z0-9_]*)",
     re.MULTILINE,
 )
-JS_TS_NODE_TYPES = {
-    "class_declaration",
-    "abstract_class_declaration",
-    "function_declaration",
-    "generator_function_declaration",
-    "lexical_declaration",
-    "export_statement",
+TREE_SITTER_NODE_TYPES = {
+    "javascript": {
+        "class_declaration",
+        "function_declaration",
+        "generator_function_declaration",
+        "lexical_declaration",
+        "export_statement",
+    },
+    "typescript": {
+        "class_declaration",
+        "abstract_class_declaration",
+        "function_declaration",
+        "generator_function_declaration",
+        "lexical_declaration",
+        "export_statement",
+    },
+    "tsx": {
+        "class_declaration",
+        "abstract_class_declaration",
+        "function_declaration",
+        "generator_function_declaration",
+        "lexical_declaration",
+        "export_statement",
+    },
+    "java": {
+        "class_declaration",
+        "interface_declaration",
+        "enum_declaration",
+        "method_declaration",
+        "constructor_declaration",
+    },
+    "go": {
+        "function_declaration",
+        "method_declaration",
+        "type_declaration",
+    },
+    "rust": {
+        "function_item",
+        "impl_item",
+        "struct_item",
+        "enum_item",
+        "trait_item",
+        "mod_item",
+    },
 }
 
 
@@ -70,7 +107,7 @@ def _ast_chunks(text: str, path: str) -> list[dict]:
     suffix = Path(path).suffix.lower()
     if suffix == ".py":
         return _python_ast_chunks(text, path)
-    if suffix in {".js", ".jsx", ".ts", ".tsx"}:
+    if suffix in {".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs"}:
         return _tree_sitter_chunks(text, path, _tree_sitter_language(path))
     return []
 
@@ -122,12 +159,13 @@ def _tree_sitter_chunks(text: str, path: str, language: str) -> list[dict]:
     root = tree.root_node() if callable(tree.root_node) else tree.root_node
     chunks = []
     seen: set[tuple[int, int]] = set()
+    node_types = TREE_SITTER_NODE_TYPES.get(language, set())
     for index, node in enumerate(_walk(root)):
         kind = _kind(node)
-        if kind not in JS_TS_NODE_TYPES:
+        if kind not in node_types:
             continue
         if kind == "export_statement":
-            child = _first_named_child(node, JS_TS_NODE_TYPES - {"export_statement"})
+            child = _first_named_child(node, node_types - {"export_statement"})
             if child is not None:
                 node = child
                 kind = _kind(node)
@@ -228,6 +266,12 @@ def _tree_sitter_language(path: str) -> str:
         return "tsx"
     if suffix == ".ts":
         return "typescript"
+    if suffix == ".java":
+        return "java"
+    if suffix == ".go":
+        return "go"
+    if suffix == ".rs":
+        return "rust"
     return "javascript"
 
 

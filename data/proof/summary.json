@@ -1,0 +1,85 @@
+{
+  "repositories_attempted": 100,
+  "repositories_passed": 98,
+  "repositories_failed": 2,
+  "failure_rate": 0.02,
+  "language_mix": {
+    "Python": 20,
+    "TypeScript": 20,
+    "Java": 20,
+    "Go": 20,
+    "Rust": 20
+  },
+  "size_mix": {
+    "tiny": 53,
+    "small": 36,
+    "medium": 10,
+    "large": 1
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.211,
+  "mean_retrieval_accuracy": 0.098,
+  "mean_answer_accuracy": 0.846,
+  "mean_architecture_correctness": 0.148,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 2239.526
+    },
+    {
+      "stage": "security",
+      "seconds": 1594.73
+    },
+    {
+      "stage": "indexing",
+      "seconds": 503.134
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 477.511
+    },
+    {
+      "stage": "embedding",
+      "seconds": 242.331
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 232.916
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 99.328
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 22.229
+    },
+    {
+      "stage": "reports",
+      "seconds": 6.629
+    },
+    {
+      "stage": "scan_files",
+      "seconds": 1.245
+    }
+  ],
+  "failures": [
+    {
+      "url": "https://github.com/python/mypy",
+      "language": "Python",
+      "stage": "analysis_timeout",
+      "error": "Analysis cancelled."
+    },
+    {
+      "url": "https://github.com/fastapi/fastapi",
+      "language": "Python",
+      "stage": "analysis_timeout",
+      "error": "Analysis cancelled."
+    }
+  ]
+}

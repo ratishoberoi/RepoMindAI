@@ -79,8 +79,39 @@ def detect_stack(root: Path, files: list[dict]) -> dict:
             frameworks.add("Flask")
     if "pom.xml" in names:
         build_tools.add("Maven")
+        pom = root / "pom.xml"
+        text = pom.read_text(errors="ignore").lower() if pom.exists() else ""
+        if "spring-boot" in text or "springframework" in text:
+            frameworks.add("Spring")
     if "build.gradle" in names or "build.gradle.kts" in names:
         build_tools.add("Gradle")
+        for gradle_name in ("build.gradle", "build.gradle.kts"):
+            gradle = root / gradle_name
+            text = gradle.read_text(errors="ignore").lower() if gradle.exists() else ""
+            if "spring-boot" in text or "springframework" in text:
+                frameworks.add("Spring")
+    if "go.mod" in names:
+        package_managers.add("Go modules")
+        go_mod = root / "go.mod"
+        text = go_mod.read_text(errors="ignore").lower() if go_mod.exists() else ""
+        if "github.com/gin-gonic/gin" in text:
+            frameworks.add("Gin")
+        if "github.com/go-chi/chi" in text:
+            frameworks.add("Chi")
+        if "github.com/gofiber/fiber" in text:
+            frameworks.add("Fiber")
+        if "github.com/labstack/echo" in text:
+            frameworks.add("Echo")
+    if "Cargo.toml" in names:
+        package_managers.add("Cargo")
+        cargo = root / "Cargo.toml"
+        text = cargo.read_text(errors="ignore").lower() if cargo.exists() else ""
+        if "actix-web" in text:
+            frameworks.add("Actix Web")
+        if "axum" in text:
+            frameworks.add("Axum")
+        if "rocket" in text:
+            frameworks.add("Rocket")
     if "Dockerfile" in names or "docker-compose.yml" in names or "docker-compose.yaml" in names:
         build_tools.add("Docker")
     if any(".github/workflows/" in item["relative_path"] for item in files):

@@ -10,8 +10,14 @@ def extract_architecture(
 ) -> dict[str, Any]:
     paths = [item["relative_path"] for item in files]
     top_dirs = sorted({p.split("/", 1)[0] for p in paths if "/" in p})
-    route_files = [item["relative_path"] for item in parsed if item.get("routes")]
-    db_model_files = [item["relative_path"] for item in parsed if item.get("database_models")]
+    route_files = _unique_paths(
+        [item["relative_path"] for item in parsed if item.get("routes")]
+        + [path for path in paths if _looks_like_route_file(path)]
+    )
+    db_model_files = _unique_paths(
+        [item["relative_path"] for item in parsed if item.get("database_models")]
+        + [path for path in paths if _looks_like_data_file(path)]
+    )
     components = _components(paths)
     important = [node["id"] for node in graph.get("important_nodes", []) if "::" not in node["id"]][
         :12
@@ -180,6 +186,44 @@ def _architecture_style(paths: list[str], stack: dict[str, Any]) -> str:
     if len(counts) > 5:
         return "Multi-component repository"
     return "General software repository"
+
+
+def _looks_like_route_file(path: str) -> bool:
+    lower = path.lower()
+    if _low_value_architecture_path(lower):
+        return False
+    return any(
+        token in lower
+        for token in (
+            "route",
+            "routing",
+            "router",
+            "controller",
+            "handler",
+            "endpoint",
+            "server",
+        )
+    )
+
+
+def _looks_like_data_file(path: str) -> bool:
+    lower = path.lower()
+    if _low_value_architecture_path(lower):
+        return False
+    return any(token in lower for token in ("database", "db", "repository", "storage", "migration"))
+
+
+def _low_value_architecture_path(path: str) -> bool:
+    parts = set(path.split("/"))
+    return bool(
+        {"test", "tests", "docs", "doc", "docs_src", "examples", "example", "fixtures", "fixture"}
+        & parts
+        or path.startswith(("docs_src/", "tests/", "test/", "scripts/", ".github/"))
+    )
+
+
+def _unique_paths(paths: list[str]) -> list[str]:
+    return [path for index, path in enumerate(paths) if path and path not in paths[:index]]
 
 
 def _file_label(paths: list[str]) -> str:

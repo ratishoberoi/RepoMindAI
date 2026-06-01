@@ -21,7 +21,9 @@ data/indexes/
 data/exports/
 data/chroma/
 data/*.sqlite3
+data/*.db
 data/*.json
+data/proof/runtime/
 
 # Reports
 reports/generated/

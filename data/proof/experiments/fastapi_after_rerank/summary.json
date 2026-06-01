@@ -1,0 +1,57 @@
+{
+  "repositories_attempted": 1,
+  "repositories_passed": 1,
+  "repositories_failed": 0,
+  "failure_rate": 0.0,
+  "language_mix": {
+    "Python": 1
+  },
+  "size_mix": {
+    "medium": 1
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.0,
+  "mean_retrieval_accuracy": 0.0,
+  "mean_answer_accuracy": 0.463,
+  "mean_architecture_correctness": 0.053,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 65.424
+    },
+    {
+      "stage": "indexing",
+      "seconds": 34.37
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 32.974
+    },
+    {
+      "stage": "security",
+      "seconds": 27.235
+    },
+    {
+      "stage": "embedding",
+      "seconds": 20.48
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 5.745
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 1.341
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 1.191
+    }
+  ],
+  "failures": []
+}

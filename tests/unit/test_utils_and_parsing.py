@@ -222,6 +222,53 @@ def test_js_chunking_uses_tree_sitter_ast_nodes(tmp_path: Path) -> None:
     assert any(str(chunk.get("parser", "")).startswith("tree-sitter") for chunk in chunks)
 
 
+def test_java_go_rust_parsers_extract_architecture_signals(tmp_path: Path) -> None:
+    java = tmp_path / "UserController.java"
+    java.write_text(
+        "import org.springframework.web.bind.annotation.GetMapping;\n"
+        "@RestController\nclass UserController {\n"
+        '  @GetMapping("/users")\n'
+        '  public String listUsers() { return "ok"; }\n'
+        "}\n"
+    )
+    go = tmp_path / "server.go"
+    go.write_text(
+        'package main\nimport "github.com/gin-gonic/gin"\n'
+        'type User struct { ID string `db:"id"` }\n'
+        'func main() { r := gin.Default(); r.GET("/health", func(c *gin.Context) {}) }\n'
+    )
+    rust = tmp_path / "routes.rs"
+    rust.write_text(
+        "use actix_web::{get, HttpResponse};\n"
+        '#[get("/health")]\nasync fn health() -> HttpResponse { HttpResponse::Ok().finish() }\n'
+        "#[derive(sqlx::FromRow)]\nstruct User { id: String }\n"
+    )
+    java_parsed = parse_file(java, "src/UserController.java", "Java")
+    go_parsed = parse_file(go, "server.go", "Go")
+    rust_parsed = parse_file(rust, "src/routes.rs", "Rust")
+    assert java_parsed["routes"][0]["path"] == "/users"
+    assert "github.com/gin-gonic/gin" in go_parsed["imports"]
+    assert go_parsed["routes"][0]["path"] == "/health"
+    assert go_parsed["database_models"][0]["name"] == "User"
+    assert rust_parsed["routes"][0]["path"] == "/health"
+    assert any(item["name"] == "health" for item in rust_parsed["functions"])
+
+
+def test_java_go_rust_chunking_uses_language_ast_when_available(tmp_path: Path) -> None:
+    samples = {
+        "src/App.java": "class App { public void run() {} }\n",
+        "server.go": "package main\nfunc main() {}\ntype User struct { ID string }\n",
+        "src/lib.rs": "pub fn run() {}\npub struct User { id: String }\n",
+    }
+    for relative_path, body in samples.items():
+        path = tmp_path / Path(relative_path).name
+        path.write_text(body)
+        chunks = chunk_file(path, relative_path)
+        assert chunks
+        if any(str(chunk.get("parser", "")).startswith("tree-sitter") for chunk in chunks):
+            assert any(chunk["kind"] == "ast_node" for chunk in chunks)
+
+
 def test_embedding_uses_bge_model_name() -> None:
     assert BGEEmbedder.__name__ == "BGEEmbedder"
 

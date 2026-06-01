@@ -1,0 +1,70 @@
+{
+  "repositories_attempted": 20,
+  "repositories_passed": 19,
+  "repositories_failed": 1,
+  "failure_rate": 0.05,
+  "language_mix": {
+    "Python": 20
+  },
+  "size_mix": {
+    "tiny": 12,
+    "small": 7,
+    "medium": 1
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.51,
+  "mean_retrieval_accuracy": 0.51,
+  "mean_answer_accuracy": 0.761,
+  "mean_architecture_correctness": 0.526,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 407.817
+    },
+    {
+      "stage": "security",
+      "seconds": 207.079
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 103.729
+    },
+    {
+      "stage": "indexing",
+      "seconds": 83.243
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 78.749
+    },
+    {
+      "stage": "embedding",
+      "seconds": 43.758
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 31.346
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 8.296
+    },
+    {
+      "stage": "reports",
+      "seconds": 0.009
+    }
+  ],
+  "failures": [
+    {
+      "url": "https://github.com/fastapi/fastapi",
+      "language": "Python",
+      "stage": "analysis_timeout",
+      "error": "Analysis cancelled."
+    }
+  ]
+}

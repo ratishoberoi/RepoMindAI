@@ -19,6 +19,31 @@ TODO_RE = re.compile(r"\b(TODO|FIXME|HACK|XXX)\b[:\s-]*(.*)", re.IGNORECASE)
 PY_ROUTE_METHODS = {"get", "post", "put", "delete", "patch", "options", "head"}
 JS_ROUTE_METHODS = PY_ROUTE_METHODS | {"use", "all"}
 DB_MODEL_BASES = {"Base", "Model", "SQLModel", "DeclarativeBase", "Document"}
+JAVA_ROUTE_ANNOTATION_RE = re.compile(
+    r"@(?P<method>GetMapping|PostMapping|PutMapping|PatchMapping|DeleteMapping|RequestMapping)"
+    r"(?:\((?P<args>[^)]*)\))?"
+)
+JAVA_METHOD_RE = re.compile(
+    r"(?m)^\s*(?:public|private|protected)?\s*(?:static\s+)?(?:final\s+)?"
+    r"[\w<>\[\], ?]+\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*\("
+)
+GO_IMPORT_RE = re.compile(r'(?m)^\s*import\s+(?:[._\w]+\s+)?["`]([^"`]+)["`]')
+GO_IMPORT_BLOCK_RE = re.compile(r"import\s*\((?P<body>.*?)\)", re.DOTALL)
+GO_FUNC_RE = re.compile(
+    r"(?m)^func\s+(?:\((?P<receiver>[^)]*)\)\s*)?(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*\("
+)
+GO_ROUTE_RE = re.compile(
+    r"\.(?P<method>GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD|Handle|HandleFunc)\s*"
+    r"\(\s*[`\"](?P<path>/[^`\"]*)[`\"]"
+)
+RUST_USE_RE = re.compile(r"(?m)^\s*use\s+([^;]+);")
+RUST_ITEM_RE = re.compile(
+    r"(?m)^\s*(?:pub(?:\([^)]*\))?\s+)?(?:async\s+)?(?P<kind>fn|struct|enum|trait|mod)\s+"
+    r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+)
+RUST_ROUTE_RE = re.compile(
+    r"#\[(?P<method>get|post|put|patch|delete|route)\s*\(\s*\"(?P<path>/[^\"]*)\""
+)
 
 
 def parse_file(path: Path, relative_path: str, language: str) -> dict[str, Any]:
@@ -43,6 +68,12 @@ def parse_file(path: Path, relative_path: str, language: str) -> dict[str, Any]:
         result.update(
             _parse_js_ts(text, _tree_sitter_language(relative_path, language), relative_path)
         )
+    elif language == "Java":
+        result.update(_parse_java(text))
+    elif language == "Go":
+        result.update(_parse_go(text))
+    elif language == "Rust":
+        result.update(_parse_rust(text))
     elif language == "JSON":
         result["metadata"] = _parse_json_metadata(text)
     elif language == "YAML":
@@ -60,6 +91,139 @@ def parse_file(path: Path, relative_path: str, language: str) -> dict[str, Any]:
         for m in TODO_RE.finditer(text)
     ]
     return result
+
+
+def _parse_java(text: str) -> dict[str, Any]:
+    imports = re.findall(r"(?m)^\s*import\s+([\w.*]+)\s*;", text)
+    classes = [
+        {"name": match.group("name"), "line": _line_for_offset(text, match.start())}
+        for match in re.finditer(
+            r"(?m)^\s*(?:public\s+)?(?:abstract\s+|final\s+)?"
+            r"(?P<kind>class|interface|enum)\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)",
+            text,
+        )
+    ]
+    functions = [
+        {"name": match.group("name"), "line": _line_for_offset(text, match.start()), "async": False}
+        for match in JAVA_METHOD_RE.finditer(text)
+        if match.group("name") not in {"if", "for", "while", "switch", "catch"}
+    ]
+    routes: list[dict[str, Any]] = []
+    for match in JAVA_ROUTE_ANNOTATION_RE.finditer(text):
+        method = match.group("method").replace("Mapping", "").upper() or "ROUTE"
+        if method == "REQUEST":
+            method = "ROUTE"
+        route_path = _quoted_route_path(match.group("args") or "") or "/"
+        routes.append(
+            {
+                "method": method,
+                "path": route_path,
+                "handler": _next_java_method_name(text, match.end()),
+                "line": _line_for_offset(text, match.start()),
+            }
+        )
+    database_models = [
+        item | {"orm": "JPA/Hibernate"}
+        for item in classes
+        if _has_java_annotation_near(text, item["line"], {"@Entity", "@Table", "@Document"})
+    ]
+    return {
+        "imports": sorted(set(imports)),
+        "exports": [],
+        "classes": classes,
+        "functions": functions,
+        "methods": [],
+        "routes": _unique_routes(routes),
+        "database_models": database_models,
+        "parser": "regex-java",
+    }
+
+
+def _parse_go(text: str) -> dict[str, Any]:
+    imports = set(GO_IMPORT_RE.findall(text))
+    for block in GO_IMPORT_BLOCK_RE.finditer(text):
+        imports.update(re.findall(r'["`]([^"`]+)["`]', block.group("body")))
+    functions = []
+    methods = []
+    for match in GO_FUNC_RE.finditer(text):
+        item = {
+            "name": match.group("name"),
+            "line": _line_for_offset(text, match.start()),
+            "async": False,
+        }
+        receiver = match.group("receiver")
+        if receiver:
+            item["class"] = _go_receiver_type(receiver)
+            methods.append(item)
+        else:
+            functions.append(item)
+    classes = [
+        {"name": match.group("name"), "line": _line_for_offset(text, match.start())}
+        for match in re.finditer(
+            r"(?m)^type\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s+(?:struct|interface)\b",
+            text,
+        )
+    ]
+    routes = [
+        {
+            "method": "ROUTE"
+            if match.group("method") in {"Handle", "HandleFunc"}
+            else match.group("method"),
+            "path": match.group("path"),
+            "handler": "",
+            "line": _line_for_offset(text, match.start()),
+        }
+        for match in GO_ROUTE_RE.finditer(text)
+    ]
+    database_models = [
+        item | {"orm": "Go struct tags"}
+        for item in classes
+        if _has_go_struct_db_tags(text, item["name"])
+    ]
+    return {
+        "imports": sorted(imports),
+        "exports": [],
+        "classes": classes,
+        "functions": functions,
+        "methods": methods,
+        "routes": _unique_routes(routes),
+        "database_models": database_models,
+        "parser": "regex-go",
+    }
+
+
+def _parse_rust(text: str) -> dict[str, Any]:
+    imports = sorted({value.strip() for value in RUST_USE_RE.findall(text)})
+    functions = []
+    classes = []
+    for match in RUST_ITEM_RE.finditer(text):
+        item = {"name": match.group("name"), "line": _line_for_offset(text, match.start())}
+        if match.group("kind") == "fn":
+            functions.append(item | {"async": _rust_function_is_async(text, match.start())})
+        else:
+            classes.append(item | {"kind": match.group("kind")})
+    routes = [
+        {
+            "method": match.group("method").upper(),
+            "path": match.group("path"),
+            "handler": _next_rust_function_name(text, match.end()),
+            "line": _line_for_offset(text, match.start()),
+        }
+        for match in RUST_ROUTE_RE.finditer(text)
+    ]
+    database_models = [
+        item | {"orm": "Diesel/SQLx"} for item in classes if _has_rust_db_signal(text, item["name"])
+    ]
+    return {
+        "imports": imports,
+        "exports": [],
+        "classes": classes,
+        "functions": functions,
+        "methods": [],
+        "routes": _unique_routes(routes),
+        "database_models": database_models,
+        "parser": "regex-rust",
+    }
 
 
 def _parse_python(text: str) -> dict[str, Any]:
@@ -500,6 +664,54 @@ def _unique_routes(routes: list[dict[str, Any]]) -> list[dict[str, Any]]:
             seen.add(key)
             unique.append(route)
     return unique
+
+
+def _quoted_route_path(value: str) -> str | None:
+    match = re.search(r'["\'](?P<path>/[^"\']*)["\']', value)
+    return match.group("path") if match else None
+
+
+def _next_java_method_name(text: str, offset: int) -> str:
+    match = JAVA_METHOD_RE.search(text, offset)
+    return match.group("name") if match else ""
+
+
+def _has_java_annotation_near(text: str, line: int, annotations: set[str]) -> bool:
+    lines = text.splitlines()
+    window = "\n".join(lines[max(0, line - 6) : min(len(lines), line + 2)])
+    return any(annotation in window for annotation in annotations)
+
+
+def _go_receiver_type(receiver: str) -> str:
+    parts = receiver.replace("*", " ").split()
+    return parts[-1] if parts else "receiver"
+
+
+def _has_go_struct_db_tags(text: str, name: str) -> bool:
+    match = re.search(rf"type\s+{re.escape(name)}\s+struct\s*\{{(?P<body>.*?)\}}", text, re.DOTALL)
+    if not match:
+        return False
+    body = match.group("body").lower()
+    return any(token in body for token in ('`db:"', '`gorm:"', '`sql:"', '`json:"id"'))
+
+
+def _rust_function_is_async(text: str, offset: int) -> bool:
+    prefix = text[max(0, offset - 16) : offset]
+    return "async" in prefix
+
+
+def _next_rust_function_name(text: str, offset: int) -> str:
+    match = re.search(r"(?:pub\s+)?(?:async\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)", text[offset:])
+    return match.group(1) if match else ""
+
+
+def _has_rust_db_signal(text: str, name: str) -> bool:
+    pattern = re.compile(
+        rf"(diesel|sqlx|Queryable|Insertable|FromRow|table_name).*?{re.escape(name)}|"
+        rf"{re.escape(name)}.*?(diesel|sqlx|Queryable|Insertable|FromRow)",
+        re.DOTALL,
+    )
+    return bool(pattern.search(text))
 
 
 def _parse_json_metadata(text: str) -> dict[str, Any]:

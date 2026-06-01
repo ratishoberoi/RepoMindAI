@@ -1,0 +1,22 @@
+{
+  "target": "https://github.com/pallets/click",
+  "bottleneck": "security_scan",
+  "before": {
+    "analysis_seconds": 78.978,
+    "security_seconds": 62.075,
+    "finding_count": 4,
+    "total_seconds": 81.316
+  },
+  "after": {
+    "analysis_seconds": 51.045,
+    "security_seconds": 36.509,
+    "finding_count": 4,
+    "total_seconds": 53.181
+  },
+  "delta": {
+    "analysis_seconds": -27.933,
+    "security_seconds": -25.566,
+    "finding_count": 0,
+    "total_seconds": -28.135
+  }
+}
