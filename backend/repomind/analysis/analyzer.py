@@ -46,7 +46,11 @@ def analyze_repository(repo: dict[str, Any]) -> dict[str, Any]:
     report_paths = generate_reports(repo, summary)
     summary["performance"]["timings"]["report_generation_seconds"] = _elapsed(start)
     summary["performance"]["timings"]["total_analysis_seconds"] = round(
-        sum(value for key, value in summary["performance"]["timings"].items() if key.endswith("_seconds")),
+        sum(
+            value
+            for key, value in summary["performance"]["timings"].items()
+            if key.endswith("_seconds")
+        ),
         3,
     )
     summary["reports"] = report_paths
@@ -94,7 +98,9 @@ def parse_files(root: Path, files: list[dict[str, Any]]) -> list[dict[str, Any]]
         if item["language"] in {"Text"} and item["size"] > 250_000:
             continue
         try:
-            parsed.append(parse_file(root / item["relative_path"], item["relative_path"], item["language"]))
+            parsed.append(
+                parse_file(root / item["relative_path"], item["relative_path"], item["language"])
+            )
         except OSError:
             continue
     return parsed
@@ -118,7 +124,12 @@ def build_summary(
     scores = score_repository(files, parsed, stack, security, debt)
     architecture = extract_architecture(files, parsed, stack, graph)
     return {
-        "repository": {"id": repo["id"], "name": repo["name"], "path": repo["path"], "source": repo["source"]},
+        "repository": {
+            "id": repo["id"],
+            "name": repo["name"],
+            "path": repo["path"],
+            "source": repo["source"],
+        },
         "statistics": {
             "files": len(files),
             "bytes": sum(item["size"] for item in files),
@@ -165,7 +176,9 @@ def score_repository(
     docs_score = 100 if "readme.md" in names else 45
     dependency_score = 90 if stack.get("package_managers") else 50
     routes = sum(len(item.get("routes", [])) for item in parsed)
-    symbol_count = sum(len(item.get("functions", [])) + len(item.get("classes", [])) for item in parsed)
+    symbol_count = sum(
+        len(item.get("functions", [])) + len(item.get("classes", [])) for item in parsed
+    )
     code_signal = min(100, 45 + routes * 8 + symbol_count * 1.5)
     production_score = round(
         security_score * 0.32
@@ -177,24 +190,36 @@ def score_repository(
         + docs_score * 0.05,
         1,
     )
-    recruiter_score = round(code_signal * 0.35 + docs_score * 0.20 + tests_score * 0.20 + debt["score"] * 0.25, 1)
-    cto_score = round(production_score * 0.45 + security_score * 0.25 + debt["score"] * 0.20 + ci_score * 0.10, 1)
+    recruiter_score = round(
+        code_signal * 0.35 + docs_score * 0.20 + tests_score * 0.20 + debt["score"] * 0.25, 1
+    )
+    cto_score = round(
+        production_score * 0.45 + security_score * 0.25 + debt["score"] * 0.20 + ci_score * 0.10, 1
+    )
     confidence = round(
-        min(95, 30 + min(len(files), 40) + (15 if parsed else 0) + (10 if stack.get("package_managers") else 0)),
+        min(
+            95,
+            30
+            + min(len(files), 40)
+            + (15 if parsed else 0)
+            + (10 if stack.get("package_managers") else 0),
+        ),
         1,
     )
     score_details = {
         "security": {
             "score": round(security_score, 1),
             "positive_contributors": [
-                "Bandit scanner enabled" if security.get("scanner_status", {}).get("bandit") else "Bandit scanner unavailable",
-                "Semgrep scanner enabled" if security.get("scanner_status", {}).get("semgrep") else "Semgrep scanner unavailable",
+                "Bandit scanner enabled"
+                if security.get("scanner_status", {}).get("bandit")
+                else "Bandit scanner unavailable",
+                "Semgrep scanner enabled"
+                if security.get("scanner_status", {}).get("semgrep")
+                else "Semgrep scanner unavailable",
                 f"{file_count} analyzed files provides normalized finding density",
             ],
             "negative_contributors": [
-                f"{count} {level} findings"
-                for level, count in sorted(severity.items())
-                if count
+                f"{count} {level} findings" for level, count in sorted(severity.items()) if count
             ]
             or ["No enabled scanner findings"],
             "calculation": (

@@ -88,8 +88,14 @@ def compare_summaries(left: dict[str, Any], right: dict[str, Any]) -> dict[str, 
             key: _number(right_stats.get(key)) - _number(left_stats.get(key))
             for key in sorted(set(left_stats) | set(right_stats))
         },
-        "stack_added": sorted(set(right.get("stack", {}).get("frameworks", [])) - set(left.get("stack", {}).get("frameworks", []))),
-        "stack_removed": sorted(set(left.get("stack", {}).get("frameworks", [])) - set(right.get("stack", {}).get("frameworks", []))),
+        "stack_added": sorted(
+            set(right.get("stack", {}).get("frameworks", []))
+            - set(left.get("stack", {}).get("frameworks", []))
+        ),
+        "stack_removed": sorted(
+            set(left.get("stack", {}).get("frameworks", []))
+            - set(right.get("stack", {}).get("frameworks", []))
+        ),
     }
 
 
@@ -112,8 +118,13 @@ def _readme(summary: dict[str, Any], ai: dict[str, str]) -> str:
 
 def _architecture(summary: dict[str, Any], ai: dict[str, str]) -> str:
     arch = summary["architecture"]
-    important = "\n".join(f"- `{path}`" for path in arch["important_files"]) or "- No graph centrality signals found."
-    dirs = "\n".join(f"- `{path}`" for path in arch["top_level_directories"]) or "- Flat repository."
+    important = (
+        "\n".join(f"- `{path}`" for path in arch["important_files"])
+        or "- No graph centrality signals found."
+    )
+    dirs = (
+        "\n".join(f"- `{path}`" for path in arch["top_level_directories"]) or "- Flat repository."
+    )
     diagrams = arch.get("diagrams", {})
     diagram_blocks = "\n\n".join(
         f"## {label}\n\n```mermaid\n{body}\n```"
@@ -138,10 +149,13 @@ def _architecture(summary: dict[str, Any], ai: dict[str, str]) -> str:
 
 def _security(summary: dict[str, Any], ai: dict[str, str]) -> str:
     findings = summary["security"]["findings"]
-    rows = "\n".join(
-        f"- **{item['severity']}** `{item['path']}:{item['line']}` `{item['rule_id']}` - {item['message']}"
-        for item in findings[:100]
-    ) or "- No high-confidence findings from enabled scanners."
+    rows = (
+        "\n".join(
+            f"- **{item['severity']}** `{item['path']}:{item['line']}` `{item['rule_id']}` - {item['message']}"
+            for item in findings[:100]
+        )
+        or "- No high-confidence findings from enabled scanners."
+    )
     return (
         _header("Security Report", summary)
         + f"Security score: **{summary['scores']['security']} / 100**\n\n"
@@ -155,11 +169,19 @@ def _security(summary: dict[str, Any], ai: dict[str, str]) -> str:
 
 def _debt(summary: dict[str, Any], ai: dict[str, str]) -> str:
     debt = summary["technical_debt"]
-    items = "\n".join(
-        f"- `{item['path']}:{item['line']}` {item['message']} ({item['severity']})"
-        for item in debt["items"][:100]
-    ) or "- No major complexity findings detected."
-    todos = "\n".join(f"- `{item['path']}` {item['tag']}: {item['text']}" for item in debt["todos"][:50]) or "- No TODO/FIXME markers detected."
+    items = (
+        "\n".join(
+            f"- `{item['path']}:{item['line']}` {item['message']} ({item['severity']})"
+            for item in debt["items"][:100]
+        )
+        or "- No major complexity findings detected."
+    )
+    todos = (
+        "\n".join(
+            f"- `{item['path']}` {item['tag']}: {item['text']}" for item in debt["todos"][:50]
+        )
+        or "- No TODO/FIXME markers detected."
+    )
     return (
         _header("Technical Debt", summary)
         + f"Maintainability score: **{debt['score']} / 100**\n\n"
@@ -246,7 +268,9 @@ def _sarif_rules(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "id": rule_id,
             "name": rule_id,
             "shortDescription": {"text": item.get("message", "RepoMind AI security finding")},
-            "properties": {"security-severity": _sarif_security_severity(item.get("severity", "medium"))},
+            "properties": {
+                "security-severity": _sarif_security_severity(item.get("severity", "medium"))
+            },
         }
     return list(rules.values())
 
@@ -300,7 +324,11 @@ def _pdf_summary(summary: dict[str, Any]) -> bytes:
         f"Maintainability: {summary.get('scores', {}).get('maintainability')}",
         f"Production readiness: {summary.get('scores', {}).get('production_readiness')}",
     ]
-    stream = "BT /F1 12 Tf 72 760 Td " + " Tj 0 -18 Td ".join(f"({ _pdf_escape(line) })" for line in lines) + " Tj ET"
+    stream = (
+        "BT /F1 12 Tf 72 760 Td "
+        + " Tj 0 -18 Td ".join(f"({_pdf_escape(line)})" for line in lines)
+        + " Tj ET"
+    )
     objects = [
         "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
         "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj",
@@ -317,11 +345,15 @@ def _pdf_escape(value: str) -> str:
 
 
 def _sarif_level(severity: str) -> str:
-    return {"critical": "error", "high": "error", "medium": "warning", "low": "note"}.get(str(severity).lower(), "warning")
+    return {"critical": "error", "high": "error", "medium": "warning", "low": "note"}.get(
+        str(severity).lower(), "warning"
+    )
 
 
 def _sarif_security_severity(severity: str) -> str:
-    return {"critical": "9.5", "high": "8.0", "medium": "5.0", "low": "2.0"}.get(str(severity).lower(), "5.0")
+    return {"critical": "9.5", "high": "8.0", "medium": "5.0", "low": "2.0"}.get(
+        str(severity).lower(), "5.0"
+    )
 
 
 def _number(value: Any) -> float:
@@ -349,11 +381,30 @@ def _ai_section(title: str, generated: str) -> str:
 def _synthesize_reports(summary: dict[str, Any]) -> dict[str, str]:
     model = local_model()
     return {
-        "overview": _safe_generate(model, synthesis_prompt("repository overview and project status", summary), 180, summary),
-        "architecture": _safe_generate(model, synthesis_prompt("architecture explanation with file-level evidence", summary), 220, summary),
-        "technical": _safe_generate(model, synthesis_prompt("security, technical debt, and roadmap", summary), 220, summary),
-        "recruiter": _safe_generate(model, report_prompt("recruiter review with evidence and confidence", summary), 220, summary),
-        "cto": _safe_generate(model, report_prompt("CTO review with evidence, risk, and confidence", summary), 220, summary),
+        "overview": _safe_generate(
+            model, synthesis_prompt("repository overview and project status", summary), 180, summary
+        ),
+        "architecture": _safe_generate(
+            model,
+            synthesis_prompt("architecture explanation with file-level evidence", summary),
+            220,
+            summary,
+        ),
+        "technical": _safe_generate(
+            model, synthesis_prompt("security, technical debt, and roadmap", summary), 220, summary
+        ),
+        "recruiter": _safe_generate(
+            model,
+            report_prompt("recruiter review with evidence and confidence", summary),
+            220,
+            summary,
+        ),
+        "cto": _safe_generate(
+            model,
+            report_prompt("CTO review with evidence, risk, and confidence", summary),
+            220,
+            summary,
+        ),
     }
 
 
@@ -391,7 +442,9 @@ def _evidence_files(summary: dict[str, Any]) -> str:
     files: list[str] = []
     files.extend(summary["architecture"].get("important_files", [])[:6])
     files.extend(summary["architecture"].get("route_files", [])[:6])
-    files.extend(item.get("path") for item in summary["security"].get("findings", [])[:6] if item.get("path"))
+    files.extend(
+        item.get("path") for item in summary["security"].get("findings", [])[:6] if item.get("path")
+    )
     unique = [item for index, item in enumerate(files) if item and item not in files[:index]]
     if not unique:
         return ""

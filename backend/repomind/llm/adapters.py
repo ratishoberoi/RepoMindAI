@@ -191,7 +191,9 @@ def _strip_reasoning_preamble(text: str) -> str:
         paragraphs.pop(0)
     cleaned = "\n\n".join(paragraphs).strip() or text.strip()
     cleaned = re.sub(r"^(Okay|Alright),?\s+", "", cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r"\b(I need to|Let me|I should|I will)\b[^.\n]*\.\s*", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(
+        r"\b(I need to|Let me|I should|I will)\b[^.\n]*\.\s*", "", cleaned, flags=re.IGNORECASE
+    )
     return cleaned.strip()
 
 

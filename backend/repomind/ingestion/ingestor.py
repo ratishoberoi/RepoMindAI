@@ -31,7 +31,10 @@ BLOCKED_NETWORKS = tuple(
 
 def _safe_repo_name(value: str) -> str:
     stem = Path(urlparse(value).path).stem or Path(value).stem or "repository"
-    return "".join(ch if ch.isalnum() or ch in "-_." else "-" for ch in stem).strip("-") or "repository"
+    return (
+        "".join(ch if ch.isalnum() or ch in "-_." else "-" for ch in stem).strip("-")
+        or "repository"
+    )
 
 
 def _workspace(name: str) -> Path:
@@ -77,14 +80,18 @@ async def ingest_zip(file: UploadFile) -> dict:
     _safe_extract(upload_path, workspace)
     children = [p for p in workspace.iterdir() if p.is_dir()]
     repo_path = children[0] if len(children) == 1 and not any(workspace.glob("*.*")) else workspace
-    return store.create_repository(_safe_repo_name(file.filename or "upload"), "zip", repo_path, file.filename or "")
+    return store.create_repository(
+        _safe_repo_name(file.filename or "upload"), "zip", repo_path, file.filename or ""
+    )
 
 
 def ingest_github(url: str) -> dict:
     _validate_git_url(url)
     workspace = _workspace(url)
     try:
-        subprocess.run(["git", "clone", "--depth", "1", url, str(workspace)], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "clone", "--depth", "1", url, str(workspace)], check=True, capture_output=True
+        )
     except subprocess.CalledProcessError as exc:
         shutil.rmtree(workspace, ignore_errors=True)
         stderr = exc.stderr.decode(errors="ignore")
@@ -95,7 +102,9 @@ def ingest_github(url: str) -> dict:
 def ingest_local_path(path: str) -> dict:
     settings = get_settings()
     if not settings.enable_local_path_import:
-        raise ValueError("Local path import is disabled. Set REPOMIND_ENABLE_LOCAL_PATH_IMPORT=true for trusted local use.")
+        raise ValueError(
+            "Local path import is disabled. Set REPOMIND_ENABLE_LOCAL_PATH_IMPORT=true for trusted local use."
+        )
     source = Path(path).expanduser()
     if not source.is_absolute():
         source = PROJECT_ROOT / source
@@ -105,7 +114,9 @@ def ingest_local_path(path: str) -> dict:
     if not _is_allowed_local_source(source):
         raise ValueError(f"Local repository path is outside configured allowed roots: {source}")
     workspace = _workspace(source.name)
-    shutil.copytree(source, workspace, dirs_exist_ok=True, ignore=shutil.ignore_patterns(*IGNORED_DIRS))
+    shutil.copytree(
+        source, workspace, dirs_exist_ok=True, ignore=shutil.ignore_patterns(*IGNORED_DIRS)
+    )
     return store.create_repository(source.name, "local", workspace, str(source))
 
 

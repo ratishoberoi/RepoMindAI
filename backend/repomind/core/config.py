@@ -8,7 +8,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 def find_project_root(start: Path | None = None) -> Path:
     current = (start or Path(__file__)).resolve()
     for candidate in [current, *current.parents]:
-        if (candidate / "pyproject.toml").is_file() and (candidate / "backend" / "repomind").is_dir():
+        if (candidate / "pyproject.toml").is_file() and (
+            candidate / "backend" / "repomind"
+        ).is_dir():
             return candidate
     return Path(__file__).resolve().parents[3]
 
@@ -42,19 +44,27 @@ class Settings(BaseSettings):
     )
     reports_dir: Path = Field(
         default_factory=lambda: _project_path("reports"),
-        validation_alias=AliasChoices("REPOMIND_REPORTS_DIR", "REPOMIND_REPORT_DIR", "REPORTS_DIR", "REPORT_DIR"),
+        validation_alias=AliasChoices(
+            "REPOMIND_REPORTS_DIR", "REPOMIND_REPORT_DIR", "REPORTS_DIR", "REPORT_DIR"
+        ),
     )
     index_dir: Path = Field(
         default_factory=lambda: _project_path("data", "indexes"),
-        validation_alias=AliasChoices("REPOMIND_INDEX_DIR", "REPOMIND_INDEXES_DIR", "INDEX_DIR", "INDEXES_DIR"),
+        validation_alias=AliasChoices(
+            "REPOMIND_INDEX_DIR", "REPOMIND_INDEXES_DIR", "INDEX_DIR", "INDEXES_DIR"
+        ),
     )
     chroma_dir: Path = Field(
         default_factory=lambda: _project_path("data", "chroma"),
-        validation_alias=AliasChoices("REPOMIND_CHROMA_DIR", "REPOMIND_CHROMA_PATH", "CHROMA_DIR", "CHROMA_PATH"),
+        validation_alias=AliasChoices(
+            "REPOMIND_CHROMA_DIR", "REPOMIND_CHROMA_PATH", "CHROMA_DIR", "CHROMA_PATH"
+        ),
     )
     upload_dir: Path = Field(
         default_factory=lambda: _project_path("data", "uploads"),
-        validation_alias=AliasChoices("REPOMIND_UPLOAD_DIR", "REPOMIND_UPLOADS_DIR", "UPLOAD_DIR", "UPLOADS_DIR"),
+        validation_alias=AliasChoices(
+            "REPOMIND_UPLOAD_DIR", "REPOMIND_UPLOADS_DIR", "UPLOAD_DIR", "UPLOADS_DIR"
+        ),
     )
     frontend_origin: str = "http://localhost:3000"
     database_url: str | None = None
@@ -100,14 +110,18 @@ class Settings(BaseSettings):
         self.upload_dir = _resolve_path(self.upload_dir)
         self.model_path = _resolve_path(self.model_path)
         if self.model_path.name != "qwen-judge":
-            raise ValueError("RepoMindAI only supports qwen-judge local inference. Set REPOMIND_MODEL_PATH to that checkpoint.")
+            raise ValueError(
+                "RepoMindAI only supports qwen-judge local inference. Set REPOMIND_MODEL_PATH to that checkpoint."
+            )
         if self.database_url is None:
             self.database_url = f"sqlite:///{self.data_dir / 'repomind.db'}"
         return self
 
     @property
     def parsed_local_import_roots(self) -> list[Path]:
-        roots = [item.strip() for item in self.local_import_allowed_roots.split(",") if item.strip()]
+        roots = [
+            item.strip() for item in self.local_import_allowed_roots.split(",") if item.strip()
+        ]
         return [_resolve_path(Path(root)) for root in roots]
 
     @property

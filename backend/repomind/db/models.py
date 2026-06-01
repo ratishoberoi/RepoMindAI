@@ -32,7 +32,9 @@ class JobRecord(Base):
     __tablename__ = "analysis_jobs"
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    repo_id: Mapped[str] = mapped_column(ForeignKey("repositories.id", ondelete="CASCADE"), nullable=False, index=True)
+    repo_id: Mapped[str] = mapped_column(
+        ForeignKey("repositories.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     status: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     message: Mapped[str] = mapped_column(Text, nullable=False, default="")
@@ -44,7 +46,9 @@ class ArtifactRecord(Base):
     __tablename__ = "repository_artifacts"
 
     id: Mapped[str] = mapped_column(String(96), primary_key=True)
-    repo_id: Mapped[str] = mapped_column(ForeignKey("repositories.id", ondelete="CASCADE"), nullable=False, index=True)
+    repo_id: Mapped[str] = mapped_column(
+        ForeignKey("repositories.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     name: Mapped[str] = mapped_column(String(512), nullable=False)
     artifact_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     path: Mapped[str] = mapped_column(Text, nullable=False)

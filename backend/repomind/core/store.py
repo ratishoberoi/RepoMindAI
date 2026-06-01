@@ -21,13 +21,17 @@ class RepositoryStore:
         self.database_url = database_url or str(settings.database_url)
         self.legacy_path = legacy_path or settings.data_dir / "metadata.json"
         self._lock = RLock()
-        connect_args = {"check_same_thread": False} if self.database_url.startswith("sqlite") else {}
+        connect_args = (
+            {"check_same_thread": False} if self.database_url.startswith("sqlite") else {}
+        )
         self.engine = create_engine(self.database_url, future=True, connect_args=connect_args)
         self.SessionLocal = sessionmaker(bind=self.engine, expire_on_commit=False, future=True)
         Base.metadata.create_all(self.engine)
         self._migrate_legacy_json()
 
-    def create_repository(self, name: str, source_type: str, path: Path, source: str) -> dict[str, Any]:
+    def create_repository(
+        self, name: str, source_type: str, path: Path, source: str
+    ) -> dict[str, Any]:
         now = time.time()
         repo_id = uuid4().hex
         record = RepositoryRecord(
@@ -77,7 +81,9 @@ class RepositoryStore:
 
     def list(self) -> list[dict[str, Any]]:
         with self._session() as session:
-            records = session.scalars(select(RepositoryRecord).order_by(RepositoryRecord.created_at.desc())).all()
+            records = session.scalars(
+                select(RepositoryRecord).order_by(RepositoryRecord.created_at.desc())
+            ).all()
             return [_repo_dict(record) for record in records]
 
     def delete(self, repo_id: str) -> dict[str, Any]:
@@ -119,7 +125,9 @@ class RepositoryStore:
                     error=item.get("error"),
                     repository_deleted=bool(item.get("repository_deleted", False)),
                     repository_deleted_at=item.get("repository_deleted_at"),
-                    repository_retention_minutes=item.get("repository_retention_minutes", get_settings().retention_minutes),
+                    repository_retention_minutes=item.get(
+                        "repository_retention_minutes", get_settings().retention_minutes
+                    ),
                 )
                 session.merge(record)
                 if record.analysis_job:

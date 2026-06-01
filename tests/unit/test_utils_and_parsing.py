@@ -28,7 +28,9 @@ def test_hash_generation(tmp_path: Path) -> None:
 
 def test_python_parser_extracts_symbols(tmp_path: Path) -> None:
     path = tmp_path / "main.py"
-    path.write_text("import os\n\nclass Service: pass\n\ndef run():\n    return os.getenv('API_KEY')\n")
+    path.write_text(
+        "import os\n\nclass Service: pass\n\ndef run():\n    return os.getenv('API_KEY')\n"
+    )
     parsed = parse_file(path, "main.py", "Python")
     assert "os" in parsed["imports"]
     assert parsed["classes"][0]["name"] == "Service"
@@ -38,7 +40,14 @@ def test_python_parser_extracts_symbols(tmp_path: Path) -> None:
 
 def test_dependency_graph_building() -> None:
     files = [{"relative_path": "app/main.py", "language": "Python", "size": 10}]
-    parsed = [{"relative_path": "app/main.py", "imports": ["os"], "functions": [{"name": "run", "line": 1}], "classes": []}]
+    parsed = [
+        {
+            "relative_path": "app/main.py",
+            "imports": ["os"],
+            "functions": [{"name": "run", "line": 1}],
+            "classes": [],
+        }
+    ]
     graph = build_dependency_graph(files, parsed)
     assert any(edge["relation"] == "imports" for edge in graph["edges"])
     assert any(node["kind"] == "function" for node in graph["nodes"])
@@ -98,7 +107,9 @@ def test_sql_store_migrates_legacy_metadata(tmp_path: Path) -> None:
         '"reports":{"README.md":"/tmp/README.md"},"error":null,"repository_deleted":false,'
         '"repository_deleted_at":null,"repository_retention_minutes":60}}}'
     )
-    sql_store = RepositoryStore(database_url=f"sqlite:///{tmp_path / 'store.db'}", legacy_path=legacy)
+    sql_store = RepositoryStore(
+        database_url=f"sqlite:///{tmp_path / 'store.db'}", legacy_path=legacy
+    )
     repo = sql_store.get("abc")
     assert repo["name"] == "Legacy"
     assert repo["reports"]["README.md"] == "/tmp/README.md"
@@ -133,12 +144,45 @@ def test_compare_summaries_returns_deltas() -> None:
 def _minimal_summary() -> dict:
     return {
         "repository": {"id": "repo1", "name": "Repo", "path": ".", "source": "."},
-        "statistics": {"files": 1, "functions": 0, "methods": 0, "classes": 0, "routes": 0, "database_models": 0, "indexed_chunks": 0},
+        "statistics": {
+            "files": 1,
+            "functions": 0,
+            "methods": 0,
+            "classes": 0,
+            "routes": 0,
+            "database_models": 0,
+            "indexed_chunks": 0,
+        },
         "languages": {"primary": "Python", "all": {"Python": 1}},
         "stack": {"frameworks": [], "package_managers": [], "build_tools": [], "ci_cd": []},
-        "scores": {"security": 90, "maintainability": 80, "production_readiness": 70, "recruiter": 75, "cto": 76, "details": {}},
-        "architecture": {"summary": "Architecture summary.", "style": "service", "important_files": [], "top_level_directories": [], "diagrams": {}},
-        "security": {"findings": [{"rule_id": "x", "severity": "high", "path": "a.py", "line": 1, "message": "Issue"}], "severity_counts": {"high": 1}, "scanner_status": {}},
-        "technical_debt": {"score": 80, "items": [], "todos": [], "large_files": [], "maintainability": []},
+        "scores": {
+            "security": 90,
+            "maintainability": 80,
+            "production_readiness": 70,
+            "recruiter": 75,
+            "cto": 76,
+            "details": {},
+        },
+        "architecture": {
+            "summary": "Architecture summary.",
+            "style": "service",
+            "important_files": [],
+            "top_level_directories": [],
+            "diagrams": {},
+        },
+        "security": {
+            "findings": [
+                {"rule_id": "x", "severity": "high", "path": "a.py", "line": 1, "message": "Issue"}
+            ],
+            "severity_counts": {"high": 1},
+            "scanner_status": {},
+        },
+        "technical_debt": {
+            "score": 80,
+            "items": [],
+            "todos": [],
+            "large_files": [],
+            "maintainability": [],
+        },
         "performance": {},
     }

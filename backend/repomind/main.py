@@ -134,7 +134,10 @@ def repository_status(repo_id: str) -> dict:
         repo = store.get(repo_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
-    return _public_repo(repo) | {"error": repo.get("error"), "analysis_job": repo.get("analysis_job")}
+    return _public_repo(repo) | {
+        "error": repo.get("error"),
+        "analysis_job": repo.get("analysis_job"),
+    }
 
 
 @app.delete("/repositories/{repo_id}", dependencies=PROTECTED)

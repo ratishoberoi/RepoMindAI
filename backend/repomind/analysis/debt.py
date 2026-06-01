@@ -7,7 +7,9 @@ from radon.complexity import cc_visit
 from radon.metrics import mi_visit
 
 
-def analyze_technical_debt(root: Path, files: list[dict[str, Any]], parsed: list[dict[str, Any]]) -> dict[str, Any]:
+def analyze_technical_debt(
+    root: Path, files: list[dict[str, Any]], parsed: list[dict[str, Any]]
+) -> dict[str, Any]:
     debt_items: list[dict[str, Any]] = []
     maintainability: list[dict[str, Any]] = []
     todos = []
@@ -24,7 +26,9 @@ def analyze_technical_debt(root: Path, files: list[dict[str, Any]], parsed: list
             mi = mi_visit(text, True)
         except Exception:
             continue
-        maintainability.append({"path": item["relative_path"], "maintainability_index": round(mi, 2)})
+        maintainability.append(
+            {"path": item["relative_path"], "maintainability_index": round(mi, 2)}
+        )
         for block in complexity:
             if block.complexity >= 10:
                 debt_items.append(

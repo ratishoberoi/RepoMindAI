@@ -81,7 +81,12 @@ def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
     index_path = settings.index_dir / f"{repo_id}.json"
     index_path.write_text(json.dumps(manifest, indent=2))
     timings["index_manifest_seconds"] = _elapsed(start)
-    return {"chunks": len(chunks), "index_path": str(index_path), "vector_store": "chromadb", "timings": timings}
+    return {
+        "chunks": len(chunks),
+        "index_path": str(index_path),
+        "vector_store": "chromadb",
+        "timings": timings,
+    }
 
 
 def _collection(repo_id: str, reset: bool = False):

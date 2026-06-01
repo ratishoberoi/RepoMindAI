@@ -67,7 +67,9 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["repo_id"], ["repositories.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("ix_repository_artifacts_artifact_type", "repository_artifacts", ["artifact_type"])
+    op.create_index(
+        "ix_repository_artifacts_artifact_type", "repository_artifacts", ["artifact_type"]
+    )
     op.create_index("ix_repository_artifacts_created_at", "repository_artifacts", ["created_at"])
     op.create_index("ix_repository_artifacts_repo_id", "repository_artifacts", ["repo_id"])
 

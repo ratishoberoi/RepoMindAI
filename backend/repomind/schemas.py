@@ -26,4 +26,3 @@ class RepositoryResponse(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     citations: list[dict[str, Any]]
-

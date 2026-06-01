@@ -9,7 +9,9 @@ from repomind.core.cleanup import delete_repository_contents
 from repomind.core.config import get_settings
 from repomind.core.store import store
 
-_EXECUTOR = ThreadPoolExecutor(max_workers=get_settings().analysis_workers, thread_name_prefix="repomind-analysis")
+_EXECUTOR = ThreadPoolExecutor(
+    max_workers=get_settings().analysis_workers, thread_name_prefix="repomind-analysis"
+)
 
 
 def start_analysis_job(repo_id: str) -> dict:
@@ -28,7 +30,11 @@ def cancel_analysis_job(repo_id: str) -> dict:
     job = repo.get("analysis_job") or {}
     if job.get("status") not in {"queued", "running"}:
         return job
-    job = job | {"status": "cancel_requested", "message": "Cancellation requested.", "updated_at": time.time()}
+    job = job | {
+        "status": "cancel_requested",
+        "message": "Cancellation requested.",
+        "updated_at": time.time(),
+    }
     store.update(repo_id, status="cancel_requested", analysis_job=job)
     return job
 

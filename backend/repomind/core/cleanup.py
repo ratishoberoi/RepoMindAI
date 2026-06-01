@@ -16,7 +16,9 @@ def delete_repository_contents(repo: dict[str, Any]) -> dict[str, Any]:
     try:
         path.resolve().relative_to(settings.repositories_dir.resolve())
     except ValueError as exc:
-        raise RuntimeError(f"Refusing to delete repository outside managed storage: {path}") from exc
+        raise RuntimeError(
+            f"Refusing to delete repository outside managed storage: {path}"
+        ) from exc
     if path.exists():
         shutil.rmtree(path, ignore_errors=True)
     return {

@@ -7,9 +7,14 @@ import networkx as nx
 
 def build_dependency_graph(files: list[dict], parsed: list[dict]) -> dict:
     graph = nx.DiGraph()
-    known_modules = {Path(item["relative_path"]).with_suffix("").as_posix(): item["relative_path"] for item in files}
+    known_modules = {
+        Path(item["relative_path"]).with_suffix("").as_posix(): item["relative_path"]
+        for item in files
+    }
     for item in files:
-        graph.add_node(item["relative_path"], kind="file", language=item["language"], size=item["size"])
+        graph.add_node(
+            item["relative_path"], kind="file", language=item["language"], size=item["size"]
+        )
     for item in parsed:
         source = item["relative_path"]
         for imported in item.get("imports", []):
@@ -32,11 +37,19 @@ def build_dependency_graph(files: list[dict], parsed: list[dict]) -> dict:
         for route in item.get("routes", []):
             if isinstance(route, dict):
                 route_id = f"{source}::{route.get('method', 'ROUTE')} {route.get('path', '')}"
-                graph.add_node(route_id, kind="route", line=route.get("line"), method=route.get("method"), path=route.get("path"))
+                graph.add_node(
+                    route_id,
+                    kind="route",
+                    line=route.get("line"),
+                    method=route.get("method"),
+                    path=route.get("path"),
+                )
                 graph.add_edge(source, route_id, relation="exposes")
         for model in item.get("database_models", []):
             model_node = f"{source}::{model['name']}"
-            graph.add_node(model_node, kind="database_model", line=model.get("line"), orm=model.get("orm"))
+            graph.add_node(
+                model_node, kind="database_model", line=model.get("line"), orm=model.get("orm")
+            )
             graph.add_edge(source, model_node, relation="models")
     centrality = nx.degree_centrality(graph) if graph.nodes else {}
     important = sorted(centrality.items(), key=lambda item: item[1], reverse=True)[:10]

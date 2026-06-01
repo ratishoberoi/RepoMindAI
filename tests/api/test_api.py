@@ -55,7 +55,12 @@ def test_analysis_runs_as_background_job(tmp_path: Path, monkeypatch: pytest.Mon
 
     def fake_analyze(repository: dict) -> dict:
         return {
-            "repository": {"id": repository["id"], "name": repository["name"], "path": repository["path"], "source": repository["source"]},
+            "repository": {
+                "id": repository["id"],
+                "name": repository["name"],
+                "path": repository["path"],
+                "source": repository["source"],
+            },
             "statistics": {"files": 1},
             "languages": {"primary": "Markdown"},
             "stack": {},
@@ -65,11 +70,15 @@ def test_analysis_runs_as_background_job(tmp_path: Path, monkeypatch: pytest.Mon
         }
 
     monkeypatch.setattr(jobs, "analyze_repository", fake_analyze)
-    response = client.post(f"/repositories/{repo['id']}/analysis", headers={"x-api-key": "test-api-key"})
+    response = client.post(
+        f"/repositories/{repo['id']}/analysis", headers={"x-api-key": "test-api-key"}
+    )
     assert response.status_code == 200
     assert response.json()["job"]["status"] == "queued"
     for _ in range(20):
-        status = client.get(f"/repositories/{repo['id']}/status", headers={"x-api-key": "test-api-key"}).json()
+        status = client.get(
+            f"/repositories/{repo['id']}/status", headers={"x-api-key": "test-api-key"}
+        ).json()
         if status["status"] == "complete":
             break
         time.sleep(0.05)

@@ -5,13 +5,17 @@ from pathlib import Path
 from typing import Any
 
 
-def extract_architecture(files: list[dict], parsed: list[dict], stack: dict[str, Any], graph: dict[str, Any]) -> dict[str, Any]:
+def extract_architecture(
+    files: list[dict], parsed: list[dict], stack: dict[str, Any], graph: dict[str, Any]
+) -> dict[str, Any]:
     paths = [item["relative_path"] for item in files]
     top_dirs = sorted({p.split("/", 1)[0] for p in paths if "/" in p})
     route_files = [item["relative_path"] for item in parsed if item.get("routes")]
     db_model_files = [item["relative_path"] for item in parsed if item.get("database_models")]
     components = _components(paths)
-    important = [node["id"] for node in graph.get("important_nodes", []) if "::" not in node["id"]][:12]
+    important = [node["id"] for node in graph.get("important_nodes", []) if "::" not in node["id"]][
+        :12
+    ]
     diagrams = {
         "system": _system_diagram(stack, components, route_files, db_model_files),
         "component": _component_diagram(components),
@@ -69,7 +73,12 @@ def _component_role(name: str, paths: list[str]) -> str:
     return "Application code"
 
 
-def _system_diagram(stack: dict[str, Any], components: list[dict[str, Any]], route_files: list[str], db_files: list[str]) -> str:
+def _system_diagram(
+    stack: dict[str, Any],
+    components: list[dict[str, Any]],
+    route_files: list[str],
+    db_files: list[str],
+) -> str:
     framework = (stack.get("frameworks") or ["Application"])[0]
     route_label = _file_label(route_files[:2]) if route_files else "no route file detected"
     db_label = _file_label(db_files[:2]) if db_files else "no database model file detected"
@@ -88,7 +97,9 @@ def _component_diagram(components: list[dict[str, Any]]) -> str:
     lines = ["graph LR"]
     for idx, component in enumerate(components[:10], start=1):
         files = _file_label(component["files"][:2])
-        lines.append(f'  C{idx}["{_clean(component["name"])}<br/>{_clean(component["role"])}<br/>{_clean(files)}"]')
+        lines.append(
+            f'  C{idx}["{_clean(component["name"])}<br/>{_clean(component["role"])}<br/>{_clean(files)}"]'
+        )
         if idx > 1:
             lines.append(f"  C1 --> C{idx}")
     return "\n".join(lines)
@@ -119,23 +130,34 @@ def _service_diagram(parsed: list[dict[str, Any]]) -> str:
     for item in parsed:
         for route in item.get("routes", []):
             if isinstance(route, dict):
-                route_rows.append((item["relative_path"], route.get("method", "ROUTE"), route.get("path", "")))
+                route_rows.append(
+                    (item["relative_path"], route.get("method", "ROUTE"), route.get("path", ""))
+                )
             else:
                 route_rows.append((item["relative_path"], "ROUTE", str(route)))
     if not route_rows:
         return 'graph LR\n  Client --> App["No service routes detected"]'
     lines = ["graph LR", '  Client["Client"] --> Gateway["Application routes"]']
     for idx, (path, method, route_path) in enumerate(route_rows[:16], start=1):
-        lines.append(f'  Gateway --> R{idx}["{_clean(method)} {_clean(route_path)}<br/>{_clean(path)}"]')
+        lines.append(
+            f'  Gateway --> R{idx}["{_clean(method)} {_clean(route_path)}<br/>{_clean(path)}"]'
+        )
     return "\n".join(lines)
 
 
 def _data_flow_diagram(route_files: list[str], db_files: list[str]) -> str:
-    lines = ["graph TD", '  Input["Request / repository question"] --> Service["Application service"]']
+    lines = [
+        "graph TD",
+        '  Input["Request / repository question"] --> Service["Application service"]',
+    ]
     if route_files:
-        lines.append(f'  Service --> Routes["Route handlers<br/>{_clean(_file_label(route_files[:4]))}"]')
+        lines.append(
+            f'  Service --> Routes["Route handlers<br/>{_clean(_file_label(route_files[:4]))}"]'
+        )
     if db_files:
-        lines.append(f'  Routes --> Models["Database models<br/>{_clean(_file_label(db_files[:4]))}"]')
+        lines.append(
+            f'  Routes --> Models["Database models<br/>{_clean(_file_label(db_files[:4]))}"]'
+        )
         lines.append('  Models --> Store["Database / persistence layer"]')
     else:
         lines.append('  Service --> Files["Repository files and package metadata"]')
@@ -150,7 +172,9 @@ def _architecture_style(paths: list[str], stack: dict[str, Any]) -> str:
         return "Frontend web application"
     if "FastAPI" in stack.get("frameworks", []):
         return "API service"
-    if any(p.startswith("frontend/") for p in paths) and any(p.startswith("backend/") for p in paths):
+    if any(p.startswith("frontend/") for p in paths) and any(
+        p.startswith("backend/") for p in paths
+    ):
         return "Full-stack application"
     counts = Counter(path.split("/", 1)[0] for path in paths if "/" in path)
     if len(counts) > 5:

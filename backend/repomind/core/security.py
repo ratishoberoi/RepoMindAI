@@ -23,10 +23,16 @@ def require_api_key(request: Request) -> None:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="API key protection is enabled but REPOMIND_API_KEY is not configured.",
         )
-    supplied = request.headers.get("x-api-key") or _bearer_token(request) or request.query_params.get("api_key")
+    supplied = (
+        request.headers.get("x-api-key")
+        or _bearer_token(request)
+        or request.query_params.get("api_key")
+    )
     if not supplied or not compare_digest(supplied, settings.api_key):
         _audit("auth_failed", request, status_code=status.HTTP_401_UNAUTHORIZED)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing API key.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing API key."
+        )
 
 
 def _bearer_token(request: Request) -> str | None:
@@ -47,7 +53,9 @@ class RequestTracingMiddleware(BaseHTTPMiddleware):
             _audit("request_error", request, duration_ms=_duration_ms(start), status_code=500)
             raise
         response.headers["x-request-id"] = request_id
-        _audit("request", request, duration_ms=_duration_ms(start), status_code=response.status_code)
+        _audit(
+            "request", request, duration_ms=_duration_ms(start), status_code=response.status_code
+        )
         return response
 
 
@@ -73,7 +81,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-def _audit(event: str, request: Request, duration_ms: float | None = None, status_code: int | None = None) -> None:
+def _audit(
+    event: str, request: Request, duration_ms: float | None = None, status_code: int | None = None
+) -> None:
     LOGGER.info(
         "event=%s request_id=%s method=%s path=%s client=%s status=%s duration_ms=%s",
         event,

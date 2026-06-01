@@ -40,7 +40,9 @@ def parse_file(path: Path, relative_path: str, language: str) -> dict[str, Any]:
     if language == "Python":
         result.update(_parse_python(text))
     elif language in {"JavaScript", "TypeScript"}:
-        result.update(_parse_js_ts(text, _tree_sitter_language(relative_path, language), relative_path))
+        result.update(
+            _parse_js_ts(text, _tree_sitter_language(relative_path, language), relative_path)
+        )
     elif language == "JSON":
         result["metadata"] = _parse_json_metadata(text)
     elif language == "YAML":
@@ -50,7 +52,11 @@ def parse_file(path: Path, relative_path: str, language: str) -> dict[str, Any]:
         {value for match in ENV_RE.finditer(text) for value in match.groups() if value}
     )
     result["todos"] = [
-        {"tag": m.group(1).upper(), "text": m.group(2).strip(), "line": _line_for_offset(text, m.start())}
+        {
+            "tag": m.group(1).upper(),
+            "text": m.group(2).strip(),
+            "line": _line_for_offset(text, m.start()),
+        }
         for m in TODO_RE.finditer(text)
     ]
     return result
@@ -81,7 +87,11 @@ def _parse_python(text: str) -> dict[str, Any]:
             imports.append(node.module)
         elif isinstance(node, ast.ClassDef):
             base_names = [_name_from_expr(base) for base in node.bases]
-            item = {"name": node.name, "line": node.lineno, "bases": [name for name in base_names if name]}
+            item = {
+                "name": node.name,
+                "line": node.lineno,
+                "bases": [name for name in base_names if name],
+            }
             classes.append(item)
             if _looks_like_python_db_model(node, base_names):
                 database_models.append(item | {"orm": _python_orm_name(base_names)})
@@ -114,7 +124,12 @@ def _parse_python_tree_sitter(text: str, tree: Any | None) -> dict[str, Any]:
     classes: list[dict[str, Any]] = []
     functions: list[dict[str, Any]] = []
     if tree is None:
-        return {"imports": imports, "classes": classes, "functions": functions, "parser": "unavailable"}
+        return {
+            "imports": imports,
+            "classes": classes,
+            "functions": functions,
+            "parser": "unavailable",
+        }
     for node in _walk(_root_node(tree)):
         kind = _kind(node)
         if kind == "import_statement":
@@ -170,16 +185,26 @@ def _parse_js_ts(text: str, language: str, relative_path: str) -> dict[str, Any]
             if name:
                 classes.append({"name": name, "line": _line_for_node(text, node)})
                 if _looks_like_js_db_model(text, node, name):
-                    database_models.append({"name": name, "line": _line_for_node(text, node), "orm": "JS/TS ORM"})
+                    database_models.append(
+                        {"name": name, "line": _line_for_node(text, node), "orm": "JS/TS ORM"}
+                    )
                 class_stack.append(name)
                 for child in _children(node):
                     visit(child)
                 class_stack.pop()
                 return
         elif kind in {"function_declaration", "generator_function_declaration"}:
-            name = _field_text(text, node, "name") or _first_named_child_text(text, node, {"identifier"})
+            name = _field_text(text, node, "name") or _first_named_child_text(
+                text, node, {"identifier"}
+            )
             if name:
-                functions.append({"name": name, "line": _line_for_node(text, node), "async": "async" in _text(text, node)[:32]})
+                functions.append(
+                    {
+                        "name": name,
+                        "line": _line_for_node(text, node),
+                        "async": "async" in _text(text, node)[:32],
+                    }
+                )
                 if name.upper() in {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}:
                     routes.append(
                         {
@@ -192,14 +217,30 @@ def _parse_js_ts(text: str, language: str, relative_path: str) -> dict[str, Any]
         elif kind == "variable_declarator":
             name = _field_text(text, node, "name")
             value = _field_node(node, "value")
-            if name and value is not None and _kind(value) in {"arrow_function", "function", "function_expression"}:
-                functions.append({"name": name, "line": _line_for_node(text, node), "async": "async" in _text(text, value)[:32]})
+            if (
+                name
+                and value is not None
+                and _kind(value) in {"arrow_function", "function", "function_expression"}
+            ):
+                functions.append(
+                    {
+                        "name": name,
+                        "line": _line_for_node(text, node),
+                        "async": "async" in _text(text, value)[:32],
+                    }
+                )
         elif kind == "method_definition":
             name = _field_text(text, node, "name") or _first_named_child_text(
                 text, node, {"property_identifier", "identifier"}
             )
             if name:
-                methods.append({"name": name, "class": class_stack[-1] if class_stack else None, "line": _line_for_node(text, node)})
+                methods.append(
+                    {
+                        "name": name,
+                        "class": class_stack[-1] if class_stack else None,
+                        "line": _line_for_node(text, node),
+                    }
+                )
         elif kind == "call_expression":
             route = _js_route(text, node)
             if route:
@@ -330,7 +371,9 @@ def _strip_quotes(value: str) -> str:
     return value.strip().strip("'\"`")
 
 
-def _python_routes(node: ast.FunctionDef | ast.AsyncFunctionDef, parent: str | None) -> list[dict[str, Any]]:
+def _python_routes(
+    node: ast.FunctionDef | ast.AsyncFunctionDef, parent: str | None
+) -> list[dict[str, Any]]:
     routes = []
     for decorator in node.decorator_list:
         if not isinstance(decorator, ast.Call):
@@ -338,7 +381,11 @@ def _python_routes(node: ast.FunctionDef | ast.AsyncFunctionDef, parent: str | N
         method = _route_method(decorator.func)
         if method not in PY_ROUTE_METHODS:
             continue
-        path = decorator.args[0].value if decorator.args and isinstance(decorator.args[0], ast.Constant) else None
+        path = (
+            decorator.args[0].value
+            if decorator.args and isinstance(decorator.args[0], ast.Constant)
+            else None
+        )
         routes.append(
             {
                 "method": method.upper(),
@@ -373,7 +420,9 @@ def _looks_like_python_db_model(node: ast.ClassDef, bases: list[str | None]) -> 
     if any((base or "").split(".")[-1] in DB_MODEL_BASES for base in bases):
         return True
     for stmt in node.body:
-        if isinstance(stmt, ast.AnnAssign) and _name_from_expr(stmt.annotation or ast.Name(id="", ctx=ast.Load())) in {"Mapped", "Column"}:
+        if isinstance(stmt, ast.AnnAssign) and _name_from_expr(
+            stmt.annotation or ast.Name(id="", ctx=ast.Load())
+        ) in {"Mapped", "Column"}:
             return True
         if isinstance(stmt, ast.Assign) and isinstance(stmt.value, ast.Call):
             callee = _name_from_expr(stmt.value.func) or ""
@@ -402,7 +451,12 @@ def _js_route(text: str, node: Any) -> dict[str, Any] | None:
     first_arg = _first_descendant_text(text, node, {"string_fragment", "template_string"})
     if not first_arg or not first_arg.startswith("/"):
         return None
-    return {"method": method.upper(), "path": first_arg, "handler": prefix, "line": _line_for_node(text, node)}
+    return {
+        "method": method.upper(),
+        "path": first_arg,
+        "handler": prefix,
+        "line": _line_for_node(text, node),
+    }
 
 
 def _route_path_from_file(relative_path: str) -> str:
@@ -411,7 +465,16 @@ def _route_path_from_file(relative_path: str) -> str:
         if path.startswith(prefix):
             path = path[len(prefix) :]
             break
-    for suffix in ("/route.ts", "/route.tsx", "/route.js", "/route.jsx", ".ts", ".tsx", ".js", ".jsx"):
+    for suffix in (
+        "/route.ts",
+        "/route.tsx",
+        "/route.js",
+        "/route.jsx",
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+    ):
         if path.endswith(suffix):
             path = path[: -len(suffix)]
             break
@@ -423,9 +486,9 @@ def _route_path_from_file(relative_path: str) -> str:
 def _looks_like_js_db_model(text: str, node: Any, name: str) -> bool:
     body = _text(text, node).lower()
     lower = name.lower()
-    return any(token in body for token in ("sequelize", "mongoose", "prisma", "typeorm", "@entity")) or lower.endswith(
-        ("model", "schema", "entity")
-    )
+    return any(
+        token in body for token in ("sequelize", "mongoose", "prisma", "typeorm", "@entity")
+    ) or lower.endswith(("model", "schema", "entity"))
 
 
 def _unique_routes(routes: list[dict[str, Any]]) -> list[dict[str, Any]]:

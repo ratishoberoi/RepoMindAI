@@ -34,7 +34,11 @@ QUESTIONS = [
 def main() -> None:
     started = time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime())
     results = []
-    selected = {item.strip().lower() for item in os.environ.get("REPOMIND_BENCHMARK_TARGETS", "").split(",") if item.strip()}
+    selected = {
+        item.strip().lower()
+        for item in os.environ.get("REPOMIND_BENCHMARK_TARGETS", "").split(",")
+        if item.strip()
+    }
     targets = [target for target in TARGETS if not selected or target["name"].lower() in selected]
     for target in targets:
         result = run_target(target)
@@ -44,10 +48,18 @@ def main() -> None:
 
 
 def run_target(target: dict[str, str]) -> dict[str, Any]:
-    item: dict[str, Any] = {"target": target["name"], "source": target["source"], "status": "started"}
+    item: dict[str, Any] = {
+        "target": target["name"],
+        "source": target["source"],
+        "status": "started",
+    }
     try:
         ingest_start = time.perf_counter()
-        repo = ingest_github(target["source"]) if target["kind"] == "github" else ingest_local_path(target["source"])
+        repo = (
+            ingest_github(target["source"])
+            if target["kind"] == "github"
+            else ingest_local_path(target["source"])
+        )
         item["repo_id"] = repo["id"]
         item["ingestion_seconds"] = elapsed(ingest_start)
 
@@ -57,7 +69,9 @@ def run_target(target: dict[str, str]) -> dict[str, Any]:
         store.update(repo["id"], status="complete", summary=summary, reports=summary["reports"])
 
         item["statistics"] = summary["statistics"]
-        item["scores"] = {key: value for key, value in summary["scores"].items() if key != "details"}
+        item["scores"] = {
+            key: value for key, value in summary["scores"].items() if key != "details"
+        }
         item["timings"] = summary.get("performance", {}).get("timings", {})
         item["architecture_quality"] = architecture_quality(summary)
         item["retrieval_quality"] = retrieval_quality(repo["id"])
@@ -69,7 +83,9 @@ def run_target(target: dict[str, str]) -> dict[str, Any]:
         item["cleanup"] = {
             "repository_deleted": repo.get("repository_deleted"),
             "path_exists_after_cleanup": Path(repo["path"]).exists(),
-            "reports_exist": all(Path(path).exists() for path in summary.get("reports", {}).values()),
+            "reports_exist": all(
+                Path(path).exists() for path in summary.get("reports", {}).values()
+            ),
             "index_manifest_exists": Path(summary["reports"]["analysis-summary.json"]).exists(),
         }
         item["status"] = "passed"
@@ -124,7 +140,14 @@ def architecture_quality(summary: dict[str, Any]) -> dict[str, Any]:
     route_count = len(arch.get("route_files", []))
     db_count = len(arch.get("database_model_files", []))
     diagram_count = sum(1 for value in diagrams.values() if value and "graph " in value)
-    score = min(100, diagram_count * 14 + component_count * 3 + important_count * 2 + min(route_count, 10) * 2 + min(db_count, 5) * 2)
+    score = min(
+        100,
+        diagram_count * 14
+        + component_count * 3
+        + important_count * 2
+        + min(route_count, 10) * 2
+        + min(db_count, 5) * 2,
+    )
     return {
         "score": score,
         "diagram_count": diagram_count,
@@ -140,7 +163,17 @@ def grade_retrieval(kind: str, paths: list[str]) -> str:
     expected = {
         "authentication": ("auth", "security", "login", "jwt", "oauth", "password"),
         "routing": ("route", "router", "routing", "views", "endpoint", "api"),
-        "database": ("database", "db", "sql", "model", "schema", "storage", "store", "chroma", "metadata"),
+        "database": (
+            "database",
+            "db",
+            "sql",
+            "model",
+            "schema",
+            "storage",
+            "store",
+            "chroma",
+            "metadata",
+        ),
     }[kind]
     hits = sum(1 for token in expected if token in joined)
     if hits >= 2:
@@ -171,7 +204,12 @@ def write_markdown(results: list[dict[str, Any]], started: str) -> None:
 
 
 def target_markdown(item: dict[str, Any]) -> list[str]:
-    lines = [f"## {item['target']}", "", f"- Source: `{item['source']}`", f"- Status: **{item['status']}**"]
+    lines = [
+        f"## {item['target']}",
+        "",
+        f"- Source: `{item['source']}`",
+        f"- Status: **{item['status']}**",
+    ]
     if item.get("error"):
         lines.append(f"- Error: `{item['error']}`")
         lines.append("")

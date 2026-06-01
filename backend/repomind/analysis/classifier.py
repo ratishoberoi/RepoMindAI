@@ -95,4 +95,3 @@ def detect_stack(root: Path, files: list[dict]) -> dict:
         "ci_cd": sorted(ci),
         "docker": "Docker" in build_tools,
     }
-

@@ -57,17 +57,23 @@ def retrieve(repo_id: str, question: str, limit: int = 6) -> list[dict[str, Any]
     return candidates[:limit]
 
 
-def _pinned_candidates(collection: Any, repo_id: str, question: str, query_terms: set[str]) -> list[dict[str, Any]]:
+def _pinned_candidates(
+    collection: Any, repo_id: str, question: str, query_terms: set[str]
+) -> list[dict[str, Any]]:
     paths = _pinned_paths(repo_id, question)
     if not paths:
         return []
     candidates = []
     for path in paths[:12]:
         try:
-            payload = collection.get(where={"path": path}, include=["documents", "metadatas"], limit=3)
+            payload = collection.get(
+                where={"path": path}, include=["documents", "metadatas"], limit=3
+            )
         except Exception:
             continue
-        for chunk_id, doc, meta in zip(payload.get("ids", []), payload.get("documents", []), payload.get("metadatas", [])):
+        for chunk_id, doc, meta in zip(
+            payload.get("ids", []), payload.get("documents", []), payload.get("metadatas", [])
+        ):
             if meta.get("sensitive"):
                 continue
             doc = redact_text(doc)
@@ -90,14 +96,18 @@ def _pinned_candidates(collection: Any, repo_id: str, question: str, query_terms
     return candidates
 
 
-def _bm25_candidates(collection: Any, question: str, query_terms: set[str], limit: int) -> list[dict[str, Any]]:
+def _bm25_candidates(
+    collection: Any, question: str, query_terms: set[str], limit: int
+) -> list[dict[str, Any]]:
     try:
         payload = collection.get(include=["documents", "metadatas"], limit=2000)
     except Exception:
         return []
     docs = [
         (chunk_id, redact_text(doc), meta)
-        for chunk_id, doc, meta in zip(payload.get("ids", []), payload.get("documents", []), payload.get("metadatas", []))
+        for chunk_id, doc, meta in zip(
+            payload.get("ids", []), payload.get("documents", []), payload.get("metadatas", [])
+        )
         if not meta.get("sensitive")
     ]
     if not docs:
@@ -110,7 +120,9 @@ def _bm25_candidates(collection: Any, question: str, query_terms: set[str], limi
         score = _bm25_score(query_terms, tokens, doc_freq, len(docs), avg_len)
         if score <= 0:
             continue
-        final_score = min(0.95, 0.42 + score / 18 + _path_boost(str(meta.get("path", "")), query_terms))
+        final_score = min(
+            0.95, 0.42 + score / 18 + _path_boost(str(meta.get("path", "")), query_terms)
+        )
         candidates.append(
             {
                 "id": chunk_id,
@@ -129,7 +141,9 @@ def _bm25_candidates(collection: Any, question: str, query_terms: set[str], limi
     return candidates[:limit]
 
 
-def _bm25_score(query_terms: set[str], tokens: list[str], doc_freq: Counter[str], doc_count: int, avg_len: float) -> float:
+def _bm25_score(
+    query_terms: set[str], tokens: list[str], doc_freq: Counter[str], doc_count: int, avg_len: float
+) -> float:
     if not query_terms or not tokens:
         return 0.0
     counts = Counter(tokens)
@@ -163,13 +177,19 @@ def _pinned_paths(repo_id: str, question: str) -> list[str]:
         paths.extend(
             item.get("relative_path")
             for item in parsed
-            if any(token in item.get("relative_path", "").lower() for token in ("database", "db", "store", "storage", "indexer", "chroma"))
+            if any(
+                token in item.get("relative_path", "").lower()
+                for token in ("database", "db", "store", "storage", "indexer", "chroma")
+            )
         )
     if any(token in lower for token in ("auth", "authentication", "login", "jwt", "session")):
         paths.extend(
             item.get("relative_path")
             for item in parsed
-            if any(token in item.get("relative_path", "").lower() for token in ("auth", "jwt", "middleware", "session", "login", "oauth"))
+            if any(
+                token in item.get("relative_path", "").lower()
+                for token in ("auth", "jwt", "middleware", "session", "login", "oauth")
+            )
         )
     return [path for index, path in enumerate(paths) if path and path not in paths[:index]]
 
@@ -202,7 +222,9 @@ def _path_boost(path: str, query_terms: set[str]) -> float:
         if lower.startswith("examples/"):
             boost -= 0.12
     if {"authentication", "auth", "login", "oauth", "jwt", "session"} & query_terms:
-        if any(token in lower for token in ("auth", "jwt", "middleware", "session", "login", "oauth")):
+        if any(
+            token in lower for token in ("auth", "jwt", "middleware", "session", "login", "oauth")
+        ):
             boost += 0.34
         if lower.endswith(("semgrep_rules.yml", "scanner.py")):
             boost -= 0.45
@@ -210,12 +232,27 @@ def _path_boost(path: str, query_terms: set[str]) -> float:
         if any(token in lower for token in ("payment", "stripe", "billing", "invoice", "checkout")):
             boost += 0.18
     if {"database", "db", "sql", "model", "schema"} & query_terms:
-        if any(token in lower for token in ("database", "db", "sql", "storage", "store", "model", "schema", "chroma", "metadata")):
+        if any(
+            token in lower
+            for token in (
+                "database",
+                "db",
+                "sql",
+                "storage",
+                "store",
+                "model",
+                "schema",
+                "chroma",
+                "metadata",
+            )
+        ):
             boost += 0.18
         if lower.endswith(("store.py", "indexer.py", "retriever.py", "config.py")):
             boost += 0.22
     if {"route", "routes", "routing", "api", "endpoint"} & query_terms:
-        if any(token in lower for token in ("route", "router", "api", "view", "endpoint", "controller")):
+        if any(
+            token in lower for token in ("route", "router", "api", "view", "endpoint", "controller")
+        ):
             boost += 0.16
         if lower.endswith(("main.py", "main.ts", "main.tsx")):
             boost += 0.28

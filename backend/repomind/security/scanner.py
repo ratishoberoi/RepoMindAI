@@ -8,15 +8,21 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SECRET_RE = re.compile(
-    r"(?i)(api[_-]?key|secret|token|password)\s*[:=]\s*['\"][^'\"\n]{8,}['\"]"
-)
+SECRET_RE = re.compile(r"(?i)(api[_-]?key|secret|token|password)\s*[:=]\s*['\"][^'\"\n]{8,}['\"]")
 DANGEROUS_PATTERNS = [
     ("python-eval", re.compile(r"\beval\s*\("), "Use of eval can execute arbitrary code."),
     ("python-exec", re.compile(r"\bexec\s*\("), "Use of exec can execute arbitrary code."),
-    ("shell-true", re.compile(r"shell\s*=\s*True"), "Subprocess shell=True increases injection risk."),
+    (
+        "shell-true",
+        re.compile(r"shell\s*=\s*True"),
+        "Subprocess shell=True increases injection risk.",
+    ),
     ("js-inner-html", re.compile(r"innerHTML\s*="), "Direct innerHTML assignment can enable XSS."),
-    ("sql-format", re.compile(r"SELECT\s+.+(%|\\.format|f['\"])", re.IGNORECASE), "Possible dynamic SQL string construction."),
+    (
+        "sql-format",
+        re.compile(r"SELECT\s+.+(%|\\.format|f['\"])", re.IGNORECASE),
+        "Possible dynamic SQL string construction.",
+    ),
 ]
 
 
@@ -30,11 +36,21 @@ def scan_security(root: Path, files: list[dict]) -> dict[str, Any]:
         for line_no, line in enumerate(text.splitlines(), start=1):
             if SECRET_RE.search(line):
                 severity = "low" if _is_example_path(item["relative_path"]) else "high"
-                findings.append(_finding("hardcoded-secret", severity, item["relative_path"], line_no, "Possible hardcoded credential."))
+                findings.append(
+                    _finding(
+                        "hardcoded-secret",
+                        severity,
+                        item["relative_path"],
+                        line_no,
+                        "Possible hardcoded credential.",
+                    )
+                )
             for rule_id, regex, message in DANGEROUS_PATTERNS:
                 if regex.search(line):
                     severity = "low" if _is_example_path(item["relative_path"]) else "medium"
-                    findings.append(_finding(rule_id, severity, item["relative_path"], line_no, message))
+                    findings.append(
+                        _finding(rule_id, severity, item["relative_path"], line_no, message)
+                    )
     findings.extend(_run_bandit(root))
     findings.extend(_run_semgrep(root))
     severity_counts: dict[str, int] = {}
@@ -45,16 +61,30 @@ def scan_security(root: Path, files: list[dict]) -> dict[str, Any]:
         "semgrep": bool(_tool("semgrep")),
         "custom_rules": True,
     }
-    return {"findings": findings, "severity_counts": severity_counts, "scanner_status": scanner_status}
+    return {
+        "findings": findings,
+        "severity_counts": severity_counts,
+        "scanner_status": scanner_status,
+    }
 
 
 def _finding(rule_id: str, severity: str, path: str, line: int, message: str) -> dict[str, Any]:
-    return {"rule_id": rule_id, "severity": severity, "path": path, "line": line, "message": message}
+    return {
+        "rule_id": rule_id,
+        "severity": severity,
+        "path": path,
+        "line": line,
+        "message": message,
+    }
 
 
 def _is_example_path(path: str) -> bool:
     lower = path.lower()
-    return lower.startswith(("docs/", "examples/", "tests/", "test/")) or "/docs/" in lower or "/examples/" in lower
+    return (
+        lower.startswith(("docs/", "examples/", "tests/", "test/"))
+        or "/docs/" in lower
+        or "/examples/" in lower
+    )
 
 
 def _run_bandit(root: Path) -> list[dict[str, Any]]:
@@ -62,7 +92,12 @@ def _run_bandit(root: Path) -> list[dict[str, Any]]:
     if not bandit:
         return []
     try:
-        proc = subprocess.run([bandit, "-r", str(root), "-f", "json", "-q"], capture_output=True, text=True, timeout=60)
+        proc = subprocess.run(
+            [bandit, "-r", str(root), "-f", "json", "-q"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
         payload = json.loads(proc.stdout or "{}")
     except (subprocess.SubprocessError, json.JSONDecodeError):
         return []
