@@ -21,6 +21,7 @@ def sample_summary() -> dict:
         {"relative_path": "frontend/pages/login.tsx", "language": "TypeScript", "size": 1200},
         {"relative_path": "backend/api/auth.py", "language": "Python", "size": 1800},
         {"relative_path": "backend/db/models.py", "language": "Python", "size": 900},
+        {"relative_path": "tests/test_auth.py", "language": "Python", "size": 450},
         {"relative_path": ".github/workflows/ci.yml", "language": "YAML", "size": 300},
         {"relative_path": "README.md", "language": "Markdown", "size": 500},
     ]
@@ -264,6 +265,8 @@ def test_graph_projection_supports_repository_queries() -> None:
     assert projection["metrics"]["node_count"] > 0
     assert projection["metrics"]["graph_density"] >= 0
     assert any(node["kind"] == "api" for node in projection["nodes"])
+    assert any(node["kind"] == "test" for node in projection["nodes"])
+    assert any(node["kind"] == "deployment" for node in projection["nodes"])
     assert any(edge["relation"] == "EXPOSES" for edge in projection["edges"])
     assert projection["edges"]
     assert query["query"] == "ownership"

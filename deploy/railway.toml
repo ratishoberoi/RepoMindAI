@@ -1,0 +1,14 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.backend"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+
+[env]
+REPOMIND_ENV = "production"
+REPOMIND_REQUIRE_API_KEY = "true"
+REPOMIND_ENABLE_LOCAL_PATH_IMPORT = "false"
+REPOMIND_TRUST_REMOTE_MODEL_CODE = "false"

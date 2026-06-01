@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Building2, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Route, Search, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Building2, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Route, Search, ShieldAlert, ShieldCheck, Activity } from "lucide-react";
 import {
   analyze,
   architectureExplorer,
@@ -17,6 +17,7 @@ import {
   prRisk,
   repositoryStatus,
   summary,
+  systemStatus,
   uploadZip,
   type Repository
 } from "@/lib/api";
@@ -31,8 +32,9 @@ import { RepositoryRail } from "@/components/repomind/RepositoryRail";
 import { RiskAndDriftCenter } from "@/components/repomind/RiskAndDriftCenter";
 import { ReportsCenter } from "@/components/repomind/ReportsCenter";
 import { SecurityCenter } from "@/components/repomind/SecurityCenter";
+import { SystemAdminPanel } from "@/components/repomind/SystemAdminPanel";
 import { Badge, Button, EmptyState, Panel, SkeletonGrid } from "@/components/repomind/ui";
-import type { ArchitectureExplorerResult, ChatResult, DiligenceResult, DriftResult, NavItem, PortfolioIntelligence, PrRiskResult, RepositorySummary } from "@/components/repomind/types";
+import type { ArchitectureExplorerResult, ChatResult, DiligenceResult, DriftResult, NavItem, PortfolioIntelligence, PrRiskResult, RepositorySummary, SystemStatus } from "@/components/repomind/types";
 import { asScore, compactNumber, executiveScore } from "@/components/repomind/utils";
 
 const navItems: NavItem[] = [
@@ -45,7 +47,8 @@ const navItems: NavItem[] = [
   { id: "drift", label: "Drift", eyebrow: "baseline", icon: GitCompareArrows },
   { id: "diligence", label: "Diligence", eyebrow: "board pack", icon: ShieldCheck },
   { id: "reports", label: "Reports", eyebrow: "artifacts", icon: FileText },
-  { id: "chat", label: "Chat", eyebrow: "citations", icon: MessageSquare }
+  { id: "chat", label: "Chat", eyebrow: "citations", icon: MessageSquare },
+  { id: "admin", label: "Admin", eyebrow: "ops", icon: Activity }
 ];
 
 export function RepoMindDashboard() {
@@ -61,6 +64,7 @@ export function RepoMindDashboard() {
   const [driftResult, setDriftResult] = useState<DriftResult | null>(null);
   const [diligenceResult, setDiligenceResult] = useState<DiligenceResult | null>(null);
   const [chatResult, setChatResult] = useState<ChatResult | null>(null);
+  const [systemData, setSystemData] = useState<SystemStatus | null>(null);
   const [activeReport, setActiveReport] = useState("CTO_DUE_DILIGENCE.md");
   const [reportText, setReportText] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -173,7 +177,7 @@ export function RepoMindDashboard() {
 
         <section className="min-w-0 space-y-4">
           <TopCommandBar activeRepo={activeRepo} view={view} setView={setView} stats={commandStats} />
-          <nav className="grid gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl md:grid-cols-3 xl:grid-cols-10">
+          <nav className="grid gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl md:grid-cols-3 xl:grid-cols-11">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = view === item.id || (item.id === "drift" && view === "pr-risk");
@@ -199,10 +203,10 @@ export function RepoMindDashboard() {
   );
 
   function renderView() {
-    if (!activeRepo && view !== "portfolio") {
+    if (!activeRepo && !["portfolio", "admin"].includes(view)) {
       return <EmptyState title="Connect a repository" text="Clone, upload, or import a repo to start the premium intelligence workflow." />;
     }
-    if (activeRepo && activeRepo.status !== "complete" && view !== "portfolio") {
+    if (activeRepo && activeRepo.status !== "complete" && !["portfolio", "admin"].includes(view)) {
       return <Panel title="Analysis in progress" eyebrow={activeRepo.analysis_job?.stage ?? activeRepo.status}><EmptyState title="Repository is not ready yet" text={activeRepo.analysis_job?.message ?? "Run analysis to generate scores, graphs, reports, and cited chat."} /></Panel>;
     }
     if (view === "overview") return <ExecutiveOverview summary={repoSummary} onNavigate={setView} />;
@@ -226,6 +230,7 @@ export function RepoMindDashboard() {
     if (view === "diligence") return <DiligenceCenter data={diligenceResult} busy={busy === "diligence"} onGenerate={() => activeRepo && run("diligence", async () => setDiligenceResult(await dueDiligence(activeRepo.id)))} />;
     if (view === "reports") return <ReportsCenter repo={activeRepo} summary={repoSummary} reports={reports} activeReport={activeReport} reportText={reportText} onSelectReport={setActiveReport} />;
     if (view === "chat") return <ChatExperience summary={repoSummary} answer={chatResult} busy={busy === "chat"} error={error} onAsk={(question) => activeRepo && run("chat", async () => setChatResult(await chat(activeRepo.id, question)))} />;
+    if (view === "admin") return <SystemAdminPanel data={systemData} busy={busy === "admin"} onRefresh={() => run("admin", async () => setSystemData(await systemStatus()))} />;
     return <ExecutiveOverview summary={repoSummary} onNavigate={setView} />;
   }
 }

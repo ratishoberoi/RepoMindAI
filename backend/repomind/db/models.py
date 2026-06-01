@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -12,6 +12,8 @@ class RepositoryRecord(Base):
     __tablename__ = "repositories"
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    org_id: Mapped[str] = mapped_column(String(64), nullable=False, default="default", index=True)
+    created_by_user_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     name: Mapped[str] = mapped_column(String(512), nullable=False)
     source_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     source: Mapped[str] = mapped_column(Text, nullable=False)
@@ -53,3 +55,66 @@ class ArtifactRecord(Base):
     artifact_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     path: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+
+
+class OrganizationRecord(Base):
+    __tablename__ = "organizations"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    slug: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    plan: Mapped[str] = mapped_column(String(64), nullable=False, default="local")
+    created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+    updated_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+
+
+class UserRecord(Base):
+    __tablename__ = "users"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    email: Mapped[str] = mapped_column(String(320), nullable=False, unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    auth_provider: Mapped[str] = mapped_column(String(64), nullable=False, default="api_key")
+    provider_subject: Mapped[str | None] = mapped_column(String(256), nullable=True, index=True)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+    updated_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+
+
+class TeamRecord(Base):
+    __tablename__ = "teams"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    org_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    slug: Mapped[str] = mapped_column(String(128), nullable=False)
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+
+    __table_args__ = (UniqueConstraint("org_id", "slug", name="uq_teams_org_slug"),)
+
+
+class MembershipRecord(Base):
+    __tablename__ = "memberships"
+
+    id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    org_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    team_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    role: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+
+    __table_args__ = (
+        UniqueConstraint("org_id", "user_id", "team_id", name="uq_memberships_scope"),
+    )
+
+
+class ApiKeyRecord(Base):
+    __tablename__ = "api_keys"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    org_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    key_hash: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
+    scopes: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+    last_used_at: Mapped[float | None] = mapped_column(Float, nullable=True)

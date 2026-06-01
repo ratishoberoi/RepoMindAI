@@ -8,8 +8,17 @@ from typing import Any
 from uuid import uuid4
 
 from repomind.core.config import get_settings
-from repomind.db.models import ArtifactRecord, Base, JobRecord, RepositoryRecord
-from sqlalchemy import create_engine, delete, select
+from repomind.db.models import (
+    ArtifactRecord,
+    Base,
+    JobRecord,
+    MembershipRecord,
+    OrganizationRecord,
+    RepositoryRecord,
+    TeamRecord,
+    UserRecord,
+)
+from sqlalchemy import create_engine, delete, inspect, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
 
@@ -27,15 +36,25 @@ class RepositoryStore:
         self.engine = create_engine(self.database_url, future=True, connect_args=connect_args)
         self.SessionLocal = sessionmaker(bind=self.engine, expire_on_commit=False, future=True)
         Base.metadata.create_all(self.engine)
+        self._ensure_schema_compatibility()
+        self.ensure_default_tenant()
         self._migrate_legacy_json()
 
     def create_repository(
-        self, name: str, source_type: str, path: Path, source: str
+        self,
+        name: str,
+        source_type: str,
+        path: Path,
+        source: str,
+        org_id: str = "default",
+        created_by_user_id: str | None = "local-admin",
     ) -> dict[str, Any]:
         now = time.time()
         repo_id = uuid4().hex
         record = RepositoryRecord(
             id=repo_id,
+            org_id=org_id,
+            created_by_user_id=created_by_user_id,
             name=name,
             source_type=source_type,
             source=source,
@@ -79,12 +98,99 @@ class RepositoryStore:
                 raise KeyError(repo_id)
             return _repo_dict(record)
 
-    def list(self) -> list[dict[str, Any]]:
+    def get_for_org(self, repo_id: str, org_id: str) -> dict[str, Any]:
+        repo = self.get(repo_id)
+        if repo.get("org_id") != org_id:
+            raise KeyError(repo_id)
+        return repo
+
+    def list(self, org_id: str | None = None) -> list[dict[str, Any]]:
         with self._session() as session:
-            records = session.scalars(
-                select(RepositoryRecord).order_by(RepositoryRecord.created_at.desc())
-            ).all()
+            statement = select(RepositoryRecord).order_by(RepositoryRecord.created_at.desc())
+            if org_id:
+                statement = statement.where(RepositoryRecord.org_id == org_id)
+            records = session.scalars(statement).all()
             return [_repo_dict(record) for record in records]
+
+    def ensure_default_tenant(self) -> None:
+        now = time.time()
+        with self._session() as session:
+            org = session.get(OrganizationRecord, "default")
+            if org is None:
+                session.add(
+                    OrganizationRecord(
+                        id="default",
+                        slug="default",
+                        name="Default Workspace",
+                        plan="local",
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
+            user = session.get(UserRecord, "local-admin")
+            if user is None:
+                session.add(
+                    UserRecord(
+                        id="local-admin",
+                        email="local-admin@repomind.local",
+                        name="Local Admin",
+                        auth_provider="api_key",
+                        provider_subject="local-admin",
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
+            team = session.get(TeamRecord, "default-core")
+            if team is None:
+                session.add(
+                    TeamRecord(
+                        id="default-core",
+                        org_id="default",
+                        slug="core",
+                        name="Core Engineering",
+                        created_at=now,
+                    )
+                )
+            membership = session.get(MembershipRecord, "default:local-admin:org")
+            if membership is None:
+                session.add(
+                    MembershipRecord(
+                        id="default:local-admin:org",
+                        org_id="default",
+                        user_id="local-admin",
+                        team_id=None,
+                        role="owner",
+                        created_at=now,
+                    )
+                )
+            session.commit()
+
+    def tenant_summary(self) -> dict[str, Any]:
+        with self._session() as session:
+            return {
+                "organizations": session.query(OrganizationRecord).count(),
+                "users": session.query(UserRecord).count(),
+                "teams": session.query(TeamRecord).count(),
+                "memberships": session.query(MembershipRecord).count(),
+            }
+
+    def repository_counts(self) -> dict[str, int]:
+        with self._session() as session:
+            rows = session.scalars(select(RepositoryRecord.status)).all()
+        counts: dict[str, int] = {}
+        for status in rows:
+            counts[status] = counts.get(status, 0) + 1
+        counts["total"] = len(rows)
+        return counts
+
+    def job_counts(self) -> dict[str, int]:
+        with self._session() as session:
+            rows = session.scalars(select(JobRecord.status)).all()
+        counts: dict[str, int] = {}
+        for status in rows:
+            counts[status] = counts.get(status, 0) + 1
+        counts["total"] = len(rows)
+        return counts
 
     def delete(self, repo_id: str) -> dict[str, Any]:
         with self._lock, self._session() as session:
@@ -101,6 +207,42 @@ class RepositoryStore:
     def _session(self) -> Session:
         return self.SessionLocal()
 
+    def _ensure_schema_compatibility(self) -> None:
+        """Apply minimal forward-compatible DDL for existing local databases.
+
+        Alembic owns production migrations. This guard keeps older SQLite/local installs
+        bootable when the application starts before an operator has run migrations.
+        """
+        inspector = inspect(self.engine)
+        if "repositories" not in inspector.get_table_names():
+            return
+        columns = {column["name"] for column in inspector.get_columns("repositories")}
+        statements = []
+        if "org_id" not in columns:
+            statements.append(
+                "ALTER TABLE repositories ADD COLUMN org_id VARCHAR(64) NOT NULL DEFAULT 'default'"
+            )
+        if "created_by_user_id" not in columns:
+            statements.append(
+                "ALTER TABLE repositories ADD COLUMN created_by_user_id VARCHAR(64) DEFAULT 'local-admin'"
+            )
+        if not statements:
+            return
+        with self.engine.begin() as connection:
+            for statement in statements:
+                connection.execute(text(statement))
+            connection.execute(
+                text(
+                    "UPDATE repositories SET org_id = 'default' WHERE org_id IS NULL OR org_id = ''"
+                )
+            )
+            connection.execute(
+                text(
+                    "UPDATE repositories SET created_by_user_id = 'local-admin' "
+                    "WHERE created_by_user_id IS NULL OR created_by_user_id = ''"
+                )
+            )
+
     def _migrate_legacy_json(self) -> None:
         if not self.legacy_path.exists():
             return
@@ -112,6 +254,8 @@ class RepositoryStore:
             for item in payload.get("repositories", {}).values():
                 record = RepositoryRecord(
                     id=item["id"],
+                    org_id=item.get("org_id", "default"),
+                    created_by_user_id=item.get("created_by_user_id", "local-admin"),
                     name=item["name"],
                     source_type=item["source_type"],
                     source=item["source"],
@@ -140,6 +284,8 @@ class RepositoryStore:
 def _repo_dict(record: RepositoryRecord) -> dict[str, Any]:
     return {
         "id": record.id,
+        "org_id": record.org_id,
+        "created_by_user_id": record.created_by_user_id,
         "name": record.name,
         "source_type": record.source_type,
         "source": record.source,

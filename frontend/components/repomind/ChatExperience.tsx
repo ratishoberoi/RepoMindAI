@@ -32,6 +32,7 @@ export function ChatExperience({
   const citations = answer?.citations ?? [];
   const activeCitation = citations[selectedCitation] ?? citations[0];
   const modelMode = String(answer?.model_status?.mode ?? "");
+  const validation = answer?.validation;
   const ask = (nextQuestion = question) => {
     setQuestion(nextQuestion);
     onAsk(nextQuestion);
@@ -77,6 +78,13 @@ export function ChatExperience({
                   <p className="text-xs text-slate-500">Grounded by {citations.length} citations, {answer.evidence?.length ?? 0} evidence records, confidence {Math.round((answer.confidence ?? 0) * 100)}%</p>
                 </div>
               </div>
+              {validation ? (
+                <div className={`mb-4 rounded-xl border p-3 text-xs ${validation.supported ? "border-emerald-300/25 bg-emerald-300/[0.07] text-emerald-100" : "border-amber-300/25 bg-amber-300/[0.07] text-amber-100"}`}>
+                  <span className="font-semibold">{validation.supported ? "Citation support verified" : "Citation support needs review"}.</span>{" "}
+                  Validation confidence {Math.round((validation.confidence ?? 0) * 100)}%
+                  {validation.missing_citations?.length ? `; missing citations: ${validation.missing_citations.join(", ")}` : "."}
+                </div>
+              ) : null}
               <p className="whitespace-pre-wrap text-sm leading-7 text-slate-300">{answer.answer}</p>
             </div>
           ) : (

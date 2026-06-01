@@ -1,0 +1,49 @@
+[
+  {
+    "tier": "tiny",
+    "name": "RepoMind sample FastAPI",
+    "source": "/home/ratish/RepoMindAI/sample_repos/python_fastapi_example",
+    "status": "passed",
+    "started_at": 1780336709.732782,
+    "repo_id": "293c04bf8c03442387f0cbe017fc1326",
+    "file_count": 6,
+    "indexed_chunks": 7,
+    "cpu_seconds": 9.0414,
+    "max_rss_mb": 1621.29,
+    "ingestion_seconds": 0.0063,
+    "analysis_seconds": 14.3985,
+    "graph_build_seconds": 0,
+    "report_generation_seconds": 0.008,
+    "security_scan_seconds": 0,
+    "chat_retrieval_latency_seconds": 7.027,
+    "pr_analysis_latency_seconds": 0.0002,
+    "drift_analysis_latency_seconds": 0.0001,
+    "bottlenecks": [
+      {
+        "stage": "analysis",
+        "seconds": 14.3985,
+        "share": 0.672
+      },
+      {
+        "stage": "retrieval",
+        "seconds": 7.027,
+        "share": 0.328
+      },
+      {
+        "stage": "reports",
+        "seconds": 0.008,
+        "share": 0.0
+      },
+      {
+        "stage": "pr",
+        "seconds": 0.0002,
+        "share": 0.0
+      },
+      {
+        "stage": "drift",
+        "seconds": 0.0001,
+        "share": 0.0
+      }
+    ]
+  }
+]

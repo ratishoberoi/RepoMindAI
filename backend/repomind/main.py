@@ -10,9 +10,11 @@ from fastapi.responses import FileResponse
 from repomind.core.cleanup import purge_repository, start_cleanup_scheduler
 from repomind.core.config import get_settings
 from repomind.core.jobs import cancel_analysis_job, start_analysis_job
+from repomind.core.observability import system_snapshot
 from repomind.core.security import (
     RateLimitMiddleware,
     RequestTracingMiddleware,
+    SecurityHeadersMiddleware,
     audit_event,
     require_api_key,
 )
@@ -53,10 +55,19 @@ app.add_middleware(
     allow_origins=[settings.frontend_origin, "http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "DELETE"],
-    allow_headers=["authorization", "content-type", "x-api-key", "x-request-id"],
+    allow_headers=[
+        "authorization",
+        "content-type",
+        "x-api-key",
+        "x-request-id",
+        "x-org-id",
+        "x-user-id",
+        "x-user-email",
+    ],
 )
 app.add_middleware(RequestTracingMiddleware)
 app.add_middleware(RateLimitMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 @app.get("/health")
@@ -83,13 +94,30 @@ def runtime_config() -> dict:
 
 
 @app.get("/repositories", dependencies=PROTECTED)
-def list_repositories() -> list[dict]:
-    return store.list()
+def list_repositories(request: Request) -> list[dict]:
+    return store.list(org_id=_org_id(request))
 
 
 @app.get("/repositories/intelligence", dependencies=PROTECTED)
-def multi_repository_intelligence() -> dict:
-    return build_multi_repository_intelligence(store.list())
+def multi_repository_intelligence(request: Request) -> dict:
+    return build_multi_repository_intelligence(store.list(org_id=_org_id(request)))
+
+
+@app.get("/me/context", dependencies=PROTECTED)
+def tenant_context(request: Request) -> dict:
+    return {
+        "organization": {"id": _org_id(request)},
+        "user": {
+            "id": _user_id(request),
+            "email": request.headers.get("x-user-email", "local-admin@repomind.local"),
+        },
+        "roles": ["owner"],
+    }
+
+
+@app.get("/admin/system", dependencies=PROTECTED)
+def admin_system() -> dict:
+    return system_snapshot(store)
 
 
 @app.post("/repositories/upload", dependencies=PROTECTED)
@@ -98,6 +126,7 @@ async def upload_repository(request: Request, file: UploadFile = File(...)) -> d
         raise HTTPException(status_code=400, detail="Upload must be a .zip repository archive.")
     try:
         repo = await ingest_zip(file)
+        repo = _assign_tenant(repo, request)
         audit_event("repository_uploaded", request, repo_id=repo["id"], source_type="zip")
         return _public_repo(repo)
     except Exception as exc:
@@ -108,6 +137,7 @@ async def upload_repository(request: Request, file: UploadFile = File(...)) -> d
 def clone_repository(payload: CloneRequest, request: Request) -> dict:
     try:
         repo = ingest_github(str(payload.github_url))
+        repo = _assign_tenant(repo, request)
         audit_event("repository_cloned", request, repo_id=repo["id"], source_type="github")
         return _public_repo(repo)
     except Exception as exc:
@@ -118,6 +148,8 @@ def clone_repository(payload: CloneRequest, request: Request) -> dict:
 def import_local_repository(payload: LocalPathRequest, request: Request = None) -> dict:
     try:
         repo = ingest_local_path(payload.path)
+        if request:
+            repo = _assign_tenant(repo, request)
         audit_event("repository_imported", request, repo_id=repo["id"], source_type="local")
         return _public_repo(repo)
     except Exception as exc:
@@ -127,8 +159,9 @@ def import_local_repository(payload: LocalPathRequest, request: Request = None) 
 @app.post("/repositories/{repo_id}/analysis", dependencies=PROTECTED)
 def start_analysis(repo_id: str, request: Request) -> dict:
     try:
+        _repo_for_request(repo_id, request)
         job = start_analysis_job(repo_id)
-        repo = store.get(repo_id)
+        repo = _repo_for_request(repo_id, request)
         audit_event("analysis_started", request, repo_id=repo_id, job_id=job.get("id"))
         return {"repository": _public_repo(repo), "job": job}
     except KeyError as exc:
@@ -145,7 +178,7 @@ def start_analysis(repo_id: str, request: Request) -> dict:
 def cancel_analysis(repo_id: str, request: Request) -> dict:
     try:
         job = cancel_analysis_job(repo_id)
-        repo = store.get(repo_id)
+        repo = _repo_for_request(repo_id, request)
         audit_event("analysis_cancel_requested", request, repo_id=repo_id, job_id=job.get("id"))
         return {"repository": _public_repo(repo), "job": job}
     except KeyError as exc:
@@ -153,9 +186,9 @@ def cancel_analysis(repo_id: str, request: Request) -> dict:
 
 
 @app.get("/repositories/{repo_id}/status", dependencies=PROTECTED)
-def repository_status(repo_id: str) -> dict:
+def repository_status(repo_id: str, request: Request) -> dict:
     try:
-        repo = store.get(repo_id)
+        repo = _repo_for_request(repo_id, request)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
     return _public_repo(repo) | {
@@ -167,6 +200,7 @@ def repository_status(repo_id: str) -> dict:
 @app.delete("/repositories/{repo_id}", dependencies=PROTECTED)
 def delete_repository(repo_id: str, request: Request) -> dict:
     try:
+        _repo_for_request(repo_id, request)
         repo = purge_repository(repo_id, store)
         audit_event("repository_deleted", request, repo_id=repo_id)
         return {"deleted": _public_repo(repo)}
@@ -182,18 +216,18 @@ def run_cleanup() -> dict:
 
 
 @app.get("/repositories/{repo_id}/summary", dependencies=PROTECTED)
-def repository_summary(repo_id: str) -> dict:
-    return _summary(repo_id)
+def repository_summary(repo_id: str, request: Request) -> dict:
+    return _summary(repo_id, request)
 
 
 @app.get("/repositories/{repo_id}/graph", dependencies=PROTECTED)
-def repository_graph(repo_id: str) -> dict:
-    return _summary(repo_id).get("graph", {"nodes": [], "edges": []})
+def repository_graph(repo_id: str, request: Request) -> dict:
+    return _summary(repo_id, request).get("graph", {"nodes": [], "edges": []})
 
 
 @app.get("/repositories/{repo_id}/knowledge-graph", dependencies=PROTECTED)
-def repository_knowledge_graph(repo_id: str) -> dict:
-    return _summary(repo_id).get(
+def repository_knowledge_graph(repo_id: str, request: Request) -> dict:
+    return _summary(repo_id, request).get(
         "knowledge_graph",
         {"entities": [], "relations": [], "domains": [], "hotspots": [], "metrics": {}},
     )
@@ -201,90 +235,96 @@ def repository_knowledge_graph(repo_id: str) -> dict:
 
 @app.get("/repositories/{repo_id}/graph-query", dependencies=PROTECTED)
 def repository_graph_query(
-    repo_id: str, query: str = "overview", source: str = "", target: str = "", depth: int = 2
+    repo_id: str,
+    request: Request,
+    query: str = "overview",
+    source: str = "",
+    target: str = "",
+    depth: int = 2,
 ) -> dict:
     return query_repository_graph(
-        _summary(repo_id), query, source=source, target=target, depth=depth
+        _summary(repo_id, request), query, source=source, target=target, depth=depth
     )
 
 
 @app.get("/repositories/{repo_id}/architecture-explorer", dependencies=PROTECTED)
-def repository_architecture_explorer(repo_id: str) -> dict:
-    return build_architecture_explorer(_summary(repo_id))
+def repository_architecture_explorer(repo_id: str, request: Request) -> dict:
+    return build_architecture_explorer(_summary(repo_id, request))
 
 
 @app.post("/repositories/{repo_id}/pr-risk", dependencies=PROTECTED)
-def repository_pr_risk(repo_id: str, request: PRRiskRequest) -> dict:
+def repository_pr_risk(repo_id: str, payload: PRRiskRequest, request: Request) -> dict:
     if (
-        not request.changed_files
-        and not request.pr_url
-        and not (request.repository and request.pr_number)
+        not payload.changed_files
+        and not payload.pr_url
+        and not (payload.repository and payload.pr_number)
     ):
         raise HTTPException(
             status_code=400, detail="Provide changed_files, pr_url, or repository and pr_number."
         )
     return analyze_pr_risk(
-        _summary(repo_id),
-        request.changed_files,
-        request.title,
-        request.description,
-        request.pr_url,
-        request.repository,
-        request.pr_number,
+        _summary(repo_id, request),
+        payload.changed_files,
+        payload.title,
+        payload.description,
+        payload.pr_url,
+        payload.repository,
+        payload.pr_number,
     )
 
 
 @app.get("/repositories/{repo_id}/due-diligence", dependencies=PROTECTED)
-def repository_due_diligence(repo_id: str) -> dict:
-    return build_cto_due_diligence(_summary(repo_id))
+def repository_due_diligence(repo_id: str, request: Request) -> dict:
+    return build_cto_due_diligence(_summary(repo_id, request))
 
 
 @app.get("/repositories/{repo_id}/acquisition-intelligence", dependencies=PROTECTED)
-def repository_acquisition_intelligence(repo_id: str) -> dict:
-    return build_acquisition_intelligence(_summary(repo_id))
+def repository_acquisition_intelligence(repo_id: str, request: Request) -> dict:
+    return build_acquisition_intelligence(_summary(repo_id, request))
 
 
 @app.get("/repositories/{repo_id}/executive-reports", dependencies=PROTECTED)
-def repository_executive_reports(repo_id: str) -> dict:
-    return build_executive_report_pack(_summary(repo_id))
+def repository_executive_reports(repo_id: str, request: Request) -> dict:
+    return build_executive_report_pack(_summary(repo_id, request))
 
 
 @app.get("/repositories/{repo_id}/security", dependencies=PROTECTED)
-def repository_security(repo_id: str) -> dict:
-    return _summary(repo_id).get("security", {})
+def repository_security(repo_id: str, request: Request) -> dict:
+    return _summary(repo_id, request).get("security", {})
 
 
 @app.get("/repositories/{repo_id}/technical-debt", dependencies=PROTECTED)
-def repository_technical_debt(repo_id: str) -> dict:
-    return _summary(repo_id).get("technical_debt", {})
+def repository_technical_debt(repo_id: str, request: Request) -> dict:
+    return _summary(repo_id, request).get("technical_debt", {})
 
 
 @app.get("/repositories/{repo_id}/reports", dependencies=PROTECTED)
-def repository_reports(repo_id: str) -> dict:
+def repository_reports(repo_id: str, request: Request) -> dict:
     try:
-        return store.get(repo_id).get("reports", {})
+        return _repo_for_request(repo_id, request).get("reports", {})
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
 
 
 @app.get("/repositories/compare", dependencies=PROTECTED)
-def compare_repositories(left_id: str, right_id: str) -> dict:
-    left = _summary(left_id)
-    right = _summary(right_id)
+def compare_repositories(left_id: str, right_id: str, request: Request) -> dict:
+    left = _summary(left_id, request)
+    right = _summary(right_id, request)
     return compare_summaries(left, right)
 
 
 @app.get("/repositories/{repo_id}/architecture-drift", dependencies=PROTECTED)
 def repository_architecture_drift(
     repo_id: str,
+    request: Request,
     baseline_id: str,
     compare_type: str = "repository",
     baseline_ref: str = "",
     target_ref: str = "",
 ) -> dict:
     return detect_architecture_drift(
-        _summary(baseline_id),
-        _summary(repo_id),
+        _summary(baseline_id, request),
+        _summary(repo_id, request),
         compare_type=compare_type,
         baseline_ref=baseline_ref,
         target_ref=target_ref,
@@ -292,9 +332,9 @@ def repository_architecture_drift(
 
 
 @app.get("/repositories/{repo_id}/reports/{report_name}", dependencies=PROTECTED)
-def download_report(repo_id: str, report_name: str) -> FileResponse:
+def download_report(repo_id: str, report_name: str, request: Request) -> FileResponse:
     try:
-        reports = store.get(repo_id).get("reports", {})
+        reports = _repo_for_request(repo_id, request).get("reports", {})
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
     path = Path(reports.get(report_name, ""))
@@ -304,7 +344,8 @@ def download_report(repo_id: str, report_name: str) -> FileResponse:
 
 
 @app.get("/repositories/{repo_id}/export", dependencies=PROTECTED)
-def export_reports(repo_id: str) -> FileResponse:
+def export_reports(repo_id: str, request: Request) -> FileResponse:
+    _repo_for_request(repo_id, request)
     try:
         path = export_bundle(repo_id)
     except FileNotFoundError as exc:
@@ -313,9 +354,10 @@ def export_reports(repo_id: str) -> FileResponse:
 
 
 @app.post("/repositories/{repo_id}/chat", dependencies=PROTECTED)
-def chat(repo_id: str, request: ChatRequest) -> dict:
+def chat(repo_id: str, payload: ChatRequest, request: Request) -> dict:
     try:
-        return answer_question(repo_id, request.question)
+        _repo_for_request(repo_id, request)
+        return answer_question(repo_id, payload.question)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
 
@@ -332,14 +374,34 @@ def _public_repo(repo: dict) -> dict:
     }
 
 
-def _summary(repo_id: str) -> dict:
+def _assign_tenant(repo: dict, request: Request) -> dict:
+    return store.update(
+        repo["id"],
+        org_id=_org_id(request),
+        created_by_user_id=_user_id(request),
+    )
+
+
+def _repo_for_request(repo_id: str, request: Request) -> dict:
     try:
-        repo = store.get(repo_id)
+        return store.get_for_org(repo_id, _org_id(request))
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
+
+
+def _summary(repo_id: str, request: Request) -> dict:
+    repo = _repo_for_request(repo_id, request)
     if not repo.get("summary"):
         raise HTTPException(status_code=404, detail="Repository has not been analyzed yet.")
     return repo["summary"]
+
+
+def _org_id(request: Request) -> str:
+    return request.headers.get("x-org-id") or "default"
+
+
+def _user_id(request: Request) -> str:
+    return request.headers.get("x-user-id") or "local-admin"
 
 
 def _compact_summary(summary: dict) -> dict:

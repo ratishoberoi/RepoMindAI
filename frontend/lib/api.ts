@@ -34,6 +34,12 @@ export async function portfolioIntelligence() {
   return res.json();
 }
 
+export async function systemStatus() {
+  const res = await fetch(`${API_BASE}/admin/system`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
 export async function importLocal(path: string): Promise<Repository> {
   const res = await fetch(`${API_BASE}/repositories/local`, {
     method: "POST",

@@ -52,3 +52,15 @@ def test_chat_uses_deterministic_fallback_when_model_missing(monkeypatch):
     assert answer["evidence"]
     assert answer["confidence"] > 0
     assert answer["model_status"]["mode"] == "deterministic_fallback"
+    assert answer["validation"]["citation_count"] == 1
+    assert not answer["validation"]["missing_citations"]
+
+
+def test_chat_validation_flags_missing_file_references() -> None:
+    result = qa.validate_answer_support(
+        "The implementation in app/other.py handles authentication.",
+        [{"file": "app/main.py", "line_start": 1, "line_end": 10}],
+    )
+
+    assert result["supported"] is False
+    assert result["missing_citations"] == ["app/other.py"]

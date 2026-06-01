@@ -189,6 +189,14 @@ def build_graph_projection(summary: dict[str, Any]) -> dict[str, Any]:
             node_id,
             "CONTAINS",
         )
+        if _is_test_file(path):
+            test_id = f"test:{repo_id}:{path}"
+            add_node(test_id, path, "test", file=path)
+            add_edge(test_id, node_id, "AFFECTS")
+        if _is_deployment_file(path):
+            deployment_id = f"deployment:{repo_id}:{path}"
+            add_node(deployment_id, path, "deployment", file=path)
+            add_edge(deployment_id, f"repo:{repo_id}", "AFFECTS")
 
     for parsed in summary.get("parsed", [])[:10000]:
         path = parsed.get("relative_path")
@@ -368,6 +376,10 @@ def _labels(kind: str) -> list[str]:
         "owner": ["RepoMindNode", "Owner"],
         "service": ["RepoMindNode", "Service"],
         "domain": ["RepoMindNode", "Domain"],
+        "test": ["RepoMindNode", "Test"],
+        "deployment": ["RepoMindNode", "Deployment"],
+        "pr": ["RepoMindNode", "PR"],
+        "incident": ["RepoMindNode", "Incident"],
     }
     return mapping.get(kind, ["RepoMindNode"])
 
@@ -392,6 +404,27 @@ def _relationship_type(relation: str) -> str:
     }
     normalized = str(relation).upper()
     return normalized if normalized in allowed else "LINKED_TO"
+
+
+def _is_test_file(path: str) -> bool:
+    lower = path.lower()
+    return (
+        lower.startswith("tests/")
+        or "/tests/" in lower
+        or lower.endswith((".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx", "_test.py"))
+        or "test_" in PurePosixPath(lower).name
+    )
+
+
+def _is_deployment_file(path: str) -> bool:
+    lower = path.lower()
+    name = PurePosixPath(lower).name
+    return (
+        name in {"dockerfile", "docker-compose.yml", "docker-compose.yaml", "fly.toml"}
+        or lower.startswith(".github/workflows/")
+        or lower.startswith("deploy/")
+        or lower.endswith((".tf", ".tfvars", "render.yaml", "railway.toml"))
+    )
 
 
 def _density(node_count: int, edge_count: int) -> float:

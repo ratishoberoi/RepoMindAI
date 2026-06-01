@@ -227,6 +227,25 @@ export type ChatResult = {
   affected_services?: Array<Record<string, unknown>>;
   confidence?: number;
   model_status?: Record<string, unknown>;
+  validation?: {
+    supported?: boolean;
+    confidence?: number;
+    citation_count?: number;
+    referenced_files?: string[];
+    missing_citations?: string[];
+    unsupported_claims?: string[];
+  };
+};
+
+export type SystemStatus = {
+  uptime_seconds?: number;
+  requests?: Record<string, number>;
+  repositories?: Record<string, number>;
+  jobs?: Record<string, number>;
+  storage?: Record<string, number>;
+  tenancy?: Record<string, number>;
+  workers?: Record<string, number>;
+  active_users?: number;
 };
 
 export type Citation = {

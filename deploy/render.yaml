@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: repomind-backend
+    env: docker
+    dockerfilePath: ./Dockerfile.backend
+    healthCheckPath: /health
+    envVars:
+      - key: REPOMIND_ENV
+        value: production
+      - key: REPOMIND_REQUIRE_API_KEY
+        value: "true"
+      - key: REPOMIND_ENABLE_LOCAL_PATH_IMPORT
+        value: "false"
+      - key: REPOMIND_TRUST_REMOTE_MODEL_CODE
+        value: "false"
+      - key: REPOMIND_API_KEY
+        sync: false
+      - key: REPOMIND_DATABASE_URL
+        fromDatabase:
+          name: repomind-postgres
+          property: connectionString
+  - type: web
+    name: repomind-frontend
+    env: docker
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_REPOMIND_API_KEY
+        sync: false
+
+databases:
+  - name: repomind-postgres
+    databaseName: repomind
+    user: repomind

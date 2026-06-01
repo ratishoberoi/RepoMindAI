@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from fastapi import HTTPException, Request, status
 from repomind.core.config import get_settings
+from repomind.core.observability import record_request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
@@ -55,8 +56,26 @@ class RequestTracingMiddleware(BaseHTTPMiddleware):
             audit_event("request_error", request, duration_ms=_duration_ms(start), status_code=500)
             raise
         response.headers["x-request-id"] = request_id
+        record_request(request.url.path, request.method, response.status_code, _duration_ms(start))
         audit_event(
             "request", request, duration_ms=_duration_ms(start), status_code=response.status_code
+        )
+        return response
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("x-content-type-options", "nosniff")
+        response.headers.setdefault("x-frame-options", "DENY")
+        response.headers.setdefault("referrer-policy", "no-referrer")
+        response.headers.setdefault(
+            "permissions-policy",
+            "camera=(), microphone=(), geolocation=(), payment=()",
+        )
+        response.headers.setdefault(
+            "content-security-policy",
+            "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' http://localhost:8000 http://127.0.0.1:8000; frame-ancestors 'none'",
         )
         return response
 

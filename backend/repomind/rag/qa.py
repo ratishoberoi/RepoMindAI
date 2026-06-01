@@ -5,6 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 from repomind.core.store import store
+from repomind.intelligence.validation import validate_answer_support
 from repomind.llm.registry import local_model
 from repomind.rag.retriever import citations_for, retrieve
 from repomind.security.redaction import redact_text
@@ -21,6 +22,7 @@ class RepositoryAnswer(BaseModel):
     affected_services: list[dict[str, Any]] = Field(default_factory=list)
     confidence: float = 0.0
     model_status: dict[str, Any] = Field(default_factory=dict)
+    validation: dict[str, Any] = Field(default_factory=dict)
 
 
 def answer_question(repo_id: str, question: str) -> dict:
@@ -97,6 +99,9 @@ def answer_question(repo_id: str, question: str) -> dict:
 
 
 def _validated_response(payload: dict) -> dict:
+    payload["validation"] = validate_answer_support(
+        payload.get("answer", ""), payload.get("citations", [])
+    )
     return RepositoryAnswer(**payload).model_dump()
 
 
