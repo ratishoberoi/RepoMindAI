@@ -217,7 +217,7 @@ export function RepoMindDashboard() {
     }
     if (view === "diligence") return <DiligenceCenter data={diligenceResult} busy={busy === "diligence"} onGenerate={() => activeRepo && run("diligence", async () => setDiligenceResult(await dueDiligence(activeRepo.id)))} />;
     if (view === "reports") return <ReportsCenter repo={activeRepo} summary={repoSummary} reports={reports} activeReport={activeReport} reportText={reportText} onSelectReport={setActiveReport} />;
-    if (view === "chat") return <ChatExperience summary={repoSummary} answer={chatResult} busy={busy === "chat"} onAsk={(question) => activeRepo && run("chat", async () => setChatResult(await chat(activeRepo.id, question)))} />;
+    if (view === "chat") return <ChatExperience summary={repoSummary} answer={chatResult} busy={busy === "chat"} error={error} onAsk={(question) => activeRepo && run("chat", async () => setChatResult(await chat(activeRepo.id, question)))} />;
     return <ExecutiveOverview summary={repoSummary} onNavigate={setView} />;
   }
 }

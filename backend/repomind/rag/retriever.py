@@ -265,8 +265,12 @@ def citations_for(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [
         {
             "path": chunk["path"],
+            "file": chunk["path"],
             "line_start": chunk["line_start"],
             "line_end": chunk["line_end"],
+            "start_line": chunk["line_start"],
+            "end_line": chunk["line_end"],
+            "text": chunk.get("text", "")[:700],
             "score": chunk["score"],
             "vector_score": chunk["vector_score"],
             "rerank_score": chunk["rerank_score"],

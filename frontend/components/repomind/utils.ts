@@ -86,10 +86,10 @@ export function citationPath(citation: Citation) {
 }
 
 export function citationLineRange(citation: Citation) {
-  if (!citation.start_line) return "";
-  return citation.end_line && citation.end_line !== citation.start_line
-    ? `:${citation.start_line}-${citation.end_line}`
-    : `:${citation.start_line}`;
+  const start = citation.start_line ?? citation.line_start;
+  const end = citation.end_line ?? citation.line_end;
+  if (!start) return "";
+  return end && end !== start ? `:${start}-${end}` : `:${start}`;
 }
 
 export function domainCards(graph: KnowledgeGraph | undefined) {

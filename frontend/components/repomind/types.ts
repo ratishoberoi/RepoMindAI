@@ -94,6 +94,7 @@ export type ChatResult = {
   citations?: Citation[];
   related_files?: string[];
   follow_ups?: string[];
+  model_status?: Record<string, unknown>;
 };
 
 export type Citation = {
@@ -102,6 +103,8 @@ export type Citation = {
   path?: string;
   start_line?: number;
   end_line?: number;
+  line_start?: number;
+  line_end?: number;
   text?: string;
 };
 

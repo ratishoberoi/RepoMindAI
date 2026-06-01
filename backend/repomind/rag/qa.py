@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 from pydantic import BaseModel, Field
 from repomind.core.store import store
@@ -14,6 +15,9 @@ class RepositoryAnswer(BaseModel):
     diagram: str = Field(min_length=1)
     critical_files: list[str]
     citations: list[dict]
+    related_files: list[str] = Field(default_factory=list)
+    follow_ups: list[str] = Field(default_factory=list)
+    model_status: dict[str, Any] = Field(default_factory=dict)
 
 
 def answer_question(repo_id: str, question: str) -> dict:
@@ -28,6 +32,9 @@ def answer_question(repo_id: str, question: str) -> dict:
                 "diagram": _no_evidence_diagram(question),
                 "critical_files": [],
                 "citations": [],
+                "related_files": _related_files(summary, []),
+                "follow_ups": _follow_ups(question, summary, []),
+                "model_status": _model_status_payload("not_used", None),
             }
         )
     if _is_auth_question(question) and not _auth_implementation_files(summary, chunks):
@@ -39,6 +46,9 @@ def answer_question(repo_id: str, question: str) -> dict:
                 "diagram": diagram,
                 "critical_files": _absence_evidence_files(summary, chunks),
                 "citations": citations_for(chunks),
+                "related_files": _related_files(summary, chunks),
+                "follow_ups": _follow_ups(question, summary, chunks),
+                "model_status": _model_status_payload("not_needed", None),
             }
         )
     context = "\n\n".join(
@@ -59,7 +69,7 @@ def answer_question(repo_id: str, question: str) -> dict:
         f"Repository: {repo['name']}\nQuestion: {question}\n\nContext:\n{context}"
         f"\n\nCritical file candidates: {critical_files}\n\nMermaid diagram:\n```mermaid\n{diagram}\n```"
     )
-    generated = redact_text(local_model().generate(prompt, max_tokens=110))
+    generated, model_status = _generate_or_fallback(prompt, chunks, summary, question)
     answer = _structured_answer(generated, diagram, critical_files, chunks)
     return _validated_response(
         {
@@ -67,12 +77,68 @@ def answer_question(repo_id: str, question: str) -> dict:
             "diagram": diagram,
             "critical_files": critical_files,
             "citations": citations_for(chunks),
+            "related_files": _related_files(summary, chunks),
+            "follow_ups": _follow_ups(question, summary, chunks),
+            "model_status": model_status,
         }
     )
 
 
 def _validated_response(payload: dict) -> dict:
     return RepositoryAnswer(**payload).model_dump()
+
+
+def _generate_or_fallback(
+    prompt: str, chunks: list[dict], summary: dict, question: str
+) -> tuple[str, dict[str, Any]]:
+    try:
+        model = local_model()
+        generated = redact_text(model.generate(prompt, max_tokens=110))
+        return generated, _model_status_payload("local_model", model.status())
+    except Exception as exc:
+        return _fallback_answer_body(question, chunks, summary), _model_status_payload(
+            "deterministic_fallback", {"reason": str(exc)}
+        )
+
+
+def _model_status_payload(mode: str, status: dict[str, Any] | None) -> dict[str, Any]:
+    payload = {"mode": mode, "available": mode == "local_model"}
+    if status:
+        payload.update(status)
+    return payload
+
+
+def _fallback_answer_body(question: str, chunks: list[dict], summary: dict) -> str:
+    repo_name = summary.get("repository", {}).get("name", "the repository")
+    top = chunks[:4]
+    evidence = "; ".join(
+        f"{chunk.get('path')}:{chunk.get('line_start')}-{chunk.get('line_end')}"
+        for chunk in top
+        if chunk.get("path")
+    )
+    security = summary.get("security", {})
+    finding_count = len(security.get("findings", []))
+    routes = summary.get("statistics", {}).get("routes", 0)
+    frameworks = ", ".join(summary.get("stack", {}).get("frameworks", []) or [])
+    focus = _question_focus(question)
+    return (
+        f"{repo_name} is best reviewed through the cited {focus} evidence. "
+        f"The strongest retrieved sources are {evidence}. "
+        f"Static analysis found {routes} routes, {finding_count} security findings, "
+        f"and framework signals {frameworks or 'not identified'}. "
+        "Use the cited files as the trust boundary before changing behavior."
+    )
+
+
+def _question_focus(question: str) -> str:
+    lower = question.lower()
+    if any(token in lower for token in ("risk", "security", "secret", "leak")):
+        return "risk and security"
+    if any(token in lower for token in ("architecture", "design", "flow")):
+        return "architecture"
+    if any(token in lower for token in ("test", "release", "deploy")):
+        return "release-readiness"
+    return "repository"
 
 
 def _no_evidence_answer() -> str:
@@ -373,3 +439,29 @@ def _evidence_improvements(chunks: list[dict], critical_files: list[str]) -> lis
             "Keep this area discoverable by preserving clear file names and route/model boundaries."
         )
     return items
+
+
+def _related_files(summary: dict, chunks: list[dict]) -> list[str]:
+    paths: list[str] = []
+    paths.extend(chunk.get("path") for chunk in chunks if chunk.get("path"))
+    paths.extend(summary.get("architecture", {}).get("important_files", [])[:8])
+    paths.extend(item.get("relative_path") for item in summary.get("files", [])[:12])
+    return [path for index, path in enumerate(paths) if path and path not in paths[:index]][:10]
+
+
+def _follow_ups(question: str, summary: dict, chunks: list[dict]) -> list[str]:
+    lower = question.lower()
+    prompts = []
+    if "risk" not in lower:
+        prompts.append("What are the highest risk files to change first?")
+    if "security" not in lower:
+        prompts.append("Which security findings should be fixed before a demo?")
+    if "architecture" not in lower:
+        prompts.append("Explain the architecture and runtime flow for a CTO.")
+    if "test" not in lower:
+        prompts.append("Which tests should I run before releasing changes?")
+    if chunks:
+        prompts.append(f"Why is {chunks[0].get('path')} important?")
+    if summary.get("stack", {}).get("frameworks"):
+        prompts.append("What framework-specific risks are visible?")
+    return prompts[:5]
