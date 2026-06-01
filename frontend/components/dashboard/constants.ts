@@ -11,4 +11,12 @@ export const reports = [
   "EXECUTIVE_SUMMARY.html"
 ];
 
-export const tabs = ["Overview", "Architecture", "Dependencies", "Security", "Reports", "Chat"];
+export const tabs = [
+  "Overview",
+  "Knowledge",
+  "Architecture",
+  "Dependencies",
+  "Security",
+  "Reports",
+  "Chat"
+];

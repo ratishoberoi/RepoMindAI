@@ -245,6 +245,44 @@ export function RepoMindDashboard() {
             </div>
           ) : null}
 
+          {repoSummary && tab === "Knowledge" ? (
+            <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
+              <GlassPanel title="Repository Knowledge Graph">
+                <div className="grid gap-3 md:grid-cols-4">
+                  <Info label="Entities" value={String(repoSummary.knowledge_graph?.metrics?.entities ?? 0)} />
+                  <Info label="Relations" value={String(repoSummary.knowledge_graph?.metrics?.relations ?? 0)} />
+                  <Info label="Domains" value={String(repoSummary.knowledge_graph?.metrics?.domains ?? 0)} />
+                  <Info label="Hotspots" value={String((repoSummary.knowledge_graph?.hotspots ?? []).length)} />
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  {(repoSummary.knowledge_graph?.domains ?? []).slice(0, 10).map((domain: any) => (
+                    <div key={domain.name} className="rounded-md border border-white/10 bg-black/20 p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="font-medium text-cyan-100">{domain.name}</div>
+                        <span className="rounded bg-white/10 px-2 py-1 text-xs text-slate-300">{domain.role}</span>
+                      </div>
+                      <div className="mt-2 text-xs text-slate-400">{domain.file_count} files · {domain.routes} routes · {domain.data_models} models · {domain.security_findings} security findings</div>
+                      <div className="mt-2 space-y-1">
+                        {(domain.sample_files ?? []).slice(0, 3).map((path: string) => <div key={path} className="truncate text-xs text-slate-300">{path}</div>)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </GlassPanel>
+              <GlassPanel title="Risk Hotspots">
+                <div className="space-y-2">
+                  {(repoSummary.knowledge_graph?.hotspots ?? []).slice(0, 12).map((item: any) => (
+                    <div key={item.path} className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm">
+                      <div className="break-words font-medium text-slate-100">{item.path}</div>
+                      <div className="mt-1 text-xs text-slate-400">risk {item.risk_score} · connectivity {item.connectivity}</div>
+                      <div className="mt-1 text-xs text-cyan-100">{item.reason}</div>
+                    </div>
+                  ))}
+                </div>
+              </GlassPanel>
+            </div>
+          ) : null}
+
           {repoSummary && tab === "Dependencies" ? (
             <GlassPanel title="Dependency Explorer">
               <DependencyGraph graph={repoSummary.graph} />

@@ -8,6 +8,7 @@ from repomind.core import cleanup
 from repomind.core.config import Settings
 from repomind.core.store import RepositoryStore
 from repomind.ingestion import ingestor
+from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
 from repomind.llm.adapters import detect_model
 from repomind.rag.chunking import chunk_file, chunk_text
 from repomind.rag.embeddings import BGEEmbedder
@@ -56,6 +57,55 @@ def test_dependency_graph_building() -> None:
     graph = build_dependency_graph(files, parsed)
     assert any(edge["relation"] == "imports" for edge in graph["edges"])
     assert any(node["kind"] == "function" for node in graph["nodes"])
+
+
+def test_repository_knowledge_graph_extracts_domains_and_hotspots() -> None:
+    files = [
+        {"relative_path": "backend/api/users.py", "language": "Python", "size": 100},
+        {"relative_path": "backend/db/models.py", "language": "Python", "size": 100},
+    ]
+    parsed = [
+        {
+            "relative_path": "backend/api/users.py",
+            "routes": [{"method": "GET", "path": "/users", "handler": "list_users", "line": 3}],
+            "database_models": [],
+            "functions": [{"name": "list_users", "line": 3}],
+            "classes": [],
+            "methods": [],
+        },
+        {
+            "relative_path": "backend/db/models.py",
+            "routes": [],
+            "database_models": [{"name": "User", "line": 1, "orm": "SQLAlchemy"}],
+            "functions": [],
+            "classes": [{"name": "User", "line": 1}],
+            "methods": [],
+        },
+    ]
+    graph = {
+        "edges": [
+            {
+                "source": "backend/api/users.py",
+                "target": "backend/db/models.py",
+                "relation": "imports",
+            }
+        ]
+    }
+    security = {
+        "findings": [
+            {
+                "path": "backend/api/users.py",
+                "severity": "high",
+                "line": 5,
+                "message": "issue",
+            }
+        ]
+    }
+    kg = build_repository_knowledge_graph(files, parsed, graph, security)
+    assert kg["metrics"]["route_count"] == 1
+    assert kg["metrics"]["data_model_count"] == 1
+    assert kg["domains"][0]["file_count"] >= 1
+    assert kg["hotspots"][0]["path"] == "backend/api/users.py"
 
 
 def test_chunks_are_stable() -> None:

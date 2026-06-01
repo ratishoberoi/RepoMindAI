@@ -177,6 +177,14 @@ def repository_graph(repo_id: str) -> dict:
     return _summary(repo_id).get("graph", {"nodes": [], "edges": []})
 
 
+@app.get("/repositories/{repo_id}/knowledge-graph", dependencies=PROTECTED)
+def repository_knowledge_graph(repo_id: str) -> dict:
+    return _summary(repo_id).get(
+        "knowledge_graph",
+        {"entities": [], "relations": [], "domains": [], "hotspots": [], "metrics": {}},
+    )
+
+
 @app.get("/repositories/{repo_id}/security", dependencies=PROTECTED)
 def repository_security(repo_id: str) -> dict:
     return _summary(repo_id).get("security", {})
