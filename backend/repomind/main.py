@@ -20,6 +20,7 @@ from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
 from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.due_diligence import build_cto_due_diligence
+from repomind.intelligence.portfolio import build_multi_repository_intelligence
 from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.registry import local_model
 from repomind.rag.qa import answer_question
@@ -79,6 +80,11 @@ def runtime_config() -> dict:
 @app.get("/repositories", dependencies=PROTECTED)
 def list_repositories() -> list[dict]:
     return store.list()
+
+
+@app.get("/repositories/intelligence", dependencies=PROTECTED)
+def multi_repository_intelligence() -> dict:
+    return build_multi_repository_intelligence(store.list())
 
 
 @app.post("/repositories/upload", dependencies=PROTECTED)

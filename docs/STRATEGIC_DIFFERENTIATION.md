@@ -54,3 +54,16 @@ User value:
 
 - Produces investor/acquirer-ready evidence instead of a generic code summary.
 - Helps founders and CTOs answer technical diligence questions before an external review.
+
+## Multi-Repository Intelligence
+
+Architecture:
+
+- `/repositories/intelligence` aggregates every analyzed repository into a portfolio view.
+- The aggregator compares languages, frameworks, repeated domains, repository scorecards, and cross-repo risks.
+- The dashboard includes a portfolio view that is independent of any single active repository.
+
+User value:
+
+- CTOs can inspect organization-level risk and duplicated domains.
+- This creates a moat around private codebase intelligence rather than single-file coding assistance.

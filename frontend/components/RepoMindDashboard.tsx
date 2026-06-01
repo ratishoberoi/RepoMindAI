@@ -51,6 +51,7 @@ import {
   fetchReport,
   importLocal,
   listRepositories,
+  portfolioIntelligence,
   prRisk,
   repositoryStatus,
   reportUrl,
@@ -97,6 +98,7 @@ export function RepoMindDashboard() {
   const [baselineRepoId, setBaselineRepoId] = useState("");
   const [driftResult, setDriftResult] = useState<any>(null);
   const [diligenceResult, setDiligenceResult] = useState<any>(null);
+  const [portfolioResult, setPortfolioResult] = useState<any>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState("Overview");
@@ -234,6 +236,47 @@ export function RepoMindDashboard() {
                 </GlassPanel>
               </div>
             </div>
+          ) : null}
+
+          {tab === "Portfolio" ? (
+            <GlassPanel title="Multi-Repository Intelligence">
+              {!portfolioResult ? (
+                <div className="flex items-center justify-between gap-4">
+                  <Empty text="Build portfolio-wide intelligence across all analyzed repositories." />
+                  <button className="shrink-0 rounded-md bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950" onClick={async () => setPortfolioResult(await portfolioIntelligence())}>
+                    Analyze Portfolio
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-4">
+                    <Info label="Repositories" value={String(portfolioResult.repository_count ?? 0)} />
+                    <Info label="Portfolio score" value={String(portfolioResult.portfolio_score ?? 0)} />
+                    <Info label="Shared domains" value={String(portfolioResult.shared_domains?.length ?? 0)} />
+                    <Info label="Top risks" value={String(portfolioResult.top_risks?.length ?? 0)} />
+                  </div>
+                  <EvidenceList title="Recommendations" items={portfolioResult.recommendations ?? []} />
+                  <div className="grid gap-4 xl:grid-cols-2">
+                    <div className="space-y-2">
+                      {(portfolioResult.repositories ?? []).map((repo: any) => (
+                        <div key={repo.id} className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm">
+                          <div className="font-medium text-slate-100">{repo.name}</div>
+                          <div className="mt-1 text-xs text-slate-400">{repo.primary_language} · CTO {repo.cto} · {repo.domains} domains · {repo.hotspots} hotspots</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-2">
+                      {(portfolioResult.top_risks ?? []).slice(0, 10).map((risk: any, index: number) => (
+                        <div key={`${risk.repo}-${risk.path}-${index}`} className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm">
+                          <div className="font-medium text-red-100">{risk.repo}: {risk.risk}</div>
+                          <div className="mt-1 break-words text-xs text-slate-400">{risk.path} · score {risk.risk_score}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </GlassPanel>
           ) : null}
 
           {repoSummary && tab === "Architecture" ? (

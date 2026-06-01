@@ -11,6 +11,7 @@ from repomind.ingestion import ingestor
 from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.due_diligence import build_cto_due_diligence
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
+from repomind.intelligence.portfolio import build_multi_repository_intelligence
 from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.adapters import detect_model
 from repomind.rag.chunking import chunk_file, chunk_text
@@ -179,6 +180,23 @@ def test_cto_due_diligence_builds_recommendation() -> None:
     assert report["investment_readiness"] in {"strong", "moderate", "early", "high-risk"}
     assert report["recommendation"]
     assert report["critical_evidence"]
+
+
+def test_multi_repository_intelligence_aggregates_portfolio() -> None:
+    summary = _minimal_summary()
+    summary["knowledge_graph"] = {
+        "domains": [{"name": "backend/api", "role": "API boundary"}],
+        "hotspots": [{"path": "a.py", "risk_score": 20, "reason": "central"}],
+    }
+    payload = build_multi_repository_intelligence(
+        [
+            {"id": "one", "name": "One", "summary": summary},
+            {"id": "two", "name": "Two", "summary": summary},
+        ]
+    )
+    assert payload["repository_count"] == 2
+    assert payload["shared_domains"][0]["domain"] == "backend/api"
+    assert payload["portfolio_score"] > 0
 
 
 def test_chunks_are_stable() -> None:

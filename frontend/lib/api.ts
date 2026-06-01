@@ -28,6 +28,12 @@ export async function listRepositories(): Promise<Repository[]> {
   return res.json();
 }
 
+export async function portfolioIntelligence() {
+  const res = await fetch(`${API_BASE}/repositories/intelligence`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
 export async function importLocal(path: string): Promise<Repository> {
   const res = await fetch(`${API_BASE}/repositories/local`, {
     method: "POST",
