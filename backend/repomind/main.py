@@ -3,13 +3,14 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from repomind.analysis.analyzer import analyze_repository
 from repomind.core.cleanup import delete_repository_contents, start_cleanup_scheduler
 from repomind.core.config import get_settings
+from repomind.core.security import RateLimitMiddleware, RequestTracingMiddleware, require_api_key
 from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
 from repomind.llm.registry import local_model
@@ -18,6 +19,7 @@ from repomind.reports.generator import export_bundle
 from repomind.schemas import ChatRequest, CloneRequest, LocalPathRequest
 
 settings = get_settings()
+PROTECTED = [Depends(require_api_key)]
 
 
 @asynccontextmanager
@@ -37,9 +39,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.frontend_origin, "http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["authorization", "content-type", "x-api-key", "x-request-id"],
 )
+app.add_middleware(RequestTracingMiddleware)
+app.add_middleware(RateLimitMiddleware)
 
 
 @app.get("/health")
@@ -47,12 +51,12 @@ def health() -> dict:
     return {"status": "ok", "service": "RepoMind AI", "model": local_model().status()}
 
 
-@app.get("/repositories")
+@app.get("/repositories", dependencies=PROTECTED)
 def list_repositories() -> list[dict]:
     return store.list()
 
 
-@app.post("/repositories/upload")
+@app.post("/repositories/upload", dependencies=PROTECTED)
 async def upload_repository(file: UploadFile = File(...)) -> dict:
     if not file.filename or not file.filename.endswith(".zip"):
         raise HTTPException(status_code=400, detail="Upload must be a .zip repository archive.")
@@ -63,7 +67,7 @@ async def upload_repository(file: UploadFile = File(...)) -> dict:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@app.post("/repositories/clone")
+@app.post("/repositories/clone", dependencies=PROTECTED)
 def clone_repository(request: CloneRequest) -> dict:
     try:
         repo = ingest_github(str(request.github_url))
@@ -72,7 +76,7 @@ def clone_repository(request: CloneRequest) -> dict:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@app.post("/repositories/local")
+@app.post("/repositories/local", dependencies=PROTECTED)
 def import_local_repository(request: LocalPathRequest) -> dict:
     try:
         repo = ingest_local_path(request.path)
@@ -81,7 +85,7 @@ def import_local_repository(request: LocalPathRequest) -> dict:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@app.post("/repositories/{repo_id}/analysis")
+@app.post("/repositories/{repo_id}/analysis", dependencies=PROTECTED)
 def start_analysis(repo_id: str) -> dict:
     try:
         repo = store.update(repo_id, status="analyzing", error=None)
@@ -101,7 +105,7 @@ def start_analysis(repo_id: str) -> dict:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-@app.get("/repositories/{repo_id}/status")
+@app.get("/repositories/{repo_id}/status", dependencies=PROTECTED)
 def repository_status(repo_id: str) -> dict:
     try:
         repo = store.get(repo_id)
@@ -110,34 +114,34 @@ def repository_status(repo_id: str) -> dict:
     return _public_repo(repo) | {"error": repo.get("error")}
 
 
-@app.post("/maintenance/cleanup")
+@app.post("/maintenance/cleanup", dependencies=PROTECTED)
 def run_cleanup() -> dict:
     from repomind.core.cleanup import cleanup_expired_repositories
 
     return {"deleted": cleanup_expired_repositories(store)}
 
 
-@app.get("/repositories/{repo_id}/summary")
+@app.get("/repositories/{repo_id}/summary", dependencies=PROTECTED)
 def repository_summary(repo_id: str) -> dict:
     return _summary(repo_id)
 
 
-@app.get("/repositories/{repo_id}/graph")
+@app.get("/repositories/{repo_id}/graph", dependencies=PROTECTED)
 def repository_graph(repo_id: str) -> dict:
     return _summary(repo_id).get("graph", {"nodes": [], "edges": []})
 
 
-@app.get("/repositories/{repo_id}/security")
+@app.get("/repositories/{repo_id}/security", dependencies=PROTECTED)
 def repository_security(repo_id: str) -> dict:
     return _summary(repo_id).get("security", {})
 
 
-@app.get("/repositories/{repo_id}/technical-debt")
+@app.get("/repositories/{repo_id}/technical-debt", dependencies=PROTECTED)
 def repository_technical_debt(repo_id: str) -> dict:
     return _summary(repo_id).get("technical_debt", {})
 
 
-@app.get("/repositories/{repo_id}/reports")
+@app.get("/repositories/{repo_id}/reports", dependencies=PROTECTED)
 def repository_reports(repo_id: str) -> dict:
     try:
         return store.get(repo_id).get("reports", {})
@@ -145,7 +149,7 @@ def repository_reports(repo_id: str) -> dict:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
 
 
-@app.get("/repositories/{repo_id}/reports/{report_name}")
+@app.get("/repositories/{repo_id}/reports/{report_name}", dependencies=PROTECTED)
 def download_report(repo_id: str, report_name: str) -> FileResponse:
     try:
         reports = store.get(repo_id).get("reports", {})
@@ -157,7 +161,7 @@ def download_report(repo_id: str, report_name: str) -> FileResponse:
     return FileResponse(path)
 
 
-@app.get("/repositories/{repo_id}/export")
+@app.get("/repositories/{repo_id}/export", dependencies=PROTECTED)
 def export_reports(repo_id: str) -> FileResponse:
     try:
         path = export_bundle(repo_id)
@@ -166,7 +170,7 @@ def export_reports(repo_id: str) -> FileResponse:
     return FileResponse(path, filename=path.name)
 
 
-@app.post("/repositories/{repo_id}/chat")
+@app.post("/repositories/{repo_id}/chat", dependencies=PROTECTED)
 def chat(repo_id: str, request: ChatRequest) -> dict:
     try:
         return answer_question(repo_id, request.question)

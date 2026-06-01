@@ -7,6 +7,7 @@ from pathlib import Path
 from repomind.core.config import get_settings
 from repomind.rag.chunking import chunk_file
 from repomind.rag.embeddings import embedder
+from repomind.security.redaction import redact_text
 
 
 def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
@@ -44,7 +45,7 @@ def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
             end_index = start_index + batch_size
             collection.upsert(
                 ids=[chunk["id"] for chunk in chunks[start_index:end_index]],
-                documents=[chunk["text"] for chunk in chunks[start_index:end_index]],
+                documents=[_stored_text(chunk) for chunk in chunks[start_index:end_index]],
                 embeddings=vectors[start_index:end_index],
                 metadatas=metadatas[start_index:end_index],
             )
@@ -90,7 +91,13 @@ def _collection_name(repo_id: str) -> str:
 
 
 def _retrieval_text(chunk: dict) -> str:
-    return f"File: {chunk['path']}\nLines: {chunk['line_start']}-{chunk['line_end']}\n{chunk['text']}"
+    return f"File: {chunk['path']}\nLines: {chunk['line_start']}-{chunk['line_end']}\n{_stored_text(chunk)}"
+
+
+def _stored_text(chunk: dict) -> str:
+    if not get_settings().redact_secrets:
+        return chunk["text"]
+    return redact_text(chunk["text"])
 
 
 def _elapsed(start: float) -> float:

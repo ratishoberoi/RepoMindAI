@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from repomind.core.config import get_settings
+
 
 @dataclass(frozen=True)
 class ModelSpec:
@@ -166,7 +168,7 @@ class SingleLocalModel:
             self._tokenizer = AutoTokenizer.from_pretrained(
                 self.spec.path,
                 local_files_only=True,
-                trust_remote_code=True,
+                trust_remote_code=get_settings().trust_remote_model_code,
             )
             import torch
 
@@ -174,7 +176,7 @@ class SingleLocalModel:
             self._model = AutoModelForCausalLM.from_pretrained(
                 self.spec.path,
                 local_files_only=True,
-                trust_remote_code=True,
+                trust_remote_code=get_settings().trust_remote_model_code,
                 device_map=device_map,
                 dtype="auto",
                 low_cpu_mem_usage=True,

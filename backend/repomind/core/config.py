@@ -57,6 +57,10 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("REPOMIND_UPLOAD_DIR", "REPOMIND_UPLOADS_DIR", "UPLOAD_DIR", "UPLOADS_DIR"),
     )
     frontend_origin: str = "http://localhost:3000"
+    api_key: str | None = None
+    require_api_key: bool = True
+    rate_limit_requests: int = 120
+    rate_limit_window_seconds: int = 60
 
     model_path: Path = Field(
         default_factory=lambda: _project_path("models", "qwen-judge"),
@@ -73,6 +77,15 @@ class Settings(BaseSettings):
     chunk_overlap: int = 220
     embedding_batch_size: int = 64
     chroma_upsert_batch_size: int = 1000
+    enable_local_path_import: bool = False
+    local_import_allowed_roots: str = Field(default_factory=lambda: str(PROJECT_ROOT))
+    allowed_git_hosts: str = "github.com"
+    max_upload_bytes: int = 50_000_000
+    max_zip_members: int = 20_000
+    max_zip_extracted_bytes: int = 250_000_000
+    max_zip_compression_ratio: int = 100
+    redact_secrets: bool = True
+    trust_remote_model_code: bool = False
 
     @model_validator(mode="after")
     def normalize_and_validate_paths(self) -> "Settings":
@@ -85,6 +98,15 @@ class Settings(BaseSettings):
         if self.model_path.name != "qwen-judge":
             raise ValueError("RepoMindAI only supports qwen-judge local inference. Set REPOMIND_MODEL_PATH to that checkpoint.")
         return self
+
+    @property
+    def parsed_local_import_roots(self) -> list[Path]:
+        roots = [item.strip() for item in self.local_import_allowed_roots.split(",") if item.strip()]
+        return [_resolve_path(Path(root)) for root in roots]
+
+    @property
+    def parsed_allowed_git_hosts(self) -> set[str]:
+        return {item.strip().lower() for item in self.allowed_git_hosts.split(",") if item.strip()}
 
     @property
     def report_dir(self) -> Path:

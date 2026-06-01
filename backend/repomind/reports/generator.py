@@ -9,6 +9,7 @@ from typing import Any
 from repomind.core.config import get_settings
 from repomind.llm.prompts import report_prompt, synthesis_prompt
 from repomind.llm.registry import local_model
+from repomind.security.redaction import redact_text
 
 REPORT_NAMES = [
     "README.md",
@@ -26,6 +27,7 @@ def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str,
     settings = get_settings()
     out_dir = settings.reports_dir / "generated" / repo["id"]
     out_dir.mkdir(parents=True, exist_ok=True)
+    summary = _redacted_summary(summary)
     ai = _synthesize_reports(summary)
     writers: dict[str, Callable[[dict[str, Any], dict[str, str]], str]] = {
         "README.md": _readme,
@@ -40,9 +42,9 @@ def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str,
     paths: dict[str, str] = {}
     for name, writer in writers.items():
         path = out_dir / name
-        path.write_text(writer(summary, ai))
+        path.write_text(redact_text(writer(summary, ai)))
         paths[name] = str(path)
-    (out_dir / "analysis-summary.json").write_text(json.dumps(summary, indent=2))
+    (out_dir / "analysis-summary.json").write_text(redact_text(json.dumps(summary, indent=2)))
     paths["analysis-summary.json"] = str(out_dir / "analysis-summary.json")
     return paths
 
@@ -209,6 +211,17 @@ def _synthesize_reports(summary: dict[str, Any]) -> dict[str, str]:
         "recruiter": model.generate(report_prompt("recruiter review with evidence and confidence", summary), 220),
         "cto": model.generate(report_prompt("CTO review with evidence, risk, and confidence", summary), 220),
     }
+
+
+def _redacted_summary(summary: dict[str, Any]) -> dict[str, Any]:
+    payload = json.loads(json.dumps(summary))
+    for finding in payload.get("security", {}).get("findings", []):
+        if "message" in finding:
+            finding["message"] = redact_text(str(finding["message"]))
+    for todo in payload.get("technical_debt", {}).get("todos", []):
+        if "text" in todo:
+            todo["text"] = redact_text(str(todo["text"]))
+    return payload
 
 
 def _evidence_files(summary: dict[str, Any]) -> str:

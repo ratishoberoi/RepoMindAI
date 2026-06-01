@@ -6,6 +6,7 @@ from repomind.analysis.parser import parse_file
 from repomind.llm.adapters import detect_model
 from repomind.rag.chunking import chunk_text
 from repomind.rag.embeddings import BGEEmbedder
+from repomind.security.redaction import redact_text
 from repomind.utils.hashing import file_sha256
 from repomind.utils.ignore import should_ignore
 
@@ -69,3 +70,11 @@ def test_tree_sitter_js_ts_parser_extracts_routes_and_exports(tmp_path: Path) ->
     assert "express" in parsed["imports"]
     assert any(item["name"] == "UserModel" for item in parsed["classes"])
     assert any(route["path"] == "/health" for route in parsed["routes"])
+
+
+def test_secret_redaction_masks_sensitive_values() -> None:
+    text = "API_KEY='super-secret-value'\nAuthorization: Bearer abcdefghijklmnopqrstuvwxyz123456"
+    redacted = redact_text(text)
+    assert "super-secret-value" not in redacted
+    assert "abcdefghijklmnopqrstuvwxyz123456" not in redacted
+    assert "[REDACTED]" in redacted

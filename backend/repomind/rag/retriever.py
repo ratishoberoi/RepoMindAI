@@ -6,6 +6,7 @@ from typing import Any
 from repomind.core.store import store
 from repomind.rag.embeddings import embedder
 from repomind.rag.indexer import _collection
+from repomind.security.redaction import redact_text
 
 WORD_RE = re.compile(r"[A-Za-z0-9_./-]+")
 
@@ -30,6 +31,7 @@ def retrieve(repo_id: str, question: str, limit: int = 6) -> list[dict[str, Any]
     query_terms = set(WORD_RE.findall(question.lower()))
     for chunk_id, doc, meta, distance in zip(ids, docs, metas, distances):
         base = 1.0 - float(distance or 0.0)
+        doc = redact_text(doc)
         lexical = _lexical_score(question, doc)
         score = base * 0.72 + lexical * 0.18 + _path_boost(str(meta.get("path", "")), query_terms)
         candidates.append(
@@ -61,6 +63,7 @@ def _pinned_candidates(collection: Any, repo_id: str, question: str, query_terms
         except Exception:
             continue
         for chunk_id, doc, meta in zip(payload.get("ids", []), payload.get("documents", []), payload.get("metadatas", [])):
+            doc = redact_text(doc)
             lexical = _lexical_score(question, doc)
             score = 0.5 + lexical * 0.18 + _path_boost(str(meta.get("path", "")), query_terms)
             candidates.append(
