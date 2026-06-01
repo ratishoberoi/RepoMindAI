@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BriefcaseBusiness, Building, ShieldCheck } from "lucide-react";
+import { BriefcaseBusiness, Building, FileWarning, HandCoins, ShieldCheck } from "lucide-react";
 import type { DiligenceResult } from "./types";
 import { asScore } from "./utils";
 import { Badge, Button, EmptyState, MetricCard, Panel, SeverityBadge, Timeline } from "./ui";
@@ -43,7 +43,8 @@ export function DiligenceCenter({
               <Button onClick={onGenerate} disabled={busy}>{busy ? "Generating" : "Generate packet"}</Button>
             </div>
             {data ? (
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
+              <div className="mt-5 grid gap-3 md:grid-cols-4">
+                <MetricCard label="Acquisition" value={asScore(normalized.acquisitionReadiness)} detail={normalized.verdict} score={normalized.acquisitionReadiness} />
                 <MetricCard label="Strengths" value={normalized.strengths.length} detail="Defensible proof points" />
                 <MetricCard label="Risks" value={normalized.risks.length} detail="Board-level exceptions" />
                 <MetricCard label="Recommendations" value={normalized.recommendations.length} detail="Execution path" />
@@ -104,6 +105,36 @@ export function DiligenceCenter({
               ))}
             </div>
           </Panel>
+          <Panel title="Acquisition Verdict" eyebrow="M&A intelligence">
+            <div className="space-y-3">
+              <Badge className="border-cyan-300/25 bg-cyan-400/10 text-cyan-100"><HandCoins size={13} /> {normalized.verdict}</Badge>
+              <p className="text-sm leading-6 text-slate-300">{normalized.investmentMemo}</p>
+            </div>
+          </Panel>
+          <Panel title="Red Flags" eyebrow="Evidence requiring negotiation">
+            <div className="space-y-3">
+              {normalized.redFlags.map((flag, index) => (
+                <div key={index} className="rounded-xl border border-rose-300/20 bg-rose-500/[0.08] p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-white">{String(flag.title ?? "Red flag")}</p>
+                    <SeverityBadge severity={String(flag.severity ?? "medium")} />
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-rose-100/75">{String(flag.evidence ?? "")}</p>
+                </div>
+              ))}
+              {!normalized.redFlags.length ? <p className="text-sm text-slate-400">No high-confidence acquisition red flags detected.</p> : null}
+            </div>
+          </Panel>
+          <Panel title="Negotiation Points" eyebrow="deal leverage" className="xl:col-span-2">
+            <div className="grid gap-3 md:grid-cols-2">
+              {normalized.negotiationPoints.map((point, index) => (
+                <div key={index} className="flex gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3 text-sm leading-5 text-slate-300">
+                  <FileWarning className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" />
+                  {point}
+                </div>
+              ))}
+            </div>
+          </Panel>
           <Panel title="Risk Exceptions" eyebrow="Negotiation and remediation focus" className="xl:col-span-2">
             <div className="space-y-3">
               {normalized.risks.slice(0, 6).map((risk, index) => (
@@ -142,7 +173,10 @@ function normalizeDiligence(data: DiligenceResult | null) {
       file: String(risk.evidence ?? "").split(":")[0]
     }))
   ];
-  const score = data?.score ?? data?.scorecard?.cto ?? data?.scorecard?.production_readiness ?? 0;
+  const acquisition = data?.acquisition_intelligence as Record<string, unknown> | undefined;
+  const acquisitionScores = acquisition?.scores as Record<string, number> | undefined;
+  const acquisitionReadiness = data?.acquisition_readiness ?? acquisitionScores?.acquisition_readiness ?? data?.score ?? data?.scorecard?.cto ?? data?.scorecard?.production_readiness ?? 0;
+  const score = data?.score ?? data?.scorecard?.cto ?? data?.scorecard?.production_readiness ?? acquisitionReadiness;
   const readiness = data?.investment_readiness ?? "readiness";
   const recommendation = data?.recommendation ? [data.recommendation] : [];
   const gaps = data?.enterprise_gaps ?? [];
@@ -150,6 +184,11 @@ function normalizeDiligence(data: DiligenceResult | null) {
   const executive = data?.executive_summary ?? "Generate a diligence packet to populate this memo.";
   return {
     score,
+    acquisitionReadiness,
+    verdict: data?.ai_verdict ?? String(acquisition?.ai_verdict ?? readiness),
+    redFlags: data?.red_flags ?? ((acquisition?.red_flags as Array<Record<string, unknown>> | undefined) ?? []),
+    negotiationPoints: data?.negotiation_points ?? ((acquisition?.negotiation_points as string[] | undefined) ?? []),
+    investmentMemo: data?.investment_memo ?? String(acquisition?.investment_memo ?? executive),
     readiness,
     strengths: data?.strengths ?? [],
     risks,

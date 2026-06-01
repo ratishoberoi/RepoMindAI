@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from repomind.intelligence.acquisition import build_acquisition_intelligence
+
 
 def build_cto_due_diligence(summary: dict[str, Any]) -> dict[str, Any]:
     scores = summary.get("scores", {})
@@ -11,9 +13,18 @@ def build_cto_due_diligence(summary: dict[str, Any]) -> dict[str, Any]:
     strengths = _strengths(summary)
     enterprise_gaps = _enterprise_gaps(summary)
     recommendation = _recommendation(scores, top_risks, enterprise_gaps)
+    acquisition = build_acquisition_intelligence(summary)
     return {
         "repository": summary.get("repository", {}),
         "investment_readiness": _readiness(scores, top_risks, enterprise_gaps),
+        "acquisition_intelligence": acquisition,
+        "acquisition_readiness": acquisition["scores"]["acquisition_readiness"],
+        "ai_verdict": acquisition["ai_verdict"],
+        "red_flags": acquisition["red_flags"],
+        "negotiation_points": acquisition["negotiation_points"],
+        "investment_memo": acquisition["investment_memo"],
+        "ma_memo": acquisition["ma_memo"],
+        "technical_due_diligence_packet": acquisition["technical_due_diligence_packet"],
         "recommendation": recommendation,
         "executive_summary": (
             f"{summary.get('repository', {}).get('name', 'Repository')} is a "

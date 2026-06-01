@@ -18,8 +18,11 @@ from repomind.core.security import (
 )
 from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
+from repomind.intelligence.acquisition import build_acquisition_intelligence
+from repomind.intelligence.architecture_explorer import build_architecture_explorer
 from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.due_diligence import build_cto_due_diligence
+from repomind.intelligence.executive_reports import build_executive_report_pack
 from repomind.intelligence.portfolio import build_multi_repository_intelligence
 from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.registry import local_model
@@ -194,6 +197,11 @@ def repository_knowledge_graph(repo_id: str) -> dict:
     )
 
 
+@app.get("/repositories/{repo_id}/architecture-explorer", dependencies=PROTECTED)
+def repository_architecture_explorer(repo_id: str) -> dict:
+    return build_architecture_explorer(_summary(repo_id))
+
+
 @app.post("/repositories/{repo_id}/pr-risk", dependencies=PROTECTED)
 def repository_pr_risk(repo_id: str, request: PRRiskRequest) -> dict:
     return analyze_pr_risk(_summary(repo_id), request.changed_files, request.title)
@@ -202,6 +210,16 @@ def repository_pr_risk(repo_id: str, request: PRRiskRequest) -> dict:
 @app.get("/repositories/{repo_id}/due-diligence", dependencies=PROTECTED)
 def repository_due_diligence(repo_id: str) -> dict:
     return build_cto_due_diligence(_summary(repo_id))
+
+
+@app.get("/repositories/{repo_id}/acquisition-intelligence", dependencies=PROTECTED)
+def repository_acquisition_intelligence(repo_id: str) -> dict:
+    return build_acquisition_intelligence(_summary(repo_id))
+
+
+@app.get("/repositories/{repo_id}/executive-reports", dependencies=PROTECTED)
+def repository_executive_reports(repo_id: str) -> dict:
+    return build_executive_report_pack(_summary(repo_id))
 
 
 @app.get("/repositories/{repo_id}/security", dependencies=PROTECTED)

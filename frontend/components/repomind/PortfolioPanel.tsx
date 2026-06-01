@@ -24,9 +24,15 @@ export function PortfolioPanel({
   }
   const sharedDependencies = normalizeDependencies(data) as Array<Record<string, unknown>>;
   const risks = [...(data.risk_concentration ?? []), ...(data.top_risks ?? [])];
+  const remediation = data.portfolio_remediation_center ?? [];
+  const sharedVulnerabilities = data.shared_vulnerabilities ?? [];
+  const propagation = data.risk_propagation ?? [];
+  const duplicateServices = data.duplicate_services ?? [];
+  const frameworkRisk = data.framework_concentration_risk ?? [];
+  const ownershipRisk = data.ownership_concentration_risk ?? [];
   const insights = (data.strategic_insights?.length
     ? data.strategic_insights
-    : (data.recommendations ?? []).map((item, index) => ({ title: `Portfolio move ${index + 1}`, description: item, severity: index === 0 ? "high" : "medium" }))) as Array<Record<string, unknown>>;
+    : [...(data.recommendations ?? []), ...frameworkRisk.slice(0, 3).map((item) => `${String(item.framework)} appears in ${String(item.portfolio_share)}% of analyzed repositories.`)].map((item, index) => ({ title: `Portfolio move ${index + 1}`, description: item, severity: index === 0 ? "high" : "medium" }))) as Array<Record<string, unknown>>;
   const repositoryCount = data.total_repositories ?? data.repository_count ?? data.repositories?.length ?? 0;
 
   return (
@@ -37,6 +43,20 @@ export function PortfolioPanel({
         <MetricCard label="Shared Risks" value={compactNumber(risks.length)} detail="Repeated exposure patterns" icon={<ShieldAlert size={18} />} />
         <MetricCard label="Dependency Clusters" value={compactNumber(sharedDependencies.length)} detail="Concentration map" icon={<Network size={18} />} />
       </div>
+
+      <Panel title="Dependency Overlap Graph" eyebrow="shared frameworks, libraries, and package surfaces">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {(data.dependency_overlap_graph?.nodes ?? []).filter((node) => node.kind === "dependency").slice(0, 12).map((node, index) => {
+            const edges = (data.dependency_overlap_graph?.edges ?? []).filter((edge) => edge.target === node.id);
+            return (
+              <div key={index} className="rounded-xl border border-cyan-300/15 bg-cyan-400/[0.06] p-4">
+                <p className="text-sm font-semibold text-white">{String(node.label)}</p>
+                <p className="mt-2 text-xs leading-5 text-cyan-100/70">{edges.length} repositories depend on this surface.</p>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
 
       <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
         <Panel title="Cross-Repo Insights" eyebrow="Board-ready signals" action={<Button variant="secondary" onClick={onRefresh} disabled={busy}>Refresh</Button>}>
@@ -103,6 +123,81 @@ export function PortfolioPanel({
           ))}
         </div>
       </Panel>
+
+      <div className="grid gap-5 xl:grid-cols-3">
+        <Panel title="Shared Vulnerabilities" eyebrow="multi-repo exposure">
+          <div className="space-y-3">
+            {sharedVulnerabilities.slice(0, 6).map((item, index) => (
+              <div key={index} className="rounded-xl border border-rose-300/15 bg-rose-500/[0.08] p-3">
+                <p className="text-sm font-semibold text-white">{String(item.rule)}</p>
+                <p className="mt-1 text-xs text-rose-100/70">{String(item.repository_count)} affected repositories</p>
+              </div>
+            ))}
+            {!sharedVulnerabilities.length ? <p className="text-sm text-slate-400">No vulnerability rule appears in multiple analyzed repositories.</p> : null}
+          </div>
+        </Panel>
+        <Panel title="Risk Propagation" eyebrow="blast radius">
+          <div className="space-y-3">
+            {propagation.slice(0, 6).map((item, index) => (
+              <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-white">{String(item.risk)}</p>
+                  <SeverityBadge severity={String(item.severity ?? "medium")} />
+                </div>
+                <p className="mt-1 text-xs text-slate-400">Blast radius: {String(item.blast_radius ?? 1)} repositories</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Remediation Center" eyebrow="one fix, many repos">
+          <div className="space-y-3">
+            {remediation.slice(0, 6).map((item, index) => (
+              <div key={index} className="rounded-xl border border-emerald-300/15 bg-emerald-400/[0.06] p-3">
+                <p className="text-sm font-semibold text-white">{String(item.action)}</p>
+                <p className="mt-1 text-xs text-emerald-100/75">Helps {String(item.impact ?? 1)} repositories</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-3">
+        <Panel title="Duplicate Services" eyebrow="repeated implementations">
+          <div className="space-y-2">
+            {duplicateServices.slice(0, 7).map((item, index) => (
+              <div key={index} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <span className="text-sm text-white">{String(item.service)}</span>
+                <Badge>{String(item.repository_count)} repos</Badge>
+              </div>
+            ))}
+            {!duplicateServices.length ? <p className="text-sm text-slate-400">No duplicate service domains detected across analyzed repositories.</p> : null}
+          </div>
+        </Panel>
+        <Panel title="Framework Concentration" eyebrow="platform risk">
+          <div className="space-y-3">
+            {frameworkRisk.slice(0, 7).map((item, index) => (
+              <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-white">{String(item.framework)}</p>
+                  <SeverityBadge severity={String(item.severity ?? "low")} />
+                </div>
+                <ScoreBar label={`${String(item.portfolio_share)}% portfolio share`} value={Number(item.portfolio_share ?? 0)} />
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Ownership Concentration" eyebrow="critical domains">
+          <div className="space-y-3">
+            {ownershipRisk.slice(0, 7).map((item, index) => (
+              <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <p className="text-sm font-semibold text-white">{String(item.repository)} / {String(item.domain)}</p>
+                <p className="mt-1 text-xs text-slate-400">{String(item.file_count)} files, {String(item.portfolio_share)}% of repository.</p>
+              </div>
+            ))}
+            {!ownershipRisk.length ? <p className="text-sm text-slate-400">No critical ownership concentration detected.</p> : null}
+          </div>
+        </Panel>
+      </div>
     </div>
   );
 }

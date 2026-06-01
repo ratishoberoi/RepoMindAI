@@ -86,6 +86,12 @@ export async function summary(repoId: string) {
   return res.json();
 }
 
+export async function architectureExplorer(repoId: string) {
+  const res = await fetch(`${API_BASE}/repositories/${repoId}/architecture-explorer`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
 export async function chat(repoId: string, question: string) {
   const res = await fetch(`${API_BASE}/repositories/${repoId}/chat`, {
     method: "POST",
@@ -116,6 +122,18 @@ export async function architectureDrift(repoId: string, baselineId: string) {
 
 export async function dueDiligence(repoId: string) {
   const res = await fetch(`${API_BASE}/repositories/${repoId}/due-diligence`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function acquisitionIntelligence(repoId: string) {
+  const res = await fetch(`${API_BASE}/repositories/${repoId}/acquisition-intelligence`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function executiveReports(repoId: string) {
+  const res = await fetch(`${API_BASE}/repositories/${repoId}/executive-reports`, { cache: "no-store", headers: authHeaders() });
   if (!res.ok) throw new Error(await errorText(res));
   return res.json();
 }

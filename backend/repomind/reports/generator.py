@@ -8,9 +8,14 @@ from pathlib import Path
 from typing import Any
 
 from repomind.core.config import get_settings
+from repomind.intelligence.architecture_explorer import render_onboarding_markdown
 from repomind.intelligence.due_diligence import (
     build_cto_due_diligence,
     render_cto_due_diligence_markdown,
+)
+from repomind.intelligence.executive_reports import (
+    build_executive_report_pack,
+    render_report_pack_markdown,
 )
 from repomind.llm.prompts import report_prompt, synthesis_prompt
 from repomind.llm.registry import local_model
@@ -24,6 +29,8 @@ REPORT_NAMES = [
     "RECRUITER_REVIEW.md",
     "CTO_REVIEW.md",
     "CTO_DUE_DILIGENCE.md",
+    "EXECUTIVE_REPORT_PACK.md",
+    "ONBOARDING.md",
     "ROADMAP.md",
     "PROJECT_STATUS.md",
 ]
@@ -47,6 +54,8 @@ def generate_reports(
         "RECRUITER_REVIEW.md": _recruiter,
         "CTO_REVIEW.md": _cto,
         "CTO_DUE_DILIGENCE.md": _due_diligence,
+        "EXECUTIVE_REPORT_PACK.md": _executive_pack,
+        "ONBOARDING.md": _onboarding,
         "ROADMAP.md": _roadmap,
         "PROJECT_STATUS.md": _status,
     }
@@ -229,6 +238,14 @@ def _cto(summary: dict[str, Any], ai: dict[str, str]) -> str:
 
 def _due_diligence(summary: dict[str, Any], ai: dict[str, str]) -> str:
     return render_cto_due_diligence_markdown(build_cto_due_diligence(summary))
+
+
+def _executive_pack(summary: dict[str, Any], ai: dict[str, str]) -> str:
+    return render_report_pack_markdown(build_executive_report_pack(summary))
+
+
+def _onboarding(summary: dict[str, Any], ai: dict[str, str]) -> str:
+    return render_onboarding_markdown(summary)
 
 
 def _roadmap(summary: dict[str, Any], ai: dict[str, str]) -> str:
