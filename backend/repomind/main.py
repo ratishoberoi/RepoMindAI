@@ -7,9 +7,9 @@ from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from repomind.analysis.analyzer import analyze_repository
-from repomind.core.cleanup import delete_repository_contents, start_cleanup_scheduler
+from repomind.core.cleanup import purge_repository, start_cleanup_scheduler
 from repomind.core.config import get_settings
+from repomind.core.jobs import cancel_analysis_job, start_analysis_job
 from repomind.core.security import RateLimitMiddleware, RequestTracingMiddleware, require_api_key
 from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
@@ -39,7 +39,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.frontend_origin, "http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["authorization", "content-type", "x-api-key", "x-request-id"],
 )
 app.add_middleware(RequestTracingMiddleware)
@@ -88,13 +88,9 @@ def import_local_repository(request: LocalPathRequest) -> dict:
 @app.post("/repositories/{repo_id}/analysis", dependencies=PROTECTED)
 def start_analysis(repo_id: str) -> dict:
     try:
-        repo = store.update(repo_id, status="analyzing", error=None)
-        summary = analyze_repository(repo)
-        fields = {"status": "complete", "summary": summary, "reports": summary["reports"]}
-        if settings.auto_delete_after_analysis:
-            fields.update(delete_repository_contents(repo))
-        repo = store.update(repo_id, **fields)
-        return {"repository": _public_repo(repo), "summary": _compact_summary(summary)}
+        job = start_analysis_job(repo_id)
+        repo = store.get(repo_id)
+        return {"repository": _public_repo(repo), "job": job}
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
     except Exception as exc:
@@ -105,13 +101,32 @@ def start_analysis(repo_id: str) -> dict:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+@app.post("/repositories/{repo_id}/analysis/cancel", dependencies=PROTECTED)
+def cancel_analysis(repo_id: str) -> dict:
+    try:
+        job = cancel_analysis_job(repo_id)
+        repo = store.get(repo_id)
+        return {"repository": _public_repo(repo), "job": job}
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Repository not found.") from exc
+
+
 @app.get("/repositories/{repo_id}/status", dependencies=PROTECTED)
 def repository_status(repo_id: str) -> dict:
     try:
         repo = store.get(repo_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
-    return _public_repo(repo) | {"error": repo.get("error")}
+    return _public_repo(repo) | {"error": repo.get("error"), "analysis_job": repo.get("analysis_job")}
+
+
+@app.delete("/repositories/{repo_id}", dependencies=PROTECTED)
+def delete_repository(repo_id: str) -> dict:
+    try:
+        repo = purge_repository(repo_id, store)
+        return {"deleted": _public_repo(repo)}
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Repository not found.") from exc
 
 
 @app.post("/maintenance/cleanup", dependencies=PROTECTED)
@@ -186,6 +201,7 @@ def _public_repo(repo: dict) -> dict:
         "source": repo["source"],
         "status": repo["status"],
         "repository_deleted": repo.get("repository_deleted", False),
+        "analysis_job": repo.get("analysis_job"),
     }
 
 

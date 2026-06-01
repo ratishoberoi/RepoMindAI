@@ -80,6 +80,8 @@ def scan_files(root: Path) -> list[dict[str, Any]]:
                 "duplicate": duplicate,
             }
         )
+        if len(files) >= settings.max_repository_files:
+            break
     return sorted(files, key=lambda item: item["relative_path"])
 
 

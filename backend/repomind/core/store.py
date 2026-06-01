@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 from threading import RLock
@@ -27,7 +28,9 @@ class RepositoryStore:
 
     def _write(self, payload: dict[str, Any]) -> None:
         with self._lock:
-            self.path.write_text(json.dumps(payload, indent=2))
+            tmp_path = self.path.with_suffix(f"{self.path.suffix}.tmp")
+            tmp_path.write_text(json.dumps(payload, indent=2))
+            os.replace(tmp_path, self.path)
 
     def create_repository(self, name: str, source_type: str, path: Path, source: str) -> dict[str, Any]:
         payload = self._read()
@@ -70,6 +73,14 @@ class RepositoryStore:
     def list(self) -> list[dict[str, Any]]:
         payload = self._read()
         return sorted(payload["repositories"].values(), key=lambda item: item["created_at"], reverse=True)
+
+    def delete(self, repo_id: str) -> dict[str, Any]:
+        payload = self._read()
+        if repo_id not in payload["repositories"]:
+            raise KeyError(repo_id)
+        item = payload["repositories"].pop(repo_id)
+        self._write(payload)
+        return item
 
 
 store = RepositoryStore()

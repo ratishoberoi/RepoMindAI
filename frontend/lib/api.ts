@@ -9,6 +9,16 @@ export type Repository = {
   status: string;
   error?: string | null;
   repository_deleted?: boolean;
+  analysis_job?: AnalysisJob;
+};
+
+export type AnalysisJob = {
+  id: string;
+  status: string;
+  progress: number;
+  message: string;
+  created_at?: number;
+  updated_at?: number;
 };
 
 export async function listRepositories(): Promise<Repository[]> {
@@ -47,6 +57,18 @@ export async function uploadZip(file: File): Promise<Repository> {
 
 export async function analyze(repoId: string) {
   const res = await fetch(`${API_BASE}/repositories/${repoId}/analysis`, { method: "POST", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function repositoryStatus(repoId: string): Promise<Repository> {
+  const res = await fetch(`${API_BASE}/repositories/${repoId}/status`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function cancelAnalysis(repoId: string) {
+  const res = await fetch(`${API_BASE}/repositories/${repoId}/analysis/cancel`, { method: "POST", headers: authHeaders() });
   if (!res.ok) throw new Error(await errorText(res));
   return res.json();
 }

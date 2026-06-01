@@ -73,10 +73,13 @@ class Settings(BaseSettings):
     cleanup_interval_seconds: int = 300
 
     max_file_bytes: int = 1_000_000
+    max_repository_files: int = 50_000
+    max_indexed_chunks: int = 100_000
     chunk_size: int = 1800
     chunk_overlap: int = 220
     embedding_batch_size: int = 64
     chroma_upsert_batch_size: int = 1000
+    analysis_workers: int = 2
     enable_local_path_import: bool = False
     local_import_allowed_roots: str = Field(default_factory=lambda: str(PROJECT_ROOT))
     allowed_git_hosts: str = "github.com"

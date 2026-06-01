@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from repomind.core.config import get_settings
+from repomind.rag.indexer import delete_repository_index
 
 
 def delete_repository_contents(repo: dict[str, Any]) -> dict[str, Any]:
@@ -43,6 +44,24 @@ def cleanup_expired_repositories(store: Any) -> int:
         store.update(repo["id"], **fields)
         deleted += 1
     return deleted
+
+
+def purge_repository(repo_id: str, store: Any) -> dict[str, Any]:
+    repo = store.get(repo_id)
+    try:
+        delete_repository_contents(repo)
+    except RuntimeError:
+        pass
+    delete_repository_index(repo_id)
+    reports = repo.get("reports", {})
+    for path in reports.values():
+        try:
+            Path(path).unlink(missing_ok=True)
+        except OSError:
+            pass
+    report_dir = get_settings().reports_dir / "generated" / repo_id
+    shutil.rmtree(report_dir, ignore_errors=True)
+    return store.delete(repo_id)
 
 
 def start_cleanup_scheduler(store: Any) -> None:

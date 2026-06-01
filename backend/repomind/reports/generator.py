@@ -205,12 +205,31 @@ def _ai_section(title: str, generated: str) -> str:
 def _synthesize_reports(summary: dict[str, Any]) -> dict[str, str]:
     model = local_model()
     return {
-        "overview": model.generate(synthesis_prompt("repository overview and project status", summary), 180),
-        "architecture": model.generate(synthesis_prompt("architecture explanation with file-level evidence", summary), 220),
-        "technical": model.generate(synthesis_prompt("security, technical debt, and roadmap", summary), 220),
-        "recruiter": model.generate(report_prompt("recruiter review with evidence and confidence", summary), 220),
-        "cto": model.generate(report_prompt("CTO review with evidence, risk, and confidence", summary), 220),
+        "overview": _safe_generate(model, synthesis_prompt("repository overview and project status", summary), 180, summary),
+        "architecture": _safe_generate(model, synthesis_prompt("architecture explanation with file-level evidence", summary), 220, summary),
+        "technical": _safe_generate(model, synthesis_prompt("security, technical debt, and roadmap", summary), 220, summary),
+        "recruiter": _safe_generate(model, report_prompt("recruiter review with evidence and confidence", summary), 220, summary),
+        "cto": _safe_generate(model, report_prompt("CTO review with evidence, risk, and confidence", summary), 220, summary),
     }
+
+
+def _safe_generate(model: Any, prompt: str, max_tokens: int, summary: dict[str, Any]) -> str:
+    try:
+        return model.generate(prompt, max_tokens)
+    except RuntimeError as exc:
+        return _evidence_only_model_fallback(summary, exc)
+
+
+def _evidence_only_model_fallback(summary: dict[str, Any], exc: RuntimeError) -> str:
+    return (
+        "Local model generation was unavailable, so this section uses deterministic repository evidence only.\n\n"
+        f"- Model status: {exc}\n"
+        f"- Architecture style: {summary['architecture'].get('style')}\n"
+        f"- Files analyzed: {summary['statistics'].get('files')}\n"
+        f"- Primary language: {summary['languages'].get('primary')}\n"
+        f"- Security score: {summary['scores'].get('security')}\n"
+        f"- Maintainability score: {summary['scores'].get('maintainability')}\n"
+    )
 
 
 def _redacted_summary(summary: dict[str, Any]) -> dict[str, Any]:

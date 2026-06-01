@@ -20,16 +20,18 @@ def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
             continue
         try:
             chunks.extend(chunk_file(root / item["relative_path"], item["relative_path"]))
+            if len(chunks) >= settings.max_indexed_chunks:
+                chunks = chunks[: settings.max_indexed_chunks]
+                break
         except OSError:
             continue
     timings["chunking_seconds"] = _elapsed(start)
 
     start = time.perf_counter()
-    texts = [_retrieval_text(chunk) for chunk in chunks]
-    vectors = embedder().embed_many(texts)
-    timings["embedding_seconds"] = _elapsed(start)
-    start = time.perf_counter()
     collection = _collection(repo_id, reset=True)
+    batch_size = max(settings.chroma_upsert_batch_size, 100)
+    timings["embedding_seconds"] = 0.0
+    start = time.perf_counter()
     if chunks:
         metadatas = [
             {
@@ -40,15 +42,19 @@ def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
             }
             for chunk in chunks
         ]
-        batch_size = max(settings.chroma_upsert_batch_size, 100)
         for start_index in range(0, len(chunks), batch_size):
             end_index = start_index + batch_size
+            batch = chunks[start_index:end_index]
+            embedding_start = time.perf_counter()
+            vectors = embedder().embed_many([_retrieval_text(chunk) for chunk in batch])
+            timings["embedding_seconds"] += _elapsed(embedding_start)
             collection.upsert(
-                ids=[chunk["id"] for chunk in chunks[start_index:end_index]],
-                documents=[_stored_text(chunk) for chunk in chunks[start_index:end_index]],
-                embeddings=vectors[start_index:end_index],
+                ids=[chunk["id"] for chunk in batch],
+                documents=[_stored_text(chunk) for chunk in batch],
+                embeddings=vectors,
                 metadatas=metadatas[start_index:end_index],
             )
+    timings["embedding_seconds"] = round(timings["embedding_seconds"], 3)
     timings["chroma_upsert_seconds"] = _elapsed(start)
 
     start = time.perf_counter()
@@ -84,6 +90,18 @@ def _collection(repo_id: str, reset: bool = False):
         except Exception:
             pass
     return client.get_or_create_collection(name=name, metadata={"hnsw:space": "cosine"})
+
+
+def delete_repository_index(repo_id: str) -> None:
+    import chromadb
+
+    settings = get_settings()
+    client = chromadb.PersistentClient(path=str(settings.chroma_dir))
+    try:
+        client.delete_collection(_collection_name(repo_id))
+    except Exception:
+        pass
+    (settings.index_dir / f"{repo_id}.json").unlink(missing_ok=True)
 
 
 def _collection_name(repo_id: str) -> str:

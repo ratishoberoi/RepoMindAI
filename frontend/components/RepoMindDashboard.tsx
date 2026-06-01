@@ -47,12 +47,14 @@ import {
 } from "lucide-react";
 import {
   analyze,
+  cancelAnalysis,
   chat,
   cloneRepo,
   exportUrl,
   fetchReport,
   importLocal,
   listRepositories,
+  repositoryStatus,
   reportUrl,
   summary,
   uploadZip,
@@ -121,6 +123,24 @@ export function RepoMindDashboard() {
   }, [activeRepo]);
 
   useEffect(() => {
+    if (!activeRepo || !["queued", "analyzing", "cancel_requested"].includes(activeRepo.status)) return;
+    const timer = window.setInterval(async () => {
+      try {
+        const next = await repositoryStatus(activeRepo.id);
+        setActiveRepo(next);
+        if (next.status === "complete") {
+          const nextSummary = await summary(next.id);
+          setRepoSummary(nextSummary);
+          await refreshRepositories();
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      }
+    }, 1800);
+    return () => window.clearInterval(timer);
+  }, [activeRepo]);
+
+  useEffect(() => {
     if (!activeRepo || activeRepo.status !== "complete" || tab !== "Reports") return;
     fetchReport(activeRepo.id, activeReport).then(setReportText).catch((err) => setReportText(String(err)));
   }, [activeRepo, activeReport, tab]);
@@ -160,7 +180,7 @@ export function RepoMindDashboard() {
   }, [repoSummary]);
 
   const tree = useMemo(() => buildTree(repoSummary?.files ?? []), [repoSummary]);
-  const progress = activeRepo?.status === "complete" ? 100 : busy ? 66 : activeRepo ? 30 : 0;
+  const progress = activeRepo?.analysis_job?.progress ?? (activeRepo?.status === "complete" ? 100 : busy ? 66 : activeRepo ? 30 : 0);
 
   return (
     <main className="min-h-screen overflow-hidden bg-void text-slate-100">
@@ -178,7 +198,7 @@ export function RepoMindDashboard() {
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
               <div className={`h-2 rounded-full bg-cyan-300 transition-all duration-500 ${busy ? "animate-pulse" : ""}`} style={{ width: `${progress}%` }} />
             </div>
-            <div className="mt-2 text-xs text-slate-400">{busy ? `Running ${busy}` : activeRepo?.status ?? "Waiting for repository"}</div>
+            <div className="mt-2 text-xs text-slate-400">{busy ? `Running ${busy}` : activeRepo?.analysis_job?.message ?? activeRepo?.status ?? "Waiting for repository"}</div>
           </GlassPanel>
 
           <GlassPanel title="Ingest">
@@ -237,6 +257,11 @@ export function RepoMindDashboard() {
                 {busy === "analysis" ? <Loader2 className="animate-spin" size={18} /> : <Play size={18} />}
                 Analyze
               </button>
+              {activeRepo && ["queued", "analyzing"].includes(activeRepo.status) ? (
+                <button disabled={!!busy} onClick={() => runAction("cancel", () => cancelAnalysis(activeRepo.id))} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white/10 px-4 text-sm font-semibold text-slate-100 transition hover:bg-white/15 disabled:opacity-50">
+                  Cancel
+                </button>
+              ) : null}
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {tabs.map((item) => (
