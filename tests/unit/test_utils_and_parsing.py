@@ -1,12 +1,17 @@
 from pathlib import Path
 
+import pytest
 from repomind.analysis.classifier import classify_file
 from repomind.analysis.graph import build_dependency_graph
 from repomind.analysis.parser import parse_file
+from repomind.core import cleanup
+from repomind.core.config import Settings
 from repomind.core.store import RepositoryStore
+from repomind.ingestion import ingestor
 from repomind.llm.adapters import detect_model
 from repomind.rag.chunking import chunk_file, chunk_text
 from repomind.rag.embeddings import BGEEmbedder
+from repomind.rag.qa import _enforce_cited_references
 from repomind.reports.generator import compare_summaries, generate_reports
 from repomind.security.redaction import redact_text
 from repomind.utils.hashing import file_sha256
@@ -63,7 +68,17 @@ def test_chunk_file_prefers_symbol_chunks(tmp_path: Path) -> None:
     path.write_text("def alpha():\n    return 1\n\nclass Beta:\n    pass\n")
     chunks = chunk_file(path, "service.py")
     assert {chunk["symbol"] for chunk in chunks} == {"alpha", "Beta"}
-    assert all(chunk["kind"] == "symbol" for chunk in chunks)
+    assert all(chunk["kind"] == "ast_node" for chunk in chunks)
+    assert all(chunk["parser"] == "python-ast" for chunk in chunks)
+
+
+def test_js_chunking_uses_tree_sitter_ast_nodes(tmp_path: Path) -> None:
+    path = tmp_path / "service.ts"
+    path.write_text("export class Service {}\nexport function run() { return 1; }\n")
+    chunks = chunk_file(path, "service.ts")
+    assert chunks
+    assert any(chunk["kind"] == "ast_node" for chunk in chunks)
+    assert any(str(chunk.get("parser", "")).startswith("tree-sitter") for chunk in chunks)
 
 
 def test_embedding_uses_bge_model_name() -> None:
@@ -99,6 +114,58 @@ def test_secret_redaction_masks_sensitive_values() -> None:
     assert "[REDACTED]" in redacted
 
 
+def test_git_url_validation_resolves_and_blocks_private_dns(monkeypatch) -> None:
+    def fake_getaddrinfo(host, port, type=None):
+        return [(None, None, None, None, ("10.0.0.10", port))]
+
+    monkeypatch.setattr(ingestor.socket, "getaddrinfo", fake_getaddrinfo)
+    try:
+        ingestor._validate_git_url("https://github.com/org/repo.git")
+    except ValueError as exc:
+        assert "blocked network" in str(exc)
+    else:
+        raise AssertionError("private resolved address was allowed")
+
+
+def test_git_clone_pins_validated_dns_resolution(tmp_path: Path, monkeypatch) -> None:
+    commands: list[list[str]] = []
+
+    def fake_workspace(url: str) -> Path:
+        path = tmp_path / "repo"
+        path.mkdir()
+        return path
+
+    def fake_create_repository(name: str, source_type: str, path: Path, source: str) -> dict:
+        return {
+            "id": "repo",
+            "name": name,
+            "source_type": source_type,
+            "path": str(path),
+            "source": source,
+        }
+
+    def fake_run(command, check, capture_output):
+        commands.append(command)
+        return None
+
+    monkeypatch.setattr(ingestor, "_workspace", fake_workspace)
+    monkeypatch.setattr(ingestor, "_validate_git_url", lambda url: ["140.82.112.3"])
+    monkeypatch.setattr(ingestor.store, "create_repository", fake_create_repository)
+    monkeypatch.setattr(ingestor.subprocess, "run", fake_run)
+    ingestor.ingest_github("https://github.com/org/repo.git")
+    command = commands[0]
+    assert "http.curloptResolve=+github.com:443:140.82.112.3" in command
+    assert "protocol.file.allow=never" in command
+
+
+def test_citation_enforcement_removes_uncited_file_references() -> None:
+    chunks = [{"path": "backend/app.py"}]
+    answer = "backend/app.py handles routing. secrets.py stores keys."
+    verified = _enforce_cited_references(answer, chunks)
+    assert "backend/app.py" in verified
+    assert "secrets.py" not in verified
+
+
 def test_sql_store_migrates_legacy_metadata(tmp_path: Path) -> None:
     legacy = tmp_path / "metadata.json"
     legacy.write_text(
@@ -113,6 +180,56 @@ def test_sql_store_migrates_legacy_metadata(tmp_path: Path) -> None:
     repo = sql_store.get("abc")
     assert repo["name"] == "Legacy"
     assert repo["reports"]["README.md"] == "/tmp/README.md"
+
+
+def test_production_rejects_sqlite_primary_storage(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="SQLite is not allowed"):
+        Settings(
+            env="production",
+            database_url=f"sqlite:///{tmp_path / 'prod.db'}",
+            model_path=tmp_path / "models" / "qwen-judge",
+            data_dir=tmp_path / "data",
+            reports_dir=tmp_path / "reports",
+            index_dir=tmp_path / "indexes",
+            chroma_dir=tmp_path / "chroma",
+            upload_dir=tmp_path / "uploads",
+        )
+
+
+def test_purge_repository_removes_metadata_reports_and_index(tmp_path: Path, monkeypatch) -> None:
+    repo_dir = tmp_path / "data" / "repositories" / "repo"
+    repo_dir.mkdir(parents=True)
+    report_dir = tmp_path / "reports" / "generated" / "abc"
+    report_dir.mkdir(parents=True)
+    report = report_dir / "README.md"
+    report.write_text("# report")
+    deleted_indexes: list[str] = []
+
+    class FakeSettings:
+        repositories_dir = tmp_path / "data" / "repositories"
+        reports_dir = tmp_path / "reports"
+        retention_minutes = 60
+
+    class FakeStore:
+        deleted = False
+
+        def get(self, repo_id: str) -> dict:
+            return {"id": repo_id, "path": str(repo_dir), "reports": {"README.md": str(report)}}
+
+        def delete(self, repo_id: str) -> dict:
+            self.deleted = True
+            return {"id": repo_id, "path": str(repo_dir), "reports": {}}
+
+    monkeypatch.setattr(cleanup, "get_settings", lambda: FakeSettings())
+    monkeypatch.setattr(
+        cleanup, "delete_repository_index", lambda repo_id: deleted_indexes.append(repo_id)
+    )
+    store = FakeStore()
+    cleanup.purge_repository("abc", store)
+    assert store.deleted
+    assert deleted_indexes == ["abc"]
+    assert not repo_dir.exists()
+    assert not report.exists()
 
 
 def test_report_generation_includes_enterprise_artifacts(tmp_path: Path, monkeypatch) -> None:

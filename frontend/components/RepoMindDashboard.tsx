@@ -31,13 +31,9 @@ import {
   Download,
   Expand,
   FileCode2,
-  FileArchive,
   FolderInput,
-  GitBranch,
-  Loader2,
   Map as MapIcon,
   Network,
-  Play,
   Search,
   Server,
   ShieldAlert,
@@ -60,21 +56,9 @@ import {
   type Repository
 } from "@/lib/api";
 import { ControlLabel, Empty, EvidenceList, GlassPanel, IconButton, Info, TextInput } from "@/components/dashboard/Controls";
-
-const reports = [
-  "README.md",
-  "ARCHITECTURE.md",
-  "SECURITY_REPORT.md",
-  "TECH_DEBT.md",
-  "RECRUITER_REVIEW.md",
-  "CTO_REVIEW.md",
-  "ROADMAP.md",
-  "PROJECT_STATUS.md",
-  "SECURITY.sarif",
-  "EXECUTIVE_SUMMARY.html"
-];
-
-const tabs = ["Overview", "Architecture", "Dependencies", "Security", "Reports", "Chat"];
+import { DashboardSidebar, ExportBundleLink, RepositoryHeader } from "@/components/dashboard/ShellPanels";
+import { reports } from "@/components/dashboard/constants";
+import { buildTree, shortName } from "@/components/dashboard/tree";
 const nodeTypes = { intelligence: IntelligenceNode };
 const FLOW_NODE_WIDTH = 246;
 const FLOW_NODE_HEIGHT = 112;
@@ -188,91 +172,31 @@ export function RepoMindDashboard() {
     <main className="min-h-screen overflow-hidden bg-void text-slate-100">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,0.18),transparent_28%),radial-gradient(circle_at_80%_0%,rgba(16,185,129,0.16),transparent_24%)]" />
       <div className="relative mx-auto grid min-h-screen max-w-[1500px] grid-cols-1 gap-4 px-4 py-4 lg:grid-cols-[320px_1fr]">
-        <aside className="space-y-4">
-          <GlassPanel>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs uppercase text-cyan-200">RepoMind AI</div>
-                <h1 className="mt-1 text-2xl font-semibold">Repository Intel</h1>
-              </div>
-              <Sparkles className="text-emerald-300" size={22} />
-            </div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
-              <div className={`h-2 rounded-full bg-cyan-300 transition-all duration-500 ${busy ? "animate-pulse" : ""}`} style={{ width: `${progress}%` }} />
-            </div>
-            <div className="mt-2 text-xs text-slate-400">{busy ? `Running ${busy}` : activeRepo?.analysis_job?.message ?? activeRepo?.status ?? "Waiting for repository"}</div>
-          </GlassPanel>
-
-          <GlassPanel title="Ingest">
-            <ControlLabel>GitHub URL</ControlLabel>
-            <div className="flex gap-2">
-              <TextInput value={githubUrl} onChange={setGithubUrl} placeholder="https://github.com/org/repo" />
-              <IconButton title="Clone" disabled={!githubUrl || !!busy} onClick={() => runAction("clone", () => cloneRepo(githubUrl))}>
-                <GitBranch size={18} />
-              </IconButton>
-            </div>
-            <ControlLabel>Local Path</ControlLabel>
-            <div className="flex gap-2">
-              <TextInput value={localPath} onChange={setLocalPath} />
-              <IconButton title="Import" disabled={!localPath || !!busy} onClick={() => runAction("import", () => importLocal(localPath))}>
-                <FolderInput size={18} />
-              </IconButton>
-            </div>
-            <label className="mt-3 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-cyan-300/40 bg-cyan-300/10 px-3 py-3 text-sm font-medium text-cyan-100 hover:bg-cyan-300/15">
-              <FileArchive size={18} />
-              Upload ZIP
-              <input className="hidden" type="file" accept=".zip" onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) runAction("upload", () => uploadZip(file));
-              }} />
-            </label>
-            {error ? <div className="mt-3 rounded-md border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-100">{error}</div> : null}
-          </GlassPanel>
-
-          <GlassPanel title="Repositories">
-            <div className="space-y-2">
-              {repositories.length === 0 ? <Empty text="No repositories ingested." /> : null}
-              {repositories.map((repo) => (
-                <button key={repo.id} onClick={() => setActiveRepo(repo)} className={`w-full rounded-md border px-3 py-2 text-left text-sm transition ${activeRepo?.id === repo.id ? "border-cyan-300/70 bg-cyan-300/10" : "border-white/10 bg-white/[0.03] hover:border-white/25"}`}>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="truncate font-medium text-slate-100">{repo.name}</span>
-                    <span className="shrink-0 rounded bg-white/10 px-2 py-1 text-xs text-slate-300">{repo.status}</span>
-                  </div>
-                  <div className="mt-1 flex items-center justify-between gap-2 text-xs text-slate-400">
-                    <span>{repo.source_type}</span>
-                    {repo.repository_deleted ? <span>repo files deleted</span> : null}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </GlassPanel>
-        </aside>
+        <DashboardSidebar
+          repositories={repositories}
+          activeRepo={activeRepo}
+          progress={progress}
+          busy={busy}
+          error={error}
+          githubUrl={githubUrl}
+          localPath={localPath}
+          setGithubUrl={setGithubUrl}
+          setLocalPath={setLocalPath}
+          setActiveRepo={setActiveRepo}
+          onClone={() => runAction("clone", () => cloneRepo(githubUrl))}
+          onImport={() => runAction("import", () => importLocal(localPath))}
+          onUpload={(file) => runAction("upload", () => uploadZip(file))}
+        />
 
         <section className="space-y-4">
-          <GlassPanel>
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="min-w-0">
-                <div className="truncate text-2xl font-semibold">{activeRepo?.name ?? "No repository selected"}</div>
-                <div className="mt-1 truncate text-sm text-slate-400">{activeRepo?.source ?? "Paste a GitHub URL, upload a ZIP, or import a local repository."}</div>
-              </div>
-              <button disabled={!activeRepo || !!busy} onClick={() => activeRepo && runAction("analysis", () => analyze(activeRepo.id))} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-cyan-300 px-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:opacity-50">
-                {busy === "analysis" ? <Loader2 className="animate-spin" size={18} /> : <Play size={18} />}
-                Analyze
-              </button>
-              {activeRepo && ["queued", "analyzing"].includes(activeRepo.status) ? (
-                <button disabled={!!busy} onClick={() => runAction("cancel", () => cancelAnalysis(activeRepo.id))} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white/10 px-4 text-sm font-semibold text-slate-100 transition hover:bg-white/15 disabled:opacity-50">
-                  Cancel
-                </button>
-              ) : null}
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {tabs.map((item) => (
-                <button key={item} onClick={() => setTab(item)} className={`rounded-md px-3 py-2 text-sm ${tab === item ? "bg-white text-slate-950" : "bg-white/5 text-slate-300 hover:bg-white/10"}`}>
-                  {item}
-                </button>
-              ))}
-            </div>
-          </GlassPanel>
+          <RepositoryHeader
+            activeRepo={activeRepo}
+            busy={busy}
+            tab={tab}
+            setTab={setTab}
+            onAnalyze={() => activeRepo && runAction("analysis", () => analyze(activeRepo.id))}
+            onCancel={() => activeRepo && runAction("cancel", () => cancelAnalysis(activeRepo.id))}
+          />
 
           {!repoSummary ? (
             <GlassPanel title="Workspace">
@@ -348,10 +272,7 @@ export function RepoMindDashboard() {
                       <span className="truncate">{name}</span>
                     </button>
                   ))}
-                  <a className="flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-950" href={exportUrl(activeRepo!.id)}>
-                    <Archive size={16} />
-                    Export Bundle
-                  </a>
+                  <ExportBundleLink href={exportUrl(activeRepo!.id)} />
                 </div>
               </GlassPanel>
               <GlassPanel title={activeReport}>
@@ -1363,22 +1284,4 @@ function renderTree(node: any, path: string, expanded: Record<string, boolean>, 
       </div>
     );
   });
-}
-
-function buildTree(files: any[]) {
-  const root: any = { children: {} };
-  for (const file of files.slice(0, 1500)) {
-    let cursor = root;
-    for (const part of String(file.relative_path).split("/")) {
-      cursor.children[part] = cursor.children[part] ?? { children: {} };
-      cursor = cursor.children[part];
-    }
-  }
-  return root;
-}
-
-function shortName(value: string) {
-  const clean = value.split("::")[0];
-  const parts = clean.split("/");
-  return parts.slice(-2).join("/");
 }

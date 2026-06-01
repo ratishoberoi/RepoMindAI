@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 from repomind.core.config import get_settings
@@ -9,13 +10,19 @@ from repomind.rag.chunking import chunk_file
 from repomind.rag.embeddings import embedder
 from repomind.security.redaction import redact_text
 
+CancelCheck = Callable[[], bool]
 
-def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
+
+def index_repository(
+    repo_id: str, root: Path, files: list[dict], cancel_check: CancelCheck | None = None
+) -> dict:
     settings = get_settings()
     timings: dict[str, float] = {}
     start = time.perf_counter()
     chunks = []
-    for item in files:
+    for index, item in enumerate(files):
+        if index % 25 == 0:
+            _checkpoint(cancel_check)
         if item["language"] in {"Text"} and item["size"] > 250_000:
             continue
         try:
@@ -46,6 +53,7 @@ def index_repository(repo_id: str, root: Path, files: list[dict]) -> dict:
             for chunk in chunks
         ]
         for start_index in range(0, len(chunks), batch_size):
+            _checkpoint(cancel_check)
             end_index = start_index + batch_size
             batch = chunks[start_index:end_index]
             embedding_start = time.perf_counter()
@@ -136,3 +144,10 @@ def _is_sensitive(chunk: dict) -> bool:
 
 def _elapsed(start: float) -> float:
     return round(time.perf_counter() - start, 3)
+
+
+def _checkpoint(cancel_check: CancelCheck | None) -> None:
+    if cancel_check and cancel_check():
+        from repomind.analysis.analyzer import AnalysisCancelled
+
+        raise AnalysisCancelled("Analysis cancelled.")

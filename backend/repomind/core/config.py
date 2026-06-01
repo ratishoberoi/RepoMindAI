@@ -114,7 +114,13 @@ class Settings(BaseSettings):
                 "RepoMindAI only supports qwen-judge local inference. Set REPOMIND_MODEL_PATH to that checkpoint."
             )
         if self.database_url is None:
+            if self.env.lower() in {"production", "prod", "docker"}:
+                raise ValueError("REPOMIND_DATABASE_URL must be set in production deployments.")
             self.database_url = f"sqlite:///{self.data_dir / 'repomind.db'}"
+        elif self.env.lower() in {"production", "prod", "docker"} and str(
+            self.database_url
+        ).startswith("sqlite"):
+            raise ValueError("SQLite is not allowed as primary storage in production.")
         return self
 
     @property

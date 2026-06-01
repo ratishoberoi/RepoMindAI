@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shutil
+import socket
 import subprocess
 import zipfile
 from ipaddress import ip_address, ip_network
@@ -86,11 +87,26 @@ async def ingest_zip(file: UploadFile) -> dict:
 
 
 def ingest_github(url: str) -> dict:
-    _validate_git_url(url)
+    resolved = _validate_git_url(url)
     workspace = _workspace(url)
     try:
+        parsed = urlparse(url)
+        host = parsed.hostname or ""
         subprocess.run(
-            ["git", "clone", "--depth", "1", url, str(workspace)], check=True, capture_output=True
+            [
+                "git",
+                "-c",
+                f"http.curloptResolve=+{host}:443:{','.join(str(address) for address in resolved)}",
+                "-c",
+                "protocol.file.allow=never",
+                "clone",
+                "--depth",
+                "1",
+                url,
+                str(workspace),
+            ],
+            check=True,
+            capture_output=True,
         )
     except subprocess.CalledProcessError as exc:
         shutil.rmtree(workspace, ignore_errors=True)
@@ -120,7 +136,7 @@ def ingest_local_path(path: str) -> dict:
     return store.create_repository(source.name, "local", workspace, str(source))
 
 
-def _validate_git_url(url: str) -> None:
+def _validate_git_url(url: str):
     parsed = urlparse(url)
     if parsed.scheme != "https":
         raise ValueError("Only HTTPS GitHub clone URLs are allowed.")
@@ -129,12 +145,25 @@ def _validate_git_url(url: str) -> None:
     allowed = settings.parsed_allowed_git_hosts
     if host not in allowed:
         raise ValueError(f"Git host is not allowed: {host}")
+    addresses = _resolve_host_addresses(host)
+    if not addresses:
+        raise ValueError(f"Git host could not be resolved: {host}")
+    for address in addresses:
+        if any(address in network for network in BLOCKED_NETWORKS) or address.is_private:
+            raise ValueError("Git URL resolves to a blocked network address.")
+    return sorted(addresses, key=str)
+
+
+def _resolve_host_addresses(host: str):
     try:
-        address = ip_address(host)
+        return {ip_address(host)}
     except ValueError:
-        return
-    if any(address in network for network in BLOCKED_NETWORKS):
-        raise ValueError("Git URL resolves to a blocked network address.")
+        pass
+    try:
+        results = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        raise ValueError(f"Git host could not be resolved: {host}") from exc
+    return {ip_address(result[4][0]) for result in results}
 
 
 def _is_allowed_local_source(source: Path) -> bool:

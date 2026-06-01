@@ -5,6 +5,8 @@ import re
 import shutil
 import subprocess
 import sys
+import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -26,9 +28,16 @@ DANGEROUS_PATTERNS = [
 ]
 
 
-def scan_security(root: Path, files: list[dict]) -> dict[str, Any]:
+CancelCheck = Callable[[], bool]
+
+
+def scan_security(
+    root: Path, files: list[dict], cancel_check: CancelCheck | None = None
+) -> dict[str, Any]:
     findings: list[dict[str, Any]] = []
-    for item in files:
+    for index, item in enumerate(files):
+        if index % 25 == 0:
+            _checkpoint(cancel_check)
         path = root / item["relative_path"]
         if item["size"] > 1_000_000:
             continue
@@ -51,8 +60,10 @@ def scan_security(root: Path, files: list[dict]) -> dict[str, Any]:
                     findings.append(
                         _finding(rule_id, severity, item["relative_path"], line_no, message)
                     )
-    findings.extend(_run_bandit(root))
-    findings.extend(_run_semgrep(root))
+    _checkpoint(cancel_check)
+    findings.extend(_run_bandit(root, cancel_check))
+    _checkpoint(cancel_check)
+    findings.extend(_run_semgrep(root, cancel_check))
     severity_counts: dict[str, int] = {}
     for finding in findings:
         severity_counts[finding["severity"]] = severity_counts.get(finding["severity"], 0) + 1
@@ -87,16 +98,15 @@ def _is_example_path(path: str) -> bool:
     )
 
 
-def _run_bandit(root: Path) -> list[dict[str, Any]]:
+def _run_bandit(root: Path, cancel_check: CancelCheck | None = None) -> list[dict[str, Any]]:
     bandit = _tool("bandit")
     if not bandit:
         return []
     try:
-        proc = subprocess.run(
+        proc = _run_subprocess(
             [bandit, "-r", str(root), "-f", "json", "-q"],
-            capture_output=True,
-            text=True,
             timeout=60,
+            cancel_check=cancel_check,
         )
         payload = json.loads(proc.stdout or "{}")
     except (subprocess.SubprocessError, json.JSONDecodeError):
@@ -120,12 +130,12 @@ def _run_bandit(root: Path) -> list[dict[str, Any]]:
     return results
 
 
-def _run_semgrep(root: Path) -> list[dict[str, Any]]:
+def _run_semgrep(root: Path, cancel_check: CancelCheck | None = None) -> list[dict[str, Any]]:
     semgrep = _tool("semgrep")
     if not semgrep:
         return []
     try:
-        proc = subprocess.run(
+        proc = _run_subprocess(
             [
                 semgrep,
                 "scan",
@@ -138,9 +148,8 @@ def _run_semgrep(root: Path) -> list[dict[str, Any]]:
                 "45",
                 str(root),
             ],
-            capture_output=True,
-            text=True,
             timeout=90,
+            cancel_check=cancel_check,
         )
         payload = json.loads(proc.stdout or "{}")
     except (subprocess.SubprocessError, json.JSONDecodeError):
@@ -184,3 +193,30 @@ def _tool(name: str) -> str | None:
         return direct
     venv_tool = Path(sys.prefix) / "bin" / name
     return str(venv_tool) if venv_tool.exists() else None
+
+
+def _run_subprocess(
+    command: list[str], timeout: int, cancel_check: CancelCheck | None = None
+) -> subprocess.CompletedProcess[str]:
+    start = time.monotonic()
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    try:
+        while proc.poll() is None:
+            _checkpoint(cancel_check)
+            if time.monotonic() - start > timeout:
+                proc.kill()
+                raise subprocess.TimeoutExpired(command, timeout)
+            time.sleep(0.1)
+        stdout, stderr = proc.communicate()
+        return subprocess.CompletedProcess(command, proc.returncode, stdout, stderr)
+    except Exception:
+        proc.kill()
+        proc.communicate()
+        raise
+
+
+def _checkpoint(cancel_check: CancelCheck | None) -> None:
+    if cancel_check and cancel_check():
+        from repomind.analysis.analyzer import AnalysisCancelled
+
+        raise AnalysisCancelled("Analysis cancelled.")

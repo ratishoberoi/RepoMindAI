@@ -150,6 +150,7 @@ def _structured_answer(
         f"- {item}" for item in _evidence_improvements(chunks, critical_files)
     )
     direct_answer = _clean_direct_answer(generated)
+    direct_answer = _enforce_cited_references(direct_answer, chunks)
     return (
         "DIRECT ANSWER\n\n"
         f"{redact_text(direct_answer)}\n\n"
@@ -207,6 +208,33 @@ def _clean_direct_answer(generated: str) -> str:
     if len(answer) > 720:
         answer = answer[:720].rsplit(".", 1)[0].strip() + "."
     return answer or "The retrieved repository evidence was insufficient to answer confidently."
+
+
+FILE_REF_RE = re.compile(
+    r"`?([A-Za-z0-9_./-]+\.(?:py|ts|tsx|js|jsx|json|ya?ml|toml|md|go|rs|java|kt|cs|rb|php|sql))(?:[:#][0-9]+(?:-[0-9]+)?)?`?"
+)
+
+
+def _enforce_cited_references(answer: str, chunks: list[dict]) -> str:
+    allowed_paths = {str(chunk.get("path")) for chunk in chunks if chunk.get("path")}
+    if not allowed_paths:
+        return "The retrieved repository evidence was insufficient to answer confidently."
+    sentences = re.split(r"(?<=[.!?])\s+", answer.strip())
+    kept: list[str] = []
+    removed = False
+    for sentence in sentences:
+        refs = {match.group(1) for match in FILE_REF_RE.finditer(sentence)}
+        uncited = refs - allowed_paths
+        if uncited:
+            removed = True
+            continue
+        kept.append(sentence)
+    cleaned = " ".join(item for item in kept if item).strip()
+    if not cleaned:
+        cleaned = "The generated answer referenced files outside the retrieved citations, so it was withheld."
+    if removed and cleaned[-1] not in ".!?":
+        cleaned += "."
+    return cleaned
 
 
 def _is_auth_question(question: str) -> bool:

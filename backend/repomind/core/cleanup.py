@@ -39,11 +39,7 @@ def cleanup_expired_repositories(store: Any) -> int:
             continue
         if repo.get("updated_at", 0) > cutoff:
             continue
-        try:
-            fields = delete_repository_contents(repo)
-        except RuntimeError:
-            continue
-        store.update(repo["id"], **fields)
+        purge_repository(repo["id"], store)
         deleted += 1
     return deleted
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import time
 from collections import defaultdict, deque
@@ -12,6 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
 LOGGER = logging.getLogger("repomind.audit")
+LOGGER.setLevel(logging.INFO)
 
 
 def require_api_key(request: Request) -> None:
@@ -29,7 +31,7 @@ def require_api_key(request: Request) -> None:
         or request.query_params.get("api_key")
     )
     if not supplied or not compare_digest(supplied, settings.api_key):
-        _audit("auth_failed", request, status_code=status.HTTP_401_UNAUTHORIZED)
+        audit_event("auth_failed", request, status_code=status.HTTP_401_UNAUTHORIZED)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing API key."
         )
@@ -50,10 +52,10 @@ class RequestTracingMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
         except Exception:
-            _audit("request_error", request, duration_ms=_duration_ms(start), status_code=500)
+            audit_event("request_error", request, duration_ms=_duration_ms(start), status_code=500)
             raise
         response.headers["x-request-id"] = request_id
-        _audit(
+        audit_event(
             "request", request, duration_ms=_duration_ms(start), status_code=response.status_code
         )
         return response
@@ -75,25 +77,31 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         while hits and hits[0] < window_start:
             hits.popleft()
         if len(hits) >= settings.rate_limit_requests:
-            _audit("rate_limited", request, status_code=429)
+            audit_event("rate_limited", request, status_code=429)
             return Response("Rate limit exceeded.", status_code=429)
         hits.append(now)
         return await call_next(request)
 
 
-def _audit(
-    event: str, request: Request, duration_ms: float | None = None, status_code: int | None = None
+def audit_event(
+    event: str,
+    request: Request | None = None,
+    duration_ms: float | None = None,
+    status_code: int | None = None,
+    **fields,
 ) -> None:
-    LOGGER.info(
-        "event=%s request_id=%s method=%s path=%s client=%s status=%s duration_ms=%s",
-        event,
-        getattr(request.state, "request_id", "-"),
-        request.method,
-        request.url.path,
-        request.client.host if request.client else "-",
-        status_code if status_code is not None else "-",
-        duration_ms if duration_ms is not None else "-",
-    )
+    payload = {
+        "event": event,
+        "request_id": getattr(request.state, "request_id", None) if request else None,
+        "method": request.method if request else None,
+        "path": request.url.path if request else None,
+        "client": request.client.host if request and request.client else None,
+        "status": status_code,
+        "duration_ms": duration_ms,
+        "ts": round(time.time(), 3),
+    }
+    payload.update({key: value for key, value in fields.items() if value is not None})
+    LOGGER.info(json.dumps(payload, sort_keys=True, separators=(",", ":")))
 
 
 def _duration_ms(start: float) -> float:

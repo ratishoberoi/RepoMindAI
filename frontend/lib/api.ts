@@ -16,6 +16,7 @@ export type AnalysisJob = {
   id: string;
   status: string;
   progress: number;
+  stage?: string;
   message: string;
   created_at?: number;
   updated_at?: number;

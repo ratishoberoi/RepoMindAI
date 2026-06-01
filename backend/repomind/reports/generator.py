@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
-from collections.abc import Callable
+from collections.abc import Callable as CollectionsCallable
 from html import escape
 from pathlib import Path
 from typing import Any
@@ -23,15 +23,18 @@ REPORT_NAMES = [
     "PROJECT_STATUS.md",
 ]
 EXTRA_REPORT_NAMES = ["SECURITY.sarif", "EXECUTIVE_SUMMARY.html", "EXECUTIVE_SUMMARY.pdf"]
+CancelCheck = CollectionsCallable[[], bool]
 
 
-def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str, str]:
+def generate_reports(
+    repo: dict[str, Any], summary: dict[str, Any], cancel_check: CancelCheck | None = None
+) -> dict[str, str]:
     settings = get_settings()
     out_dir = settings.reports_dir / "generated" / repo["id"]
     out_dir.mkdir(parents=True, exist_ok=True)
     summary = _redacted_summary(summary)
-    ai = _synthesize_reports(summary)
-    writers: dict[str, Callable[[dict[str, Any], dict[str, str]], str]] = {
+    ai = _synthesize_reports(summary, cancel_check=cancel_check)
+    writers: dict[str, CollectionsCallable[[dict[str, Any], dict[str, str]], str]] = {
         "README.md": _readme,
         "ARCHITECTURE.md": _architecture,
         "SECURITY_REPORT.md": _security,
@@ -43,6 +46,7 @@ def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str,
     }
     paths: dict[str, str] = {}
     for name in REPORT_NAMES:
+        _checkpoint(cancel_check)
         writer = writers[name]
         path = out_dir / name
         path.write_text(redact_text(writer(summary, ai)))
@@ -378,39 +382,61 @@ def _ai_section(title: str, generated: str) -> str:
     return f"## {title}\n\n{generated}\n\n"
 
 
-def _synthesize_reports(summary: dict[str, Any]) -> dict[str, str]:
+def _synthesize_reports(
+    summary: dict[str, Any], cancel_check: CancelCheck | None = None
+) -> dict[str, str]:
     model = local_model()
     return {
         "overview": _safe_generate(
-            model, synthesis_prompt("repository overview and project status", summary), 180, summary
+            model,
+            synthesis_prompt("repository overview and project status", summary),
+            180,
+            summary,
+            cancel_check,
         ),
         "architecture": _safe_generate(
             model,
             synthesis_prompt("architecture explanation with file-level evidence", summary),
             220,
             summary,
+            cancel_check,
         ),
         "technical": _safe_generate(
-            model, synthesis_prompt("security, technical debt, and roadmap", summary), 220, summary
+            model,
+            synthesis_prompt("security, technical debt, and roadmap", summary),
+            220,
+            summary,
+            cancel_check,
         ),
         "recruiter": _safe_generate(
             model,
             report_prompt("recruiter review with evidence and confidence", summary),
             220,
             summary,
+            cancel_check,
         ),
         "cto": _safe_generate(
             model,
             report_prompt("CTO review with evidence, risk, and confidence", summary),
             220,
             summary,
+            cancel_check,
         ),
     }
 
 
-def _safe_generate(model: Any, prompt: str, max_tokens: int, summary: dict[str, Any]) -> str:
+def _safe_generate(
+    model: Any,
+    prompt: str,
+    max_tokens: int,
+    summary: dict[str, Any],
+    cancel_check: CancelCheck | None = None,
+) -> str:
+    _checkpoint(cancel_check)
     try:
-        return model.generate(prompt, max_tokens)
+        generated = model.generate(prompt, max_tokens)
+        _checkpoint(cancel_check)
+        return generated
     except RuntimeError as exc:
         return _evidence_only_model_fallback(summary, exc)
 
@@ -449,3 +475,10 @@ def _evidence_files(summary: dict[str, Any]) -> str:
     if not unique:
         return ""
     return "\nEvidence files:\n" + "\n".join(f"- `{path}`" for path in unique[:12]) + "\n"
+
+
+def _checkpoint(cancel_check: CancelCheck | None) -> None:
+    if cancel_check and cancel_check():
+        from repomind.analysis.analyzer import AnalysisCancelled
+
+        raise AnalysisCancelled("Analysis cancelled.")

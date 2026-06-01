@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -16,34 +17,52 @@ from repomind.security.scanner import scan_security
 from repomind.utils.hashing import file_sha256
 from repomind.utils.ignore import should_ignore
 
+ProgressCallback = Callable[[str, int, str], None]
+CancelCheck = Callable[[], bool]
 
-def analyze_repository(repo: dict[str, Any]) -> dict[str, Any]:
+
+class AnalysisCancelled(RuntimeError):
+    """Raised when a repository analysis job is cancelled cooperatively."""
+
+
+def analyze_repository(
+    repo: dict[str, Any],
+    progress_callback: ProgressCallback | None = None,
+    cancel_check: CancelCheck | None = None,
+) -> dict[str, Any]:
     root = Path(repo["path"])
     timings: dict[str, float] = {}
+    _stage(progress_callback, cancel_check, "ingestion", 10, "Ingestion complete.")
     start = time.perf_counter()
-    files = scan_files(root)
+    files = scan_files(root, cancel_check=cancel_check)
     timings["scan_files_seconds"] = _elapsed(start)
+    _stage(progress_callback, cancel_check, "parsing", 25, "Parsing source files.")
     start = time.perf_counter()
-    parsed = parse_files(root, files)
+    parsed = parse_files(root, files, cancel_check=cancel_check)
     timings["parse_files_seconds"] = _elapsed(start)
+    _stage(progress_callback, cancel_check, "dependency_graph", 40, "Building dependency graph.")
     start = time.perf_counter()
     languages = language_summary(files)
     stack = detect_stack(root, files)
     graph = build_dependency_graph(files, parsed)
     timings["graph_stack_seconds"] = _elapsed(start)
+    _stage(progress_callback, cancel_check, "technical_debt", 50, "Analyzing technical debt.")
     start = time.perf_counter()
     debt = analyze_technical_debt(root, files, parsed)
     timings["technical_debt_seconds"] = _elapsed(start)
+    _stage(progress_callback, cancel_check, "security_scan", 62, "Running security scanners.")
     start = time.perf_counter()
-    security = scan_security(root, files)
+    security = scan_security(root, files, cancel_check=cancel_check)
     timings["security_seconds"] = _elapsed(start)
+    _stage(progress_callback, cancel_check, "embedding", 76, "Embedding repository chunks.")
     start = time.perf_counter()
-    rag = index_repository(repo["id"], root, files)
+    rag = index_repository(repo["id"], root, files, cancel_check=cancel_check)
     timings["indexing_seconds"] = _elapsed(start)
     summary = build_summary(repo, files, parsed, languages, stack, graph, security, debt, rag)
     summary["performance"] = {"timings": timings | rag.get("timings", {})}
+    _stage(progress_callback, cancel_check, "report_generation", 88, "Generating reports.")
     start = time.perf_counter()
-    report_paths = generate_reports(repo, summary)
+    report_paths = generate_reports(repo, summary, cancel_check=cancel_check)
     summary["performance"]["timings"]["report_generation_seconds"] = _elapsed(start)
     summary["performance"]["timings"]["total_analysis_seconds"] = round(
         sum(
@@ -54,14 +73,17 @@ def analyze_repository(repo: dict[str, Any]) -> dict[str, Any]:
         3,
     )
     summary["reports"] = report_paths
+    _stage(progress_callback, cancel_check, "completion", 96, "Finalizing analysis.")
     return summary
 
 
-def scan_files(root: Path) -> list[dict[str, Any]]:
+def scan_files(root: Path, cancel_check: CancelCheck | None = None) -> list[dict[str, Any]]:
     settings = get_settings()
     seen_hashes: set[str] = set()
     files: list[dict[str, Any]] = []
-    for path in root.rglob("*"):
+    for index, path in enumerate(root.rglob("*")):
+        if index % 100 == 0:
+            _checkpoint(cancel_check)
         if not path.is_file() or should_ignore(path, root):
             continue
         try:
@@ -92,9 +114,13 @@ def _elapsed(start: float) -> float:
     return round(time.perf_counter() - start, 3)
 
 
-def parse_files(root: Path, files: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def parse_files(
+    root: Path, files: list[dict[str, Any]], cancel_check: CancelCheck | None = None
+) -> list[dict[str, Any]]:
     parsed = []
-    for item in files:
+    for index, item in enumerate(files):
+        if index % 25 == 0:
+            _checkpoint(cancel_check)
         if item["language"] in {"Text"} and item["size"] > 250_000:
             continue
         try:
@@ -104,6 +130,23 @@ def parse_files(root: Path, files: list[dict[str, Any]]) -> list[dict[str, Any]]
         except OSError:
             continue
     return parsed
+
+
+def _stage(
+    progress_callback: ProgressCallback | None,
+    cancel_check: CancelCheck | None,
+    stage: str,
+    progress: int,
+    message: str,
+) -> None:
+    _checkpoint(cancel_check)
+    if progress_callback:
+        progress_callback(stage, progress, message)
+
+
+def _checkpoint(cancel_check: CancelCheck | None) -> None:
+    if cancel_check and cancel_check():
+        raise AnalysisCancelled("Analysis cancelled.")
 
 
 def build_summary(

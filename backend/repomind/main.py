@@ -3,14 +3,19 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from repomind.core.cleanup import purge_repository, start_cleanup_scheduler
 from repomind.core.config import get_settings
 from repomind.core.jobs import cancel_analysis_job, start_analysis_job
-from repomind.core.security import RateLimitMiddleware, RequestTracingMiddleware, require_api_key
+from repomind.core.security import (
+    RateLimitMiddleware,
+    RequestTracingMiddleware,
+    audit_event,
+    require_api_key,
+)
 from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
 from repomind.llm.registry import local_model
@@ -74,39 +79,43 @@ def list_repositories() -> list[dict]:
 
 
 @app.post("/repositories/upload", dependencies=PROTECTED)
-async def upload_repository(file: UploadFile = File(...)) -> dict:
+async def upload_repository(request: Request, file: UploadFile = File(...)) -> dict:
     if not file.filename or not file.filename.endswith(".zip"):
         raise HTTPException(status_code=400, detail="Upload must be a .zip repository archive.")
     try:
         repo = await ingest_zip(file)
+        audit_event("repository_uploaded", request, repo_id=repo["id"], source_type="zip")
         return _public_repo(repo)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.post("/repositories/clone", dependencies=PROTECTED)
-def clone_repository(request: CloneRequest) -> dict:
+def clone_repository(payload: CloneRequest, request: Request) -> dict:
     try:
-        repo = ingest_github(str(request.github_url))
+        repo = ingest_github(str(payload.github_url))
+        audit_event("repository_cloned", request, repo_id=repo["id"], source_type="github")
         return _public_repo(repo)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.post("/repositories/local", dependencies=PROTECTED)
-def import_local_repository(request: LocalPathRequest) -> dict:
+def import_local_repository(payload: LocalPathRequest, request: Request = None) -> dict:
     try:
-        repo = ingest_local_path(request.path)
+        repo = ingest_local_path(payload.path)
+        audit_event("repository_imported", request, repo_id=repo["id"], source_type="local")
         return _public_repo(repo)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.post("/repositories/{repo_id}/analysis", dependencies=PROTECTED)
-def start_analysis(repo_id: str) -> dict:
+def start_analysis(repo_id: str, request: Request) -> dict:
     try:
         job = start_analysis_job(repo_id)
         repo = store.get(repo_id)
+        audit_event("analysis_started", request, repo_id=repo_id, job_id=job.get("id"))
         return {"repository": _public_repo(repo), "job": job}
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
@@ -119,10 +128,11 @@ def start_analysis(repo_id: str) -> dict:
 
 
 @app.post("/repositories/{repo_id}/analysis/cancel", dependencies=PROTECTED)
-def cancel_analysis(repo_id: str) -> dict:
+def cancel_analysis(repo_id: str, request: Request) -> dict:
     try:
         job = cancel_analysis_job(repo_id)
         repo = store.get(repo_id)
+        audit_event("analysis_cancel_requested", request, repo_id=repo_id, job_id=job.get("id"))
         return {"repository": _public_repo(repo), "job": job}
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
@@ -141,9 +151,10 @@ def repository_status(repo_id: str) -> dict:
 
 
 @app.delete("/repositories/{repo_id}", dependencies=PROTECTED)
-def delete_repository(repo_id: str) -> dict:
+def delete_repository(repo_id: str, request: Request) -> dict:
     try:
         repo = purge_repository(repo_id, store)
+        audit_event("repository_deleted", request, repo_id=repo_id)
         return {"deleted": _public_repo(repo)}
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc

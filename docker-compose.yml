@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile.backend
     env_file: .env.example
     environment:
+      REPOMIND_ENV: production
       REPOMIND_DATABASE_URL: postgresql+psycopg://repomind:repomind@postgres:5432/repomind
     ports:
       - "8000:8000"
@@ -13,7 +14,8 @@ services:
       - ./reports:/app/reports
       - ${REPOMIND_MODEL_HOST_DIR:-./models/qwen-judge}:/app/models/qwen-judge:ro
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   frontend:
     build:
@@ -35,6 +37,11 @@ services:
       POSTGRES_DB: repomind
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U repomind -d repomind"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   postgres-data:

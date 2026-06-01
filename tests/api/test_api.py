@@ -1,3 +1,4 @@
+import threading
 import time
 from pathlib import Path
 
@@ -53,7 +54,9 @@ def test_analysis_runs_as_background_job(tmp_path: Path, monkeypatch: pytest.Mon
     (source / "README.md").write_text("# Job\n")
     repo = import_local_repository(LocalPathRequest(path=str(source)))
 
-    def fake_analyze(repository: dict) -> dict:
+    def fake_analyze(repository: dict, progress_callback=None, cancel_check=None) -> dict:
+        if progress_callback:
+            progress_callback("parsing", 25, "Parsing source files.")
         return {
             "repository": {
                 "id": repository["id"],
@@ -83,3 +86,45 @@ def test_analysis_runs_as_background_job(tmp_path: Path, monkeypatch: pytest.Mon
             break
         time.sleep(0.05)
     assert status["status"] == "complete"
+    assert (
+        status["analysis_job"]["stage"] == "completion"
+        or status["analysis_job"]["status"] == "complete"
+    )
+
+
+def test_running_analysis_can_be_cancelled(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    source = tmp_path / "cancel_repo"
+    source.mkdir()
+    (source / "README.md").write_text("# Cancel\n")
+    repo = import_local_repository(LocalPathRequest(path=str(source)))
+    entered = threading.Event()
+
+    def cancellable_analyze(repository: dict, progress_callback=None, cancel_check=None) -> dict:
+        if progress_callback:
+            progress_callback("parsing", 25, "Parsing source files.")
+        entered.set()
+        for _ in range(100):
+            if cancel_check and cancel_check():
+                raise jobs.AnalysisCancelled("Analysis cancelled.")
+            time.sleep(0.01)
+        raise AssertionError("analysis was not cancelled")
+
+    monkeypatch.setattr(jobs, "analyze_repository", cancellable_analyze)
+    response = client.post(
+        f"/repositories/{repo['id']}/analysis", headers={"x-api-key": "test-api-key"}
+    )
+    assert response.status_code == 200
+    assert entered.wait(timeout=2)
+    cancel = client.post(
+        f"/repositories/{repo['id']}/analysis/cancel", headers={"x-api-key": "test-api-key"}
+    )
+    assert cancel.status_code == 200
+    for _ in range(50):
+        status = client.get(
+            f"/repositories/{repo['id']}/status", headers={"x-api-key": "test-api-key"}
+        ).json()
+        if status["status"] == "cancelled":
+            break
+        time.sleep(0.05)
+    assert status["status"] == "cancelled"
+    assert status["analysis_job"]["stage"] == "cancelled"
