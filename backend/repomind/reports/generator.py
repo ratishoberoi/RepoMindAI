@@ -40,7 +40,8 @@ def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str,
         "PROJECT_STATUS.md": _status,
     }
     paths: dict[str, str] = {}
-    for name, writer in writers.items():
+    for name in REPORT_NAMES:
+        writer = writers[name]
         path = out_dir / name
         path.write_text(redact_text(writer(summary, ai)))
         paths[name] = str(path)
