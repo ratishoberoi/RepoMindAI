@@ -15,6 +15,12 @@ class ChatRequest(BaseModel):
     question: str = Field(min_length=2, max_length=2000)
 
 
+class PRRiskRequest(BaseModel):
+    changed_files: list[str] = Field(min_length=1, max_length=200)
+    title: str = Field(default="", max_length=300)
+    description: str = Field(default="", max_length=2000)
+
+
 class RepositoryResponse(BaseModel):
     id: str
     name: str

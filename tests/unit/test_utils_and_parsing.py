@@ -9,6 +9,7 @@ from repomind.core.config import Settings
 from repomind.core.store import RepositoryStore
 from repomind.ingestion import ingestor
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
+from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.adapters import detect_model
 from repomind.rag.chunking import chunk_file, chunk_text
 from repomind.rag.embeddings import BGEEmbedder
@@ -106,6 +107,32 @@ def test_repository_knowledge_graph_extracts_domains_and_hotspots() -> None:
     assert kg["metrics"]["data_model_count"] == 1
     assert kg["domains"][0]["file_count"] >= 1
     assert kg["hotspots"][0]["path"] == "backend/api/users.py"
+
+
+def test_pr_risk_uses_knowledge_graph_hotspots() -> None:
+    summary = {
+        "files": [{"relative_path": "backend/api/users.py", "language": "Python", "size": 100}],
+        "knowledge_graph": {
+            "domains": [
+                {
+                    "name": "backend/api",
+                    "role": "API boundary",
+                    "routes": 1,
+                    "data_models": 0,
+                    "security_findings": 1,
+                    "sample_files": ["backend/api/users.py"],
+                }
+            ],
+            "hotspots": [{"path": "backend/api/users.py", "risk_score": 20}],
+        },
+        "security": {
+            "findings": [{"path": "backend/api/users.py", "severity": "high"}],
+        },
+    }
+    risk = analyze_pr_risk(summary, ["backend/api/users.py"], "change users API")
+    assert risk["risk_level"] in {"high", "critical"}
+    assert "security review" in risk["required_review"]
+    assert risk["impacted_domains"][0]["name"] == "backend/api"
 
 
 def test_chunks_are_stable() -> None:

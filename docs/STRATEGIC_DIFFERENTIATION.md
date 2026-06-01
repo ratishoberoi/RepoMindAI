@@ -15,3 +15,16 @@ User value:
 
 - Engineering leaders can see product domains, trust boundaries, and critical files without reading the whole codebase.
 - Later intelligence features reuse the same evidence substrate for PR risk, drift, due diligence, and multi-repo analysis.
+
+## PR Risk Analysis
+
+Architecture:
+
+- The `/repositories/{repo_id}/pr-risk` endpoint accepts changed file paths and maps them onto the repository knowledge graph.
+- Risk scoring combines graph hotspots, security findings, architectural layer, configuration surfaces, and impacted domains.
+- The dashboard exposes required review and test strategy instead of only a numeric score.
+
+User value:
+
+- Teams can judge blast radius before merging a PR.
+- CTOs get an evidence-backed review checklist that coding assistants do not infer from a whole-repo graph by default.

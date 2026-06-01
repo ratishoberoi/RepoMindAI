@@ -18,10 +18,11 @@ from repomind.core.security import (
 )
 from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
+from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.registry import local_model
 from repomind.rag.qa import answer_question
 from repomind.reports.generator import compare_summaries, export_bundle
-from repomind.schemas import ChatRequest, CloneRequest, LocalPathRequest
+from repomind.schemas import ChatRequest, CloneRequest, LocalPathRequest, PRRiskRequest
 
 settings = get_settings()
 PROTECTED = [Depends(require_api_key)]
@@ -183,6 +184,11 @@ def repository_knowledge_graph(repo_id: str) -> dict:
         "knowledge_graph",
         {"entities": [], "relations": [], "domains": [], "hotspots": [], "metrics": {}},
     )
+
+
+@app.post("/repositories/{repo_id}/pr-risk", dependencies=PROTECTED)
+def repository_pr_risk(repo_id: str, request: PRRiskRequest) -> dict:
+    return analyze_pr_risk(_summary(repo_id), request.changed_files, request.title)
 
 
 @app.get("/repositories/{repo_id}/security", dependencies=PROTECTED)
