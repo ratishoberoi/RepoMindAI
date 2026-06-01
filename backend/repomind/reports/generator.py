@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 from collections.abc import Callable
+from html import escape
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,7 @@ REPORT_NAMES = [
     "ROADMAP.md",
     "PROJECT_STATUS.md",
 ]
+EXTRA_REPORT_NAMES = ["SECURITY.sarif", "EXECUTIVE_SUMMARY.html", "EXECUTIVE_SUMMARY.pdf"]
 
 
 def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str, str]:
@@ -45,6 +47,15 @@ def generate_reports(repo: dict[str, Any], summary: dict[str, Any]) -> dict[str,
         path = out_dir / name
         path.write_text(redact_text(writer(summary, ai)))
         paths[name] = str(path)
+    sarif_path = out_dir / "SECURITY.sarif"
+    sarif_path.write_text(json.dumps(_sarif(summary), indent=2))
+    paths[sarif_path.name] = str(sarif_path)
+    html_path = out_dir / "EXECUTIVE_SUMMARY.html"
+    html_path.write_text(_html_summary(summary))
+    paths[html_path.name] = str(html_path)
+    pdf_path = out_dir / "EXECUTIVE_SUMMARY.pdf"
+    pdf_path.write_bytes(_pdf_summary(summary))
+    paths[pdf_path.name] = str(pdf_path)
     (out_dir / "analysis-summary.json").write_text(redact_text(json.dumps(summary, indent=2)))
     paths["analysis-summary.json"] = str(out_dir / "analysis-summary.json")
     return paths
@@ -58,6 +69,28 @@ def export_bundle(repo_id: str) -> Path:
     target = settings.exports_dir / f"{repo_id}-reports"
     archive = shutil.make_archive(str(target), "zip", source)
     return Path(archive)
+
+
+def compare_summaries(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
+    left_scores = left.get("scores", {})
+    right_scores = right.get("scores", {})
+    left_stats = left.get("statistics", {})
+    right_stats = right.get("statistics", {})
+    return {
+        "left": left.get("repository", {}),
+        "right": right.get("repository", {}),
+        "score_delta": {
+            key: _number(right_scores.get(key)) - _number(left_scores.get(key))
+            for key in sorted(set(left_scores) | set(right_scores))
+            if key != "details"
+        },
+        "statistics_delta": {
+            key: _number(right_stats.get(key)) - _number(left_stats.get(key))
+            for key in sorted(set(left_stats) | set(right_stats))
+        },
+        "stack_added": sorted(set(right.get("stack", {}).get("frameworks", [])) - set(left.get("stack", {}).get("frameworks", []))),
+        "stack_removed": sorted(set(left.get("stack", {}).get("frameworks", [])) - set(right.get("stack", {}).get("frameworks", []))),
+    }
 
 
 def _header(title: str, summary: dict[str, Any]) -> str:
@@ -183,6 +216,116 @@ def _status(summary: dict[str, Any], ai: dict[str, str]) -> str:
         + f"## Model Status\n\n```json\n{json.dumps(local_model().status(), indent=2)}\n```\n"
         + _ai_section("Local Model Status Interpretation", ai["overview"])
     )
+
+
+def _sarif(summary: dict[str, Any]) -> dict[str, Any]:
+    findings = summary.get("security", {}).get("findings", [])
+    return {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "RepoMind AI",
+                        "informationUri": "https://github.com",
+                        "rules": _sarif_rules(findings),
+                    }
+                },
+                "results": [_sarif_result(item) for item in findings],
+            }
+        ],
+    }
+
+
+def _sarif_rules(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rules = {}
+    for item in findings:
+        rule_id = item.get("rule_id", "repomind")
+        rules[rule_id] = {
+            "id": rule_id,
+            "name": rule_id,
+            "shortDescription": {"text": item.get("message", "RepoMind AI security finding")},
+            "properties": {"security-severity": _sarif_security_severity(item.get("severity", "medium"))},
+        }
+    return list(rules.values())
+
+
+def _sarif_result(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "ruleId": item.get("rule_id", "repomind"),
+        "level": _sarif_level(item.get("severity", "medium")),
+        "message": {"text": item.get("message", "RepoMind AI security finding")},
+        "locations": [
+            {
+                "physicalLocation": {
+                    "artifactLocation": {"uri": item.get("path", "")},
+                    "region": {"startLine": item.get("line", 1)},
+                }
+            }
+        ],
+    }
+
+
+def _html_summary(summary: dict[str, Any]) -> str:
+    scores = summary.get("scores", {})
+    stats = summary.get("statistics", {})
+    rows = "".join(
+        f"<tr><th>{escape(str(key))}</th><td>{escape(str(value))}</td></tr>"
+        for key, value in {
+            "Repository": summary.get("repository", {}).get("name"),
+            "Files": stats.get("files"),
+            "Primary language": summary.get("languages", {}).get("primary"),
+            "Security": scores.get("security"),
+            "Maintainability": scores.get("maintainability"),
+            "Production readiness": scores.get("production_readiness"),
+        }.items()
+    )
+    return (
+        "<!doctype html><html><head><meta charset='utf-8'><title>RepoMind Executive Summary</title>"
+        "<style>body{font-family:Inter,Arial,sans-serif;margin:40px;color:#111827}"
+        "table{border-collapse:collapse}th,td{border:1px solid #d1d5db;padding:8px 12px;text-align:left}</style>"
+        "</head><body><h1>RepoMind Executive Summary</h1>"
+        f"<p>{escape(summary.get('architecture', {}).get('summary', 'No architecture summary available.'))}</p>"
+        f"<table>{rows}</table></body></html>"
+    )
+
+
+def _pdf_summary(summary: dict[str, Any]) -> bytes:
+    lines = [
+        "RepoMind Executive Summary",
+        f"Repository: {summary.get('repository', {}).get('name')}",
+        f"Files: {summary.get('statistics', {}).get('files')}",
+        f"Security: {summary.get('scores', {}).get('security')}",
+        f"Maintainability: {summary.get('scores', {}).get('maintainability')}",
+        f"Production readiness: {summary.get('scores', {}).get('production_readiness')}",
+    ]
+    stream = "BT /F1 12 Tf 72 760 Td " + " Tj 0 -18 Td ".join(f"({ _pdf_escape(line) })" for line in lines) + " Tj ET"
+    objects = [
+        "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
+        "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj",
+        "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj",
+        "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj",
+        f"5 0 obj << /Length {len(stream.encode())} >> stream\n{stream}\nendstream endobj",
+    ]
+    body = "%PDF-1.4\n" + "\n".join(objects) + "\ntrailer << /Root 1 0 R >>\n%%EOF\n"
+    return body.encode()
+
+
+def _pdf_escape(value: str) -> str:
+    return str(value).replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+
+def _sarif_level(severity: str) -> str:
+    return {"critical": "error", "high": "error", "medium": "warning", "low": "note"}.get(str(severity).lower(), "warning")
+
+
+def _sarif_security_severity(severity: str) -> str:
+    return {"critical": "9.5", "high": "8.0", "medium": "5.0", "low": "2.0"}.get(str(severity).lower(), "5.0")
+
+
+def _number(value: Any) -> float:
+    return float(value) if isinstance(value, (int, float)) else 0.0
 
 
 def _score_details(score_name: str, summary: dict[str, Any]) -> str:

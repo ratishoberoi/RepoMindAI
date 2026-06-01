@@ -69,7 +69,9 @@ const reports = [
   "RECRUITER_REVIEW.md",
   "CTO_REVIEW.md",
   "ROADMAP.md",
-  "PROJECT_STATUS.md"
+  "PROJECT_STATUS.md",
+  "SECURITY.sarif",
+  "EXECUTIVE_SUMMARY.html"
 ];
 
 const tabs = ["Overview", "Architecture", "Dependencies", "Security", "Reports", "Chat"];

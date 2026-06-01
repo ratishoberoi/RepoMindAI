@@ -7,6 +7,7 @@ from repomind.core.store import RepositoryStore
 from repomind.llm.adapters import detect_model
 from repomind.rag.chunking import chunk_file, chunk_text
 from repomind.rag.embeddings import BGEEmbedder
+from repomind.reports.generator import compare_summaries, generate_reports
 from repomind.security.redaction import redact_text
 from repomind.utils.hashing import file_sha256
 from repomind.utils.ignore import should_ignore
@@ -101,3 +102,43 @@ def test_sql_store_migrates_legacy_metadata(tmp_path: Path) -> None:
     repo = sql_store.get("abc")
     assert repo["name"] == "Legacy"
     assert repo["reports"]["README.md"] == "/tmp/README.md"
+
+
+def test_report_generation_includes_enterprise_artifacts(tmp_path: Path, monkeypatch) -> None:
+    class FakeModel:
+        def generate(self, prompt: str, max_tokens: int) -> str:
+            return "Generated evidence."
+
+        def status(self) -> dict:
+            return {"loaded": False}
+
+    monkeypatch.setattr("repomind.reports.generator.local_model", lambda: FakeModel())
+    summary = _minimal_summary()
+    paths = generate_reports({"id": "repo1", "name": "Repo"}, summary)
+    assert "SECURITY.sarif" in paths
+    assert "EXECUTIVE_SUMMARY.html" in paths
+    assert "EXECUTIVE_SUMMARY.pdf" in paths
+
+
+def test_compare_summaries_returns_deltas() -> None:
+    left = _minimal_summary()
+    right = _minimal_summary()
+    right["scores"]["security"] = 95
+    right["statistics"]["files"] = 4
+    comparison = compare_summaries(left, right)
+    assert comparison["score_delta"]["security"] == 5
+    assert comparison["statistics_delta"]["files"] == 3
+
+
+def _minimal_summary() -> dict:
+    return {
+        "repository": {"id": "repo1", "name": "Repo", "path": ".", "source": "."},
+        "statistics": {"files": 1, "functions": 0, "methods": 0, "classes": 0, "routes": 0, "database_models": 0, "indexed_chunks": 0},
+        "languages": {"primary": "Python", "all": {"Python": 1}},
+        "stack": {"frameworks": [], "package_managers": [], "build_tools": [], "ci_cd": []},
+        "scores": {"security": 90, "maintainability": 80, "production_readiness": 70, "recruiter": 75, "cto": 76, "details": {}},
+        "architecture": {"summary": "Architecture summary.", "style": "service", "important_files": [], "top_level_directories": [], "diagrams": {}},
+        "security": {"findings": [{"rule_id": "x", "severity": "high", "path": "a.py", "line": 1, "message": "Issue"}], "severity_counts": {"high": 1}, "scanner_status": {}},
+        "technical_debt": {"score": 80, "items": [], "todos": [], "large_files": [], "maintainability": []},
+        "performance": {},
+    }

@@ -15,7 +15,7 @@ from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
 from repomind.llm.registry import local_model
 from repomind.rag.qa import answer_question
-from repomind.reports.generator import export_bundle
+from repomind.reports.generator import compare_summaries, export_bundle
 from repomind.schemas import ChatRequest, CloneRequest, LocalPathRequest
 
 settings = get_settings()
@@ -49,6 +49,23 @@ app.add_middleware(RateLimitMiddleware)
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "RepoMind AI", "model": local_model().status()}
+
+
+@app.get("/config", dependencies=PROTECTED)
+def runtime_config() -> dict:
+    return {
+        "env": settings.env,
+        "require_api_key": settings.require_api_key,
+        "database": "postgresql" if str(settings.database_url).startswith("postgres") else "sqlite",
+        "local_path_import_enabled": settings.enable_local_path_import,
+        "allowed_git_hosts": sorted(settings.parsed_allowed_git_hosts),
+        "max_upload_bytes": settings.max_upload_bytes,
+        "max_repository_files": settings.max_repository_files,
+        "max_indexed_chunks": settings.max_indexed_chunks,
+        "analysis_workers": settings.analysis_workers,
+        "redact_secrets": settings.redact_secrets,
+        "trust_remote_model_code": settings.trust_remote_model_code,
+    }
 
 
 @app.get("/repositories", dependencies=PROTECTED)
@@ -162,6 +179,13 @@ def repository_reports(repo_id: str) -> dict:
         return store.get(repo_id).get("reports", {})
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Repository not found.") from exc
+
+
+@app.get("/repositories/compare", dependencies=PROTECTED)
+def compare_repositories(left_id: str, right_id: str) -> dict:
+    left = _summary(left_id)
+    right = _summary(right_id)
+    return compare_summaries(left, right)
 
 
 @app.get("/repositories/{repo_id}/reports/{report_name}", dependencies=PROTECTED)
