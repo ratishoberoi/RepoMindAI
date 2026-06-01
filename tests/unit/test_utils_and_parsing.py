@@ -3,6 +3,7 @@ from pathlib import Path
 from repomind.analysis.classifier import classify_file
 from repomind.analysis.graph import build_dependency_graph
 from repomind.analysis.parser import parse_file
+from repomind.core.store import RepositoryStore
 from repomind.llm.adapters import detect_model
 from repomind.rag.chunking import chunk_text
 from repomind.rag.embeddings import BGEEmbedder
@@ -78,3 +79,17 @@ def test_secret_redaction_masks_sensitive_values() -> None:
     assert "super-secret-value" not in redacted
     assert "abcdefghijklmnopqrstuvwxyz123456" not in redacted
     assert "[REDACTED]" in redacted
+
+
+def test_sql_store_migrates_legacy_metadata(tmp_path: Path) -> None:
+    legacy = tmp_path / "metadata.json"
+    legacy.write_text(
+        '{"repositories":{"abc":{"id":"abc","name":"Legacy","source_type":"local","source":"src",'
+        '"path":"repo","status":"complete","created_at":1,"updated_at":2,"summary":{},'
+        '"reports":{"README.md":"/tmp/README.md"},"error":null,"repository_deleted":false,'
+        '"repository_deleted_at":null,"repository_retention_minutes":60}}}'
+    )
+    sql_store = RepositoryStore(database_url=f"sqlite:///{tmp_path / 'store.db'}", legacy_path=legacy)
+    repo = sql_store.get("abc")
+    assert repo["name"] == "Legacy"
+    assert repo["reports"]["README.md"] == "/tmp/README.md"

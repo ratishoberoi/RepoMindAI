@@ -57,6 +57,7 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("REPOMIND_UPLOAD_DIR", "REPOMIND_UPLOADS_DIR", "UPLOAD_DIR", "UPLOADS_DIR"),
     )
     frontend_origin: str = "http://localhost:3000"
+    database_url: str | None = None
     api_key: str | None = None
     require_api_key: bool = True
     rate_limit_requests: int = 120
@@ -100,6 +101,8 @@ class Settings(BaseSettings):
         self.model_path = _resolve_path(self.model_path)
         if self.model_path.name != "qwen-judge":
             raise ValueError("RepoMindAI only supports qwen-judge local inference. Set REPOMIND_MODEL_PATH to that checkpoint.")
+        if self.database_url is None:
+            self.database_url = f"sqlite:///{self.data_dir / 'repomind.db'}"
         return self
 
     @property

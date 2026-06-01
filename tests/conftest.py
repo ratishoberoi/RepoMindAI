@@ -15,6 +15,7 @@ os.environ["REPOMIND_REPORTS_DIR"] = str(TEST_RUNTIME / "reports")
 os.environ["REPOMIND_INDEX_DIR"] = str(TEST_RUNTIME / "data" / "indexes")
 os.environ["REPOMIND_CHROMA_DIR"] = str(TEST_RUNTIME / "data" / "chroma")
 os.environ["REPOMIND_UPLOAD_DIR"] = str(TEST_RUNTIME / "data" / "uploads")
+os.environ["REPOMIND_DATABASE_URL"] = f"sqlite:///{TEST_RUNTIME / 'data' / 'repomind-test.db'}"
 os.environ["REPOMIND_MODEL_PATH"] = str(TEST_RUNTIME / "models" / "qwen-judge")
 os.environ["REPOMIND_ENABLE_MODEL_INFERENCE"] = "false"
 os.environ["REPOMIND_API_KEY"] = "test-api-key"
