@@ -7,6 +7,7 @@ import { exportUrl, reportUrl } from "@/lib/api";
 import type { RepositorySummary } from "./types";
 import { reportSections, topFindings } from "./utils";
 import { Badge, Button, EmptyState, Panel, SeverityBadge, Timeline } from "./ui";
+import { RiskMatrix, ScoreOrb } from "./visuals";
 
 export function ReportsCenter({
   repo,
@@ -28,6 +29,22 @@ export function ReportsCenter({
 
   return (
     <div className="space-y-5">
+      <section className="rounded-3xl border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.035)_45%,rgba(56,189,248,0.08))] p-5 shadow-panel">
+        <div className="grid gap-5 xl:grid-cols-[220px_1fr_260px]">
+          <div className="grid place-items-center rounded-2xl border border-white/10 bg-black/20 p-3">
+            <ScoreOrb label="Report" score={Math.min(100, 58 + sections.length * 6 + findings.length * 3)} size="medium" sublabel="readiness" />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">Investor-grade artifacts</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">Executive Report Room</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">Reports are organized as decision packets: scorecard first, risk matrix second, raw evidence last.</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {["Executive summary", "Risk matrix", "Evidence panels", "Timeline"].map((item) => <Badge key={item} className="border-white/10 bg-white/[0.04] text-slate-200">{item}</Badge>)}
+            </div>
+          </div>
+          <RiskMatrix items={findings.slice(0, 8).map((finding, index) => ({ label: finding.title ?? finding.file ?? `Finding ${index}`, severity: finding.severity, likelihood: Math.min(5, 2 + (index % 4)) }))} />
+        </div>
+      </section>
       <Panel
         title="Enterprise Report Center"
         eyebrow="Board, diligence, and engineering packets"

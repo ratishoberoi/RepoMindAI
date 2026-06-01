@@ -1,9 +1,10 @@
 "use client";
 
-import { Activity, Brain, GitPullRequest, Network, ShieldCheck, Sparkles } from "lucide-react";
+import { Activity, GitPullRequest, Landmark, Network, ShieldCheck, Sparkles, Wrench } from "lucide-react";
 import type { RepositorySummary } from "./types";
 import { asScore, compactNumber, executiveScore, evidenceFiles, riskLevel, topFindings } from "./utils";
-import { Badge, EmptyState, MetricCard, Panel, ScoreBar, SeverityBadge, Timeline } from "./ui";
+import { Badge, EmptyState, Panel, ScoreBar, SeverityBadge, Timeline } from "./ui";
+import { ExecutiveSignalCard, Heatmap, InsightTicker, RadarChart, RiskMatrix, ScoreOrb } from "./visuals";
 
 export function ExecutiveOverview({ summary, onNavigate }: { summary: RepositorySummary | null; onNavigate: (view: string) => void }) {
   if (!summary) {
@@ -15,65 +16,78 @@ export function ExecutiveOverview({ summary, onNavigate }: { summary: Repository
   const stats = summary.statistics ?? {};
   const graphMetrics = summary.knowledge_graph?.metrics ?? {};
   const files = evidenceFiles(summary, 6);
+  const debtCount = summary.technical_debt?.findings?.length ?? 0;
+  const securityCount = summary.security?.findings?.length ?? 0;
+  const axes = [
+    { label: "Security", value: asScore(scores.security) },
+    { label: "Arch", value: asScore(scores.production_readiness ?? scores.architecture) },
+    { label: "Debt", value: Math.max(0, 100 - debtCount * 6) },
+    { label: "AI", value: asScore(scores.ai_readiness ?? scores.maintainability) },
+    { label: "Invest", value: asScore(scores.cto) }
+  ];
+  const heat = [
+    ...findings.map((finding, index) => ({ label: finding.title ?? finding.file ?? `Finding ${index + 1}`, value: (finding.severity ?? "").toLowerCase() === "critical" ? 92 : (finding.severity ?? "").toLowerCase() === "high" ? 76 : 48, severity: finding.severity })),
+    ...files.map((file, index) => ({ label: file, value: 28 + ((index * 19) % 58) }))
+  ];
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <MetricCard label="Repo Health" value={overall} score={overall} detail={`${riskLevel(overall)} delivery posture`} icon={<Sparkles size={18} />} />
-        <MetricCard label="Security" value={asScore(scores.security)} score={asScore(scores.security)} detail={`${findings.length} priority findings surfaced`} icon={<ShieldCheck size={18} />} />
-        <MetricCard label="Architecture" value={asScore(scores.production_readiness ?? scores.architecture)} score={asScore(scores.production_readiness ?? scores.architecture)} detail="Runtime and boundary confidence" icon={<Network size={18} />} />
-        <MetricCard label="AI Readiness" value={asScore(scores.ai_readiness ?? scores.maintainability)} score={asScore(scores.ai_readiness ?? scores.maintainability)} detail="Context quality for agentic workflows" icon={<Brain size={18} />} />
-        <MetricCard label="Risk Level" value={riskLevel(overall)} score={overall} detail="Investor-ready snapshot" icon={<Activity size={18} />} />
-      </div>
-
-      <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-        <Panel title="Executive Command Center" eyebrow="Operational picture">
-          <div className="grid gap-4 md:grid-cols-3">
-            <InsightStat label="Files analyzed" value={compactNumber(stats.files ?? summary.files?.length)} />
-            <InsightStat label="Knowledge entities" value={compactNumber(graphMetrics.entities)} />
-            <InsightStat label="Security findings" value={compactNumber(summary.security?.findings?.length)} />
+      <section className="overflow-hidden rounded-3xl border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.035)_48%,rgba(56,189,248,0.08))] shadow-panel">
+        <div className="grid gap-0 xl:grid-cols-[360px_1fr_320px]">
+          <div className="grid place-items-center border-b border-white/10 bg-black/20 p-5 xl:border-b-0 xl:border-r">
+            <ScoreOrb label="Repo Health" score={overall} sublabel={`${riskLevel(overall)} risk posture`} />
           </div>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <ScoreBar label="Maintainability" value={asScore(scores.maintainability)} />
-            <ScoreBar label="Production readiness" value={asScore(scores.production_readiness)} />
-            <ScoreBar label="CTO score" value={asScore(scores.cto)} />
-            <ScoreBar label="Security confidence" value={asScore(scores.security)} />
-          </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <button onClick={() => onNavigate("knowledge")} className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:border-cyan-300/30 hover:bg-cyan-300/10">
-              <Network className="h-5 w-5 text-cyan-200" />
-              <p className="mt-3 text-sm font-semibold text-white">Open Knowledge Graph</p>
-              <p className="mt-1 text-xs leading-5 text-slate-400">Explore domains, hotspots, and evidence paths.</p>
-            </button>
-            <button onClick={() => onNavigate("pr-risk")} className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:border-amber-300/30 hover:bg-amber-300/10">
-              <GitPullRequest className="h-5 w-5 text-amber-200" />
-              <p className="mt-3 text-sm font-semibold text-white">Assess PR Risk</p>
-              <p className="mt-1 text-xs leading-5 text-slate-400">Map changed files to blast radius and tests.</p>
-            </button>
-            <button onClick={() => onNavigate("diligence")} className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:border-emerald-300/30 hover:bg-emerald-300/10">
-              <Sparkles className="h-5 w-5 text-emerald-200" />
-              <p className="mt-3 text-sm font-semibold text-white">Due Diligence</p>
-              <p className="mt-1 text-xs leading-5 text-slate-400">Package investor, CTO, and security narratives.</p>
-            </button>
-          </div>
-        </Panel>
-
-        <Panel title="Risk Matrix" eyebrow="Highest leverage findings">
-          {findings.length ? (
-            <div className="space-y-3">
-              {findings.map((finding, index) => (
-                <div key={`${finding.file}-${finding.title}-${index}`} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-medium text-white">{finding.title ?? finding.message ?? "Repository finding"}</p>
-                    <SeverityBadge severity={finding.severity} />
-                  </div>
-                  <p className="mt-2 truncate text-xs text-slate-500">{finding.file ?? "Evidence unavailable"}</p>
-                </div>
-              ))}
+          <div className="p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">30-second executive readout</p>
+                <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white md:text-4xl">Repository intelligence cockpit</h2>
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
+                  Security posture, architecture health, technical debt, and investment readiness compressed into one board-ready operating picture.
+                </p>
+              </div>
+              <Badge className="border-emerald-300/25 bg-emerald-300/10 text-emerald-100">Investor demo mode</Badge>
             </div>
-          ) : (
-            <EmptyState title="No priority risks" text="Security and debt findings will appear here after analysis." />
-          )}
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <ExecutiveSignalCard label="Security Posture" value={asScore(scores.security)} detail={`${securityCount} findings mapped to impact`} icon={ShieldCheck} delta={asScore(scores.security) > 75 ? "up" : "down"} />
+              <ExecutiveSignalCard label="Architecture Health" value={asScore(scores.production_readiness ?? scores.architecture)} detail="Boundary, runtime, and scaling confidence" icon={Network} delta="stable" />
+              <ExecutiveSignalCard label="Technical Debt" value={debtCount} detail="Debt signals requiring triage" icon={Wrench} delta={debtCount > 8 ? "down" : "stable"} />
+              <ExecutiveSignalCard label="Investment Readiness" value={asScore(scores.cto)} detail="Diligence and acquisition confidence" icon={Landmark} delta={asScore(scores.cto) > 70 ? "up" : "stable"} />
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-4">
+              <InsightStat label="Files analyzed" value={compactNumber(stats.files ?? summary.files?.length)} />
+              <InsightStat label="Graph entities" value={compactNumber(graphMetrics.entities)} />
+              <InsightStat label="Routes" value={compactNumber(summary.architecture?.routes?.length)} />
+              <InsightStat label="Data models" value={compactNumber(summary.architecture?.data_models?.length)} />
+            </div>
+          </div>
+          <div className="border-t border-white/10 bg-black/20 p-5 xl:border-l xl:border-t-0">
+            <RadarChart axes={axes} />
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button onClick={() => onNavigate("knowledge")} className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-left text-sm font-semibold text-cyan-50 hover:bg-cyan-300/15"><Network className="mb-2 h-4 w-4" />Graph</button>
+              <button onClick={() => onNavigate("pr-risk")} className="rounded-xl border border-amber-300/20 bg-amber-300/10 p-3 text-left text-sm font-semibold text-amber-50 hover:bg-amber-300/15"><GitPullRequest className="mb-2 h-4 w-4" />PR Risk</button>
+              <button onClick={() => onNavigate("diligence")} className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 p-3 text-left text-sm font-semibold text-emerald-50 hover:bg-emerald-300/15"><Sparkles className="mb-2 h-4 w-4" />Diligence</button>
+              <button onClick={() => onNavigate("reports")} className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left text-sm font-semibold text-slate-100 hover:bg-white/[0.07]"><Activity className="mb-2 h-4 w-4" />Reports</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr_0.9fr]">
+        <Panel title="Executive Insights" eyebrow="What matters now">
+          <InsightTicker
+            insights={[
+              { label: "Posture", severity: asScore(scores.security) < 60 ? "high" : "info", text: `${riskLevel(overall)} repository posture with ${securityCount} security findings and ${debtCount} technical debt signals.` },
+              { label: "Architecture", severity: asScore(scores.production_readiness) < 65 ? "medium" : "info", text: "Architecture health is weighted by production readiness, routes, data models, and graph density." },
+              { label: "Investment", severity: asScore(scores.cto) < 65 ? "high" : "low", text: "Investment readiness reflects CTO score, evidence quality, and remediation clarity." }
+            ]}
+          />
+        </Panel>
+        <Panel title="Risk Matrix" eyebrow="Impact x likelihood">
+          <RiskMatrix items={findings.map((finding, index) => ({ label: finding.title ?? finding.file ?? `Finding ${index}`, severity: finding.severity, likelihood: Math.min(5, 2 + (index % 4)) }))} />
+        </Panel>
+        <Panel title="Repository Heatmap" eyebrow="Risk and evidence density">
+          <Heatmap values={heat} />
         </Panel>
       </div>
 

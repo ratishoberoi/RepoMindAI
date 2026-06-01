@@ -4,6 +4,7 @@ import { Building2, Layers3, Network, Radar, ShieldAlert } from "lucide-react";
 import type { PortfolioIntelligence } from "./types";
 import { Badge, Button, EmptyState, MetricCard, Panel, ScoreBar, SeverityBadge } from "./ui";
 import { asScore, compactNumber } from "./utils";
+import { Heatmap, RadarChart, RiskMatrix } from "./visuals";
 
 export function PortfolioPanel({
   data,
@@ -70,7 +71,25 @@ export function PortfolioPanel({
         </Panel>
       </div>
 
-      <Panel title="Shared Risk Register" eyebrow="Where one fix helps multiple repos">
+      <div className="grid gap-5 xl:grid-cols-[0.8fr_0.8fr_1.4fr]">
+        <Panel title="Portfolio Radar" eyebrow="Operating profile">
+          <RadarChart axes={[
+            { label: "Health", value: asScore(data.portfolio_score) },
+            { label: "Risk", value: Math.max(0, 100 - risks.length * 12) },
+            { label: "Deps", value: Math.max(0, 100 - sharedDependencies.length * 8) },
+            { label: "Scale", value: Math.min(100, Number(data.total_repositories ?? 0) * 18) },
+            { label: "Signal", value: Math.min(100, insights.length * 20) }
+          ]} />
+        </Panel>
+        <Panel title="Portfolio Heatmap" eyebrow="Concentration density">
+          <Heatmap values={[...sharedDependencies.map((item, index) => ({ label: String(item.name ?? item.dependency ?? index), value: 35 + ((index * 17) % 65) })), ...risks.map((item, index) => ({ label: String(item.title ?? item.name ?? index), value: 70 + ((index * 7) % 30) }))]} />
+        </Panel>
+        <Panel title="Shared Risk Register" eyebrow="Where one fix helps multiple repos">
+          <RiskMatrix items={risks.map((risk, index) => ({ label: String(risk.title ?? risk.name ?? `Risk ${index}`), severity: String(risk.severity ?? "medium"), likelihood: Math.min(5, 2 + (index % 4)) }))} />
+        </Panel>
+      </div>
+
+      <Panel title="Shared Risk Details" eyebrow="Prioritized remediation portfolio">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {risks.slice(0, 9).map((risk, index) => (
             <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-4">

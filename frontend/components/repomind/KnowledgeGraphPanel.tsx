@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { Background, Controls, MiniMap, ReactFlow, type Edge, type Node } from "@xyflow/react";
-import { Boxes, Filter, Network, Search } from "lucide-react";
+import { Boxes, Filter, Network, Search, Sparkles, Workflow } from "lucide-react";
 import type { RepositorySummary } from "./types";
 import { domainCards } from "./utils";
 import { Badge, EmptyState, Panel } from "./ui";
+import { Heatmap, ScoreOrb } from "./visuals";
 
 export function KnowledgeGraphPanel({ summary }: { summary: RepositorySummary | null }) {
   const [query, setQuery] = useState("");
@@ -18,6 +19,7 @@ export function KnowledgeGraphPanel({ summary }: { summary: RepositorySummary | 
     return (kind === "all" || text.includes(kind.toLowerCase())) && (!query || text.includes(query.toLowerCase()));
   });
   const flow = useMemo(() => toFlow(filtered), [filtered]);
+  const graphScore = Math.min(100, Math.round((Number(graph?.metrics?.entities ?? 0) + Number(graph?.metrics?.relationships ?? 0)) / 2));
 
   if (!summary) {
     return <EmptyState title="Knowledge graph unavailable" text="Analyze a repository to build symbols, domains, hotspots, and dependency relationships." />;
@@ -25,7 +27,36 @@ export function KnowledgeGraphPanel({ summary }: { summary: RepositorySummary | 
 
   return (
     <div className="space-y-5">
-      <Panel title="Repository Knowledge Graph" eyebrow="Flagship intelligence map">
+      <section className="overflow-hidden rounded-3xl border border-cyan-300/15 bg-[linear-gradient(135deg,rgba(56,189,248,0.16),rgba(255,255,255,0.045)_38%,rgba(52,211,153,0.08))] shadow-panel">
+        <div className="grid gap-0 xl:grid-cols-[320px_1fr_300px]">
+          <div className="grid place-items-center border-b border-white/10 bg-black/25 p-5 xl:border-b-0 xl:border-r">
+            <ScoreOrb label="Graph IQ" score={graphScore || 72} size="medium" sublabel="Evidence density" />
+          </div>
+          <div className="p-5">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-100"><Network size={20} /></span>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">Flagship capability</p>
+                <h2 className="text-3xl font-semibold tracking-tight text-white">Repository Knowledge Graph</h2>
+              </div>
+            </div>
+            <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">A visual intelligence layer for domains, hotspots, dependencies, symbols, and operational evidence. Built to make repository structure legible in seconds.</p>
+            <div className="mt-5 grid gap-3 md:grid-cols-4">
+              {Object.entries(graph?.metrics ?? {}).slice(0, 4).map(([label, value]) => (
+                <div key={label} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">{label.replaceAll("_", " ")}</p>
+                  <p className="mt-2 text-2xl font-semibold text-white">{String(value)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="border-t border-white/10 bg-black/20 p-5 xl:border-l xl:border-t-0">
+            <Heatmap label="Knowledge density" values={cards.map((card, index) => ({ label: String(card.name ?? card.file ?? index), value: 35 + ((index * 21) % 65) }))} />
+          </div>
+        </div>
+      </section>
+
+      <Panel title="Graph Explorer" eyebrow="Search, filter, zoom, inspect">
         <div className="mb-4 grid gap-3 md:grid-cols-[1fr_220px]">
           <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-slate-300 focus-within:border-cyan-300/45">
             <Search size={15} className="text-slate-500" />
@@ -40,7 +71,7 @@ export function KnowledgeGraphPanel({ summary }: { summary: RepositorySummary | 
         </div>
 
         {flow.nodes.length ? (
-          <div className="h-[610px] overflow-hidden rounded-2xl border border-white/10 bg-[#070b12]">
+          <div className="h-[640px] overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#070b12] shadow-[inset_0_0_80px_rgba(56,189,248,0.06)]">
             <ReactFlow nodes={flow.nodes} edges={flow.edges} fitView minZoom={0.25} maxZoom={1.8}>
               <Background color="rgba(148,163,184,0.16)" gap={22} />
               <MiniMap pannable zoomable className="premium-minimap" />
@@ -53,12 +84,20 @@ export function KnowledgeGraphPanel({ summary }: { summary: RepositorySummary | 
       </Panel>
 
       <div className="grid gap-5 xl:grid-cols-[0.75fr_1.25fr]">
-        <Panel title="Graph Metrics" eyebrow="System shape">
+        <Panel title="Graph Legend" eyebrow="System shape">
           <div className="grid gap-3">
-            {Object.entries(graph?.metrics ?? {}).slice(0, 8).map(([label, value]) => (
-              <div key={label} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] p-3">
-                <span className="text-sm text-slate-400">{label.replaceAll("_", " ")}</span>
-                <strong className="text-sm text-white">{String(value)}</strong>
+            {[
+              ["Domain", "Business or architectural responsibility", Workflow],
+              ["Hotspot", "Change or complexity concentration", Sparkles],
+              ["Evidence", "Files supporting a claim", Boxes],
+              ["Relationship", "Dependency or ownership edge", Network]
+            ].map(([label, value, Icon]) => (
+              <div key={String(label)} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl border border-cyan-300/20 bg-cyan-300/10 text-cyan-100"><Icon size={16} /></span>
+                  <span className="text-sm font-medium text-white">{String(label)}</span>
+                </div>
+                <span className="text-xs text-slate-500">{String(value)}</span>
               </div>
             ))}
           </div>

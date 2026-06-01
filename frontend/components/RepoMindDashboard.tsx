@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, Brain, Building2, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Search, ShieldCheck } from "lucide-react";
+import { Building2, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Search, ShieldCheck } from "lucide-react";
 import {
   analyze,
   architectureDrift,
@@ -234,7 +234,7 @@ function TopCommandBar({
   stats: Array<[string, string | number]>;
 }) {
   return (
-    <header className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/78 p-4 shadow-panel backdrop-blur-xl xl:flex-row xl:items-center xl:justify-between">
+    <header className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.09),rgba(255,255,255,0.035))] p-4 shadow-panel backdrop-blur-xl xl:flex-row xl:items-center xl:justify-between">
       <div className="min-w-0">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200/75">Premium repository intelligence</p>
         <div className="mt-2 flex flex-wrap items-center gap-3">

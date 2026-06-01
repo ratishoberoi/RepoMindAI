@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { GitCompareArrows, GitPullRequest, ShieldAlert } from "lucide-react";
+import { AlertOctagon, GitCompareArrows, GitPullRequest, ShieldAlert, Target } from "lucide-react";
 import type { Repository } from "@/lib/api";
 import type { DriftResult, PrRiskResult } from "./types";
 import { splitChangedFiles } from "./utils";
 import { Badge, Button, EmptyState, MetricCard, Panel, ScoreBar, SeverityBadge } from "./ui";
+import { Heatmap, RiskMatrix, ScoreOrb } from "./visuals";
 
 export function RiskAndDriftCenter({
   repositories,
@@ -30,6 +31,20 @@ export function RiskAndDriftCenter({
 
   return (
     <div className="space-y-5">
+      <section className="rounded-3xl border border-amber-300/15 bg-[linear-gradient(135deg,rgba(251,191,36,0.14),rgba(255,255,255,0.04)_42%,rgba(251,113,133,0.09))] p-5 shadow-panel">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-200/80">Change intelligence</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">PR risk and architecture drift command center</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">Turn changed files and baseline comparisons into review priority, blast radius, test strategy, and drift narrative.</p>
+          </div>
+          <div className="grid grid-cols-3 gap-3 xl:w-[520px]">
+            <MetricMini label="PR score" value={prResult?.risk_score ?? "--"} />
+            <MetricMini label="Drift" value={driftResult?.drift_score ?? "--"} />
+            <MetricMini label="Changed" value={splitChangedFiles(files).length} />
+          </div>
+        </div>
+      </section>
       <div className="grid gap-5 xl:grid-cols-2">
         <Panel title="PR Risk Center" eyebrow="Pre-merge blast radius" action={<Button onClick={() => onPrRisk(splitChangedFiles(files))} disabled={!activeRepo || busy}>Analyze PR</Button>}>
           <textarea
@@ -58,10 +73,23 @@ function PrRiskResultView({ result }: { result: PrRiskResult }) {
   const score = Number(result.risk_score ?? 0);
   return (
     <div className="mt-5 space-y-4">
-      <div className="grid gap-3 md:grid-cols-3">
-        <MetricCard label="Risk score" value={score} score={100 - score} detail={result.risk_level ?? "Computed from changed files"} icon={<GitPullRequest size={18} />} />
-        <MetricCard label="Files" value={result.changed_files?.length ?? 0} detail="Changed paths analyzed" />
-        <MetricCard label="Domains" value={result.impacted_domains?.length ?? 0} detail="Potential blast radius" />
+      <div className="grid gap-3 md:grid-cols-[170px_1fr]">
+        <div className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] p-3">
+          <ScoreOrb label="PR Risk" score={100 - score} size="medium" sublabel={result.risk_level ?? "risk"} />
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          <MetricCard label="Files" value={result.changed_files?.length ?? 0} detail="Changed paths analyzed" icon={<GitPullRequest size={18} />} />
+          <MetricCard label="Domains" value={result.impacted_domains?.length ?? 0} detail="Potential blast radius" icon={<Target size={18} />} />
+          <MetricCard label="Findings" value={result.findings?.length ?? 0} detail="Review exceptions" icon={<AlertOctagon size={18} />} />
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Panel title="PR Risk Matrix" eyebrow="Impact x likelihood">
+          <RiskMatrix items={(result.findings ?? []).map((finding, index) => ({ label: finding.title ?? finding.file ?? `Finding ${index}`, severity: finding.severity, likelihood: Math.min(5, 2 + (index % 4)) }))} />
+        </Panel>
+        <Panel title="Change Heatmap" eyebrow="Changed-file concentration">
+          <Heatmap values={(result.changed_files ?? []).map((file, index) => ({ label: file, value: 40 + ((index * 23) % 60) }))} />
+        </Panel>
       </div>
       <Panel title="Review Plan">
         <div className="space-y-2">
@@ -103,6 +131,15 @@ function DriftResultView({ result }: { result: DriftResult }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function MetricMini({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
     </div>
   );
 }
