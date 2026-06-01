@@ -108,6 +108,12 @@ export async function architectureDrift(repoId: string, baselineId: string) {
   return res.json();
 }
 
+export async function dueDiligence(repoId: string) {
+  const res = await fetch(`${API_BASE}/repositories/${repoId}/due-diligence`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
 export async function fetchReport(repoId: string, name: string): Promise<string> {
   const res = await fetch(reportUrl(repoId, name), { cache: "no-store", headers: authHeaders() });
   if (!res.ok) throw new Error(await errorText(res));

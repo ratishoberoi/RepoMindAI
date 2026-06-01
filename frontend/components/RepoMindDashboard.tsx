@@ -46,6 +46,7 @@ import {
   cancelAnalysis,
   chat,
   cloneRepo,
+  dueDiligence,
   exportUrl,
   fetchReport,
   importLocal,
@@ -95,6 +96,7 @@ export function RepoMindDashboard() {
   const [riskResult, setRiskResult] = useState<any>(null);
   const [baselineRepoId, setBaselineRepoId] = useState("");
   const [driftResult, setDriftResult] = useState<any>(null);
+  const [diligenceResult, setDiligenceResult] = useState<any>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState("Overview");
@@ -372,6 +374,42 @@ export function RepoMindDashboard() {
                   )}
                 </div>
               </div>
+            </GlassPanel>
+          ) : null}
+
+          {repoSummary && tab === "Diligence" ? (
+            <GlassPanel title="CTO Due-Diligence">
+              {!diligenceResult ? (
+                <div className="flex items-center justify-between gap-4">
+                  <Empty text="Generate an investor/CTO diligence brief from repository evidence, knowledge graph hotspots, and security findings." />
+                  <button className="shrink-0 rounded-md bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950" onClick={async () => activeRepo && setDiligenceResult(await dueDiligence(activeRepo.id))}>
+                    Generate
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-4">
+                    <Info label="Readiness" value={diligenceResult.investment_readiness} />
+                    <Info label="Recommendation" value={diligenceResult.recommendation} />
+                    <Info label="Risks" value={String(diligenceResult.top_risks?.length ?? 0)} />
+                    <Info label="Gaps" value={String(diligenceResult.enterprise_gaps?.length ?? 0)} />
+                  </div>
+                  <p className="text-sm leading-6 text-slate-300">{diligenceResult.executive_summary}</p>
+                  <div className="grid gap-4 xl:grid-cols-2">
+                    <EvidenceList title="Strengths" items={diligenceResult.strengths ?? []} />
+                    <EvidenceList title="Enterprise gaps" items={diligenceResult.enterprise_gaps ?? []} />
+                  </div>
+                  <div className="space-y-2">
+                    {(diligenceResult.top_risks ?? []).map((item: any, index: number) => (
+                      <div key={`${item.evidence}-${index}`} className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm">
+                        <div className="font-medium text-red-100">{item.severity}: {item.risk}</div>
+                        <div className="mt-1 break-words text-xs text-slate-400">{item.evidence}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <EvidenceList title="Diligence questions" items={diligenceResult.diligence_questions ?? []} />
+                </div>
+              )}
             </GlassPanel>
           ) : null}
 

@@ -8,6 +8,10 @@ from pathlib import Path
 from typing import Any
 
 from repomind.core.config import get_settings
+from repomind.intelligence.due_diligence import (
+    build_cto_due_diligence,
+    render_cto_due_diligence_markdown,
+)
 from repomind.llm.prompts import report_prompt, synthesis_prompt
 from repomind.llm.registry import local_model
 from repomind.security.redaction import redact_text
@@ -19,6 +23,7 @@ REPORT_NAMES = [
     "TECH_DEBT.md",
     "RECRUITER_REVIEW.md",
     "CTO_REVIEW.md",
+    "CTO_DUE_DILIGENCE.md",
     "ROADMAP.md",
     "PROJECT_STATUS.md",
 ]
@@ -41,6 +46,7 @@ def generate_reports(
         "TECH_DEBT.md": _debt,
         "RECRUITER_REVIEW.md": _recruiter,
         "CTO_REVIEW.md": _cto,
+        "CTO_DUE_DILIGENCE.md": _due_diligence,
         "ROADMAP.md": _roadmap,
         "PROJECT_STATUS.md": _status,
     }
@@ -219,6 +225,10 @@ def _cto(summary: dict[str, Any], ai: dict[str, str]) -> str:
         + f"- Security score: {summary['scores']['security']}\n- Maintainability score: {summary['scores']['maintainability']}\n- Production readiness: {summary['scores']['production_readiness']}\n"
         + _evidence_files(summary)
     )
+
+
+def _due_diligence(summary: dict[str, Any], ai: dict[str, str]) -> str:
+    return render_cto_due_diligence_markdown(build_cto_due_diligence(summary))
 
 
 def _roadmap(summary: dict[str, Any], ai: dict[str, str]) -> str:

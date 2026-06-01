@@ -9,6 +9,7 @@ from repomind.core.config import Settings
 from repomind.core.store import RepositoryStore
 from repomind.ingestion import ingestor
 from repomind.intelligence.drift import detect_architecture_drift
+from repomind.intelligence.due_diligence import build_cto_due_diligence
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
 from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.adapters import detect_model
@@ -166,6 +167,18 @@ def test_architecture_drift_detects_domain_changes() -> None:
     assert drift["drift_level"] in {"minor", "material", "major"}
     assert "frontend/app" in drift["domain_added"]
     assert drift["score_delta"]["security"] == -20
+
+
+def test_cto_due_diligence_builds_recommendation() -> None:
+    summary = _minimal_summary()
+    summary["knowledge_graph"] = {
+        "domains": [{"name": "backend/api"}],
+        "hotspots": [{"path": "a.py", "risk_score": 30}],
+    }
+    report = build_cto_due_diligence(summary)
+    assert report["investment_readiness"] in {"strong", "moderate", "early", "high-risk"}
+    assert report["recommendation"]
+    assert report["critical_evidence"]
 
 
 def test_chunks_are_stable() -> None:
@@ -356,6 +369,7 @@ def test_report_generation_includes_enterprise_artifacts(tmp_path: Path, monkeyp
     assert "SECURITY.sarif" in paths
     assert "EXECUTIVE_SUMMARY.html" in paths
     assert "EXECUTIVE_SUMMARY.pdf" in paths
+    assert "CTO_DUE_DILIGENCE.md" in paths
 
 
 def test_compare_summaries_returns_deltas() -> None:

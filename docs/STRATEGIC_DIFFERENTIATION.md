@@ -41,3 +41,16 @@ User value:
 
 - Teams can detect whether a repo is drifting from its intended architecture.
 - Investors and CTOs can compare snapshots or branches as evidence of architectural control.
+
+## CTO Due-Diligence Reports
+
+Architecture:
+
+- `/repositories/{repo_id}/due-diligence` returns a structured CTO diligence packet.
+- Report generation also emits `CTO_DUE_DILIGENCE.md` in every report bundle.
+- The report combines score evidence, security findings, knowledge graph hotspots, enterprise gaps, and diligence questions.
+
+User value:
+
+- Produces investor/acquirer-ready evidence instead of a generic code summary.
+- Helps founders and CTOs answer technical diligence questions before an external review.

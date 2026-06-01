@@ -19,6 +19,7 @@ from repomind.core.security import (
 from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
 from repomind.intelligence.drift import detect_architecture_drift
+from repomind.intelligence.due_diligence import build_cto_due_diligence
 from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.registry import local_model
 from repomind.rag.qa import answer_question
@@ -190,6 +191,11 @@ def repository_knowledge_graph(repo_id: str) -> dict:
 @app.post("/repositories/{repo_id}/pr-risk", dependencies=PROTECTED)
 def repository_pr_risk(repo_id: str, request: PRRiskRequest) -> dict:
     return analyze_pr_risk(_summary(repo_id), request.changed_files, request.title)
+
+
+@app.get("/repositories/{repo_id}/due-diligence", dependencies=PROTECTED)
+def repository_due_diligence(repo_id: str) -> dict:
+    return build_cto_due_diligence(_summary(repo_id))
 
 
 @app.get("/repositories/{repo_id}/security", dependencies=PROTECTED)
