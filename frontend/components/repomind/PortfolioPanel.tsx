@@ -22,15 +22,18 @@ export function PortfolioPanel({
       </Panel>
     );
   }
-  const sharedDependencies = data.shared_dependencies ?? [];
-  const risks = data.risk_concentration ?? [];
-  const insights = data.strategic_insights ?? [];
+  const sharedDependencies = normalizeDependencies(data) as Array<Record<string, unknown>>;
+  const risks = [...(data.risk_concentration ?? []), ...(data.top_risks ?? [])];
+  const insights = (data.strategic_insights?.length
+    ? data.strategic_insights
+    : (data.recommendations ?? []).map((item, index) => ({ title: `Portfolio move ${index + 1}`, description: item, severity: index === 0 ? "high" : "medium" }))) as Array<Record<string, unknown>>;
+  const repositoryCount = data.total_repositories ?? data.repository_count ?? data.repositories?.length ?? 0;
 
   return (
     <div className="space-y-5">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Portfolio Score" value={asScore(data.portfolio_score)} score={asScore(data.portfolio_score)} detail="Aggregate repo health" icon={<Building2 size={18} />} />
-        <MetricCard label="Repositories" value={compactNumber(data.total_repositories)} detail="Analyzed assets" icon={<Layers3 size={18} />} />
+        <MetricCard label="Repositories" value={compactNumber(repositoryCount)} detail="Analyzed assets" icon={<Layers3 size={18} />} />
         <MetricCard label="Shared Risks" value={compactNumber(risks.length)} detail="Repeated exposure patterns" icon={<ShieldAlert size={18} />} />
         <MetricCard label="Dependency Clusters" value={compactNumber(sharedDependencies.length)} detail="Concentration map" icon={<Network size={18} />} />
       </div>
@@ -77,7 +80,7 @@ export function PortfolioPanel({
             { label: "Health", value: asScore(data.portfolio_score) },
             { label: "Risk", value: Math.max(0, 100 - risks.length * 12) },
             { label: "Deps", value: Math.max(0, 100 - sharedDependencies.length * 8) },
-            { label: "Scale", value: Math.min(100, Number(data.total_repositories ?? 0) * 18) },
+            { label: "Scale", value: Math.min(100, Number(repositoryCount ?? 0) * 18) },
             { label: "Signal", value: Math.min(100, insights.length * 20) }
           ]} />
         </Panel>
@@ -102,4 +105,13 @@ export function PortfolioPanel({
       </Panel>
     </div>
   );
+}
+
+function normalizeDependencies(data: PortfolioIntelligence) {
+  const shared = data.shared_dependencies ?? [];
+  if (shared.length) return shared;
+  const frameworks = Object.entries(data.frameworks ?? {}).map(([name, count]) => ({ name, repository_count: count, ecosystem: "framework" }));
+  const languages = Object.entries(data.languages ?? {}).map(([name, count]) => ({ name, repository_count: count, ecosystem: "language" }));
+  const domains = (data.shared_domains ?? []).map((item) => ({ name: item.name ?? item.domain ?? "domain", repository_count: item.repository_count ?? item.count ?? 1, ecosystem: "domain" }));
+  return [...frameworks, ...languages, ...domains];
 }

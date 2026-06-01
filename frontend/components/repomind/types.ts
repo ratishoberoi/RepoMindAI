@@ -41,10 +41,16 @@ export type KnowledgeGraph = {
 
 export type PortfolioIntelligence = {
   portfolio_score?: number;
+  repository_count?: number;
   total_repositories?: number;
   risk_concentration?: Array<Record<string, unknown>>;
+  top_risks?: Array<Record<string, unknown>>;
   shared_dependencies?: Array<Record<string, unknown>>;
+  frameworks?: Record<string, number>;
+  languages?: Record<string, number>;
+  shared_domains?: Array<Record<string, unknown>>;
   strategic_insights?: Array<Record<string, unknown>>;
+  recommendations?: string[];
   repositories?: Array<Record<string, unknown>>;
 };
 
@@ -80,6 +86,14 @@ export type DriftResult = {
 
 export type DiligenceResult = {
   score?: number;
+  investment_readiness?: string;
+  recommendation?: string;
+  executive_summary?: string;
+  scorecard?: Record<string, number>;
+  top_risks?: Array<Record<string, unknown>>;
+  enterprise_gaps?: string[];
+  critical_evidence?: string[];
+  diligence_questions?: string[];
   investor_summary?: string;
   cto_summary?: string;
   security_summary?: string;

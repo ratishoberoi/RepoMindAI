@@ -23,14 +23,15 @@ export function DiligenceCenter({
   onGenerate: () => void;
 }) {
   const [view, setView] = useState("investor");
-  const summary = view === "investor" ? data?.investor_summary : view === "security" ? data?.security_summary : data?.cto_summary;
+  const normalized = normalizeDiligence(data);
+  const summary = view === "investor" ? normalized.investor : view === "security" ? normalized.security : normalized.cto;
 
   return (
     <div className="space-y-5">
       <section className="overflow-hidden rounded-3xl border border-emerald-300/15 bg-[linear-gradient(135deg,rgba(52,211,153,0.14),rgba(255,255,255,0.045)_42%,rgba(56,189,248,0.08))] shadow-panel">
         <div className="grid gap-0 xl:grid-cols-[300px_1fr]">
           <div className="grid place-items-center border-b border-white/10 bg-black/20 p-5 xl:border-b-0 xl:border-r">
-            <ScoreOrb label="Investment" score={asScore(data?.score)} size="medium" sublabel="readiness" />
+            <ScoreOrb label="Investment" score={asScore(normalized.score)} size="medium" sublabel={normalized.readiness} />
           </div>
           <div className="p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -43,9 +44,9 @@ export function DiligenceCenter({
             </div>
             {data ? (
               <div className="mt-5 grid gap-3 md:grid-cols-3">
-                <MetricCard label="Strengths" value={data.strengths?.length ?? 0} detail="Defensible proof points" />
-                <MetricCard label="Risks" value={data.risks?.length ?? 0} detail="Board-level exceptions" />
-                <MetricCard label="Recommendations" value={data.recommendations?.length ?? 0} detail="Execution path" />
+                <MetricCard label="Strengths" value={normalized.strengths.length} detail="Defensible proof points" />
+                <MetricCard label="Risks" value={normalized.risks.length} detail="Board-level exceptions" />
+                <MetricCard label="Recommendations" value={normalized.recommendations.length} detail="Execution path" />
               </div>
             ) : null}
           </div>
@@ -87,38 +88,38 @@ export function DiligenceCenter({
           <Panel title="Executive Insights" eyebrow="Diligence takeaways">
             <InsightTicker
               insights={[
-                { label: "Readiness", severity: asScore(data.score) < 65 ? "high" : "low", text: `Investment readiness is ${asScore(data.score)}/100 with ${data.risks?.length ?? 0} unresolved risks.` },
+                { label: "Readiness", severity: asScore(normalized.score) < 65 ? "high" : "low", text: `Investment readiness is ${asScore(normalized.score)}/100 with ${normalized.risks.length} unresolved risks.` },
                 { label: "Narrative", severity: "info", text: "Investor, CTO, and security views are separated so each stakeholder sees the right proof points." },
                 { label: "Action", severity: "medium", text: "Recommendations are organized into an execution timeline for follow-up diligence." }
               ]}
             />
           </Panel>
           <Panel title="Diligence Risk Matrix" eyebrow="Negotiation focus">
-            <RiskMatrix items={(data.risks ?? []).map((risk, index) => ({ label: risk.title ?? risk.message ?? `Risk ${index}`, severity: risk.severity, likelihood: Math.min(5, 2 + (index % 4)) }))} />
+            <RiskMatrix items={normalized.risks.map((risk, index) => ({ label: risk.title ?? risk.message ?? `Risk ${index}`, severity: risk.severity, likelihood: Math.min(5, 2 + (index % 4)) }))} />
           </Panel>
           <Panel title="Investment Strengths" eyebrow="Evidence-backed positives">
             <div className="space-y-3">
-              {(data.strengths ?? []).map((strength, index) => (
+              {normalized.strengths.map((strength, index) => (
                 <div key={index} className="rounded-xl border border-emerald-300/15 bg-emerald-300/[0.08] p-4 text-sm leading-6 text-emerald-50">{strength}</div>
               ))}
             </div>
           </Panel>
           <Panel title="Risk Exceptions" eyebrow="Negotiation and remediation focus" className="xl:col-span-2">
             <div className="space-y-3">
-              {(data.risks ?? []).slice(0, 6).map((risk, index) => (
+              {normalized.risks.slice(0, 6).map((risk, index) => (
                 <div key={index} className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-sm font-semibold text-white">{risk.title ?? risk.message ?? "Diligence risk"}</p>
                     <SeverityBadge severity={risk.severity} />
                   </div>
-                  <p className="mt-2 text-sm leading-5 text-slate-400">{risk.recommendation ?? risk.evidence ?? risk.file ?? ""}</p>
+                  <p className="mt-2 text-sm leading-5 text-slate-400">{String((risk as any).recommendation ?? risk.evidence ?? risk.file ?? "")}</p>
                 </div>
               ))}
             </div>
           </Panel>
           <Panel title="Recommendation Timeline" eyebrow="What the acquirer or CTO does next" className="xl:col-span-2">
             <Timeline
-              items={(data.recommendations ?? ["Prioritize risks, validate deployment controls, and repeat analysis after remediation."]).slice(0, 5).map((item, index) => ({
+              items={normalized.recommendations.slice(0, 5).map((item, index) => ({
                 title: index === 0 ? "Immediate" : index < 3 ? "Near term" : "Strategic",
                 text: item
               }))}
@@ -128,4 +129,33 @@ export function DiligenceCenter({
       ) : null}
     </div>
   );
+}
+
+function normalizeDiligence(data: DiligenceResult | null) {
+  const risks = [
+    ...(data?.risks ?? []),
+    ...(data?.top_risks ?? []).map((risk) => ({
+      title: String(risk.risk ?? risk.title ?? "Diligence risk"),
+      message: String(risk.risk ?? risk.message ?? ""),
+      severity: String(risk.severity ?? "medium"),
+      evidence: String(risk.evidence ?? ""),
+      file: String(risk.evidence ?? "").split(":")[0]
+    }))
+  ];
+  const score = data?.score ?? data?.scorecard?.cto ?? data?.scorecard?.production_readiness ?? 0;
+  const readiness = data?.investment_readiness ?? "readiness";
+  const recommendation = data?.recommendation ? [data.recommendation] : [];
+  const gaps = data?.enterprise_gaps ?? [];
+  const recommendations = [...recommendation, ...gaps, ...(data?.recommendations ?? [])];
+  const executive = data?.executive_summary ?? "Generate a diligence packet to populate this memo.";
+  return {
+    score,
+    readiness,
+    strengths: data?.strengths ?? [],
+    risks,
+    recommendations: recommendations.length ? recommendations : ["Prioritize risks, validate deployment controls, and repeat analysis after remediation."],
+    investor: data?.investor_summary ?? `${executive}\n\nInvestment readiness: ${readiness}. Recommendation: ${data?.recommendation ?? "review with technical leadership"}.`,
+    cto: data?.cto_summary ?? `${executive}\n\nCritical evidence: ${(data?.critical_evidence ?? []).join(", ") || "not provided"}.`,
+    security: data?.security_summary ?? `${executive}\n\nTop risk count: ${risks.length}. ${gaps.length ? `Enterprise gaps: ${gaps.join(" ")}` : ""}`,
+  };
 }
