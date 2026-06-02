@@ -16,7 +16,7 @@ from repomind.core.auth import (
     encrypt_secret,
     issue_oauth_state,
 )
-from repomind.core.config import get_settings
+from repomind.core.config import Settings, get_settings
 from repomind.core.store import RepositoryStore, store
 from repomind.main import app, health, import_local_repository
 from repomind.schemas import LocalPathRequest
@@ -404,6 +404,26 @@ def test_store_upgrades_legacy_repository_schema(tmp_path: Path) -> None:
 
     assert repo["org_id"] == "default"
     assert repo["created_by_user_id"] == "local-admin"
+
+
+def test_production_settings_accept_railway_database_and_redis_aliases(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("REPOMIND_ENV", "production")
+    monkeypatch.delenv("REPOMIND_DATABASE_URL", raising=False)
+    monkeypatch.delenv("REPOMIND_REDIS_URL", raising=False)
+    monkeypatch.setenv("DATABASE_URL", "postgresql+psycopg://user:pass@host:5432/repomind")
+    monkeypatch.setenv("REDIS_URL", "redis://host:6379/0")
+    monkeypatch.setenv("REPOMIND_ANALYSIS_QUEUE_BACKEND", "rq")
+    monkeypatch.setenv("REPOMIND_AUTH_SECRET", "a" * 32)
+    monkeypatch.setenv("REPOMIND_SECRET_KEY", "b" * 32)
+    monkeypatch.setenv("REPOMIND_MODEL_PATH", str(tmp_path / "models" / "qwen-judge"))
+
+    settings = Settings(_env_file=None)
+
+    assert settings.database_url == "postgresql+psycopg://user:pass@host:5432/repomind"
+    assert settings.redis_url == "redis://host:6379/0"
+    assert settings.analysis_queue_backend == "rq"
 
 
 def test_analysis_runs_as_background_job(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

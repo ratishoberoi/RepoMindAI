@@ -67,7 +67,9 @@ class Settings(BaseSettings):
         ),
     )
     frontend_origin: str = "http://localhost:3000"
-    database_url: str | None = None
+    database_url: str | None = Field(
+        default=None, validation_alias=AliasChoices("REPOMIND_DATABASE_URL", "DATABASE_URL")
+    )
     api_key: str | None = None
     require_api_key: bool = True
     auth_secret: str | None = None
@@ -75,7 +77,9 @@ class Settings(BaseSettings):
     session_ttl_seconds: int = 60 * 60 * 24 * 7
     rate_limit_requests: int = 120
     rate_limit_window_seconds: int = 60
-    redis_url: str | None = None
+    redis_url: str | None = Field(
+        default=None, validation_alias=AliasChoices("REPOMIND_REDIS_URL", "REDIS_URL")
+    )
     analysis_queue_backend: str = "local"
     analysis_job_timeout_seconds: int = 60 * 60
     analysis_job_retries: int = 2

@@ -1,4 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE ??
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  "http://localhost:8000";
 const API_KEY = process.env.NEXT_PUBLIC_REPOMIND_API_KEY;
 const SESSION_KEY = "repomind_session_token";
 
