@@ -1,0 +1,35 @@
+1
+00:00:00,000 --> 00:00:04,000
+RepoMindAI turns a codebase into a CTO-grade intelligence brief.
+
+2
+00:00:04,000 --> 00:00:10,000
+Import a repository and build an evidence map of architecture, risk, security, dependencies, and technical debt.
+
+3
+00:00:10,000 --> 00:00:17,000
+The Executive Cockpit compresses engineering health into the numbers leaders care about.
+
+4
+00:00:17,000 --> 00:00:24,000
+Architecture Explorer traces how the system works, from entry points to services, models, and dependencies.
+
+5
+00:00:24,000 --> 00:00:31,000
+The Knowledge Graph reveals files, symbols, dependencies, risks, hotspots, and blast radius.
+
+6
+00:00:31,000 --> 00:00:37,000
+PR Risk estimates affected domains, deployment risk, and the review plan before release.
+
+7
+00:00:37,000 --> 00:00:43,000
+Due Diligence turns engineering evidence into CTO, investor, acquisition, and security narratives.
+
+8
+00:00:43,000 --> 00:00:48,000
+Validated on 1000 real repositories: 100% pass rate, 82.4% retrieval and citation accuracy, 96.1% architecture correctness.
+
+9
+00:00:48,000 --> 00:00:51,000
+RepoMindAI gives engineering leaders evidence before decisions.
