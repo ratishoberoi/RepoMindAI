@@ -26,16 +26,19 @@ def require_api_key(request: Request) -> None:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="API key protection is enabled but REPOMIND_API_KEY is not configured.",
         )
-    supplied = (
-        request.headers.get("x-api-key")
-        or _bearer_token(request)
-        or request.query_params.get("api_key")
-    )
-    if not supplied or not compare_digest(supplied, settings.api_key):
+    if not supplied_api_key_matches(request):
         audit_event("auth_failed", request, status_code=status.HTTP_401_UNAUTHORIZED)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing API key."
         )
+
+
+def supplied_api_key_matches(request: Request) -> bool:
+    settings = get_settings()
+    if not settings.api_key:
+        return False
+    supplied = request.headers.get("x-api-key") or request.query_params.get("api_key")
+    return bool(supplied and compare_digest(supplied, settings.api_key))
 
 
 def _bearer_token(request: Request) -> str | None:

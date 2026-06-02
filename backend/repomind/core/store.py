@@ -12,8 +12,10 @@ from repomind.core.config import get_settings
 from repomind.db.models import (
     ArtifactRecord,
     Base,
+    ExternalAccountRecord,
     JobRecord,
     MembershipRecord,
+    OAuthStateRecord,
     OrganizationRecord,
     RepositoryRecord,
     TeamRecord,
@@ -74,6 +76,227 @@ class RepositoryStore:
             session.add(record)
             session.commit()
             return _repo_dict(record)
+
+    def create_user_with_org(
+        self,
+        email: str,
+        name: str,
+        password_hash: str | None,
+        auth_provider: str = "password",
+        provider_subject: str | None = None,
+        org_name: str | None = None,
+    ) -> dict[str, Any]:
+        now = time.time()
+        user_id = uuid4().hex
+        org_id = uuid4().hex
+        org_slug = _slug(org_name or email.split("@", 1)[0]) or f"org-{org_id[:8]}"
+        with self._lock, self._session() as session:
+            existing = session.scalar(select(UserRecord).where(UserRecord.email == email.lower()))
+            if existing is not None:
+                raise ValueError("A user with this email already exists.")
+            suffix = 1
+            base_slug = org_slug
+            while session.scalar(
+                select(OrganizationRecord).where(OrganizationRecord.slug == org_slug)
+            ):
+                suffix += 1
+                org_slug = f"{base_slug}-{suffix}"
+            org = OrganizationRecord(
+                id=org_id,
+                slug=org_slug,
+                name=org_name or f"{name}'s Workspace",
+                plan="team",
+                created_at=now,
+                updated_at=now,
+            )
+            user = UserRecord(
+                id=user_id,
+                email=email.lower(),
+                name=name,
+                auth_provider=auth_provider,
+                provider_subject=provider_subject,
+                password_hash=password_hash,
+                created_at=now,
+                updated_at=now,
+            )
+            membership = MembershipRecord(
+                id=f"{org_id}:{user_id}:org",
+                org_id=org_id,
+                user_id=user_id,
+                team_id=None,
+                role="owner",
+                created_at=now,
+            )
+            session.add_all([org, user, membership])
+            session.commit()
+            return {
+                "user": _user_dict(user),
+                "organization": _org_dict(org),
+                "membership": _membership_dict(membership),
+            }
+
+    def get_user_by_email(self, email: str) -> dict[str, Any]:
+        with self._session() as session:
+            record = session.scalar(select(UserRecord).where(UserRecord.email == email.lower()))
+            if record is None:
+                raise KeyError(email)
+            return _user_dict(record)
+
+    def get_user(self, user_id: str) -> dict[str, Any]:
+        with self._session() as session:
+            record = session.get(UserRecord, user_id)
+            if record is None:
+                raise KeyError(user_id)
+            return _user_dict(record)
+
+    def memberships_for_user(self, user_id: str) -> list[dict[str, Any]]:
+        with self._session() as session:
+            records = session.scalars(
+                select(MembershipRecord).where(MembershipRecord.user_id == user_id)
+            ).all()
+            return [_membership_dict(record) for record in records]
+
+    def assert_membership(self, user_id: str, org_id: str) -> dict[str, Any]:
+        with self._session() as session:
+            record = session.scalar(
+                select(MembershipRecord).where(
+                    MembershipRecord.user_id == user_id,
+                    MembershipRecord.org_id == org_id,
+                )
+            )
+            if record is None:
+                raise KeyError(org_id)
+            return _membership_dict(record)
+
+    def upsert_external_account(
+        self,
+        org_id: str,
+        user_id: str,
+        provider: str,
+        provider_subject: str,
+        username: str | None = None,
+        access_token_encrypted: str | None = None,
+        refresh_token_encrypted: str | None = None,
+        installation_id: str | None = None,
+        scopes: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        now = time.time()
+        with self._lock, self._session() as session:
+            record = session.scalar(
+                select(ExternalAccountRecord).where(
+                    ExternalAccountRecord.provider == provider,
+                    ExternalAccountRecord.provider_subject == provider_subject,
+                )
+            )
+            if record is None:
+                record = ExternalAccountRecord(
+                    id=uuid4().hex,
+                    org_id=org_id,
+                    user_id=user_id,
+                    provider=provider,
+                    provider_subject=provider_subject,
+                    username=username,
+                    access_token_encrypted=access_token_encrypted,
+                    refresh_token_encrypted=refresh_token_encrypted,
+                    installation_id=installation_id,
+                    scopes=scopes or [],
+                    metadata_json=metadata or {},
+                    created_at=now,
+                    updated_at=now,
+                )
+                session.add(record)
+            else:
+                record.org_id = org_id
+                record.user_id = user_id
+                record.username = username
+                record.access_token_encrypted = access_token_encrypted
+                record.refresh_token_encrypted = refresh_token_encrypted
+                record.installation_id = installation_id
+                record.scopes = scopes or []
+                record.metadata_json = metadata or {}
+                record.updated_at = now
+            session.commit()
+            return _external_account_dict(record)
+
+    def get_external_account(self, org_id: str, user_id: str, provider: str) -> dict[str, Any]:
+        with self._session() as session:
+            record = session.scalar(
+                select(ExternalAccountRecord).where(
+                    ExternalAccountRecord.org_id == org_id,
+                    ExternalAccountRecord.user_id == user_id,
+                    ExternalAccountRecord.provider == provider,
+                )
+            )
+            if record is None:
+                raise KeyError(provider)
+            return _external_account_dict(record)
+
+    def create_oauth_state(
+        self,
+        provider: str,
+        state: str,
+        redirect_uri: str,
+        org_id: str | None,
+        user_id: str | None,
+        expires_at: float,
+    ) -> dict[str, Any]:
+        now = time.time()
+        with self._lock, self._session() as session:
+            record = OAuthStateRecord(
+                state=state,
+                provider=provider,
+                org_id=org_id,
+                user_id=user_id,
+                redirect_uri=redirect_uri,
+                created_at=now,
+                expires_at=expires_at,
+            )
+            session.add(record)
+            session.commit()
+            return _oauth_state_dict(record)
+
+    def pop_oauth_state(self, provider: str, state: str) -> dict[str, Any]:
+        with self._lock, self._session() as session:
+            record = session.get(OAuthStateRecord, state)
+            if record is None or record.provider != provider:
+                raise KeyError(state)
+            item = _oauth_state_dict(record)
+            session.delete(record)
+            session.commit()
+            if item["expires_at"] < time.time():
+                raise KeyError(state)
+            return item
+
+    def delete_account(self, user_id: str, org_id: str) -> dict[str, Any]:
+        with self._lock, self._session() as session:
+            self.assert_membership(user_id, org_id)
+            repos = session.scalars(
+                select(RepositoryRecord).where(RepositoryRecord.org_id == org_id)
+            ).all()
+            repo_items = [_repo_dict(record) for record in repos]
+            for record in repos:
+                session.execute(delete(ArtifactRecord).where(ArtifactRecord.repo_id == record.id))
+                session.execute(delete(JobRecord).where(JobRecord.repo_id == record.id))
+                session.delete(record)
+            session.execute(
+                delete(ExternalAccountRecord).where(
+                    ExternalAccountRecord.org_id == org_id,
+                    ExternalAccountRecord.user_id == user_id,
+                )
+            )
+            session.execute(delete(MembershipRecord).where(MembershipRecord.user_id == user_id))
+            user = session.get(UserRecord, user_id)
+            if user:
+                session.delete(user)
+            if not session.scalar(
+                select(MembershipRecord.id).where(MembershipRecord.org_id == org_id).limit(1)
+            ):
+                org = session.get(OrganizationRecord, org_id)
+                if org:
+                    session.delete(org)
+            session.commit()
+            return {"repositories": repo_items, "user_id": user_id, "org_id": org_id}
 
     def update(self, repo_id: str, **fields: Any) -> dict[str, Any]:
         with self._lock, self._session() as session:
@@ -232,21 +455,30 @@ class RepositoryStore:
                 "ALTER TABLE repositories ADD COLUMN created_by_user_id VARCHAR(64) DEFAULT 'local-admin'"
             )
         if not statements:
-            return
+            pass
         with self.engine.begin() as connection:
             for statement in statements:
                 connection.execute(text(statement))
-            connection.execute(
-                text(
-                    "UPDATE repositories SET org_id = 'default' WHERE org_id IS NULL OR org_id = ''"
+            if statements:
+                connection.execute(
+                    text(
+                        "UPDATE repositories SET org_id = 'default' WHERE org_id IS NULL OR org_id = ''"
+                    )
                 )
-            )
-            connection.execute(
-                text(
-                    "UPDATE repositories SET created_by_user_id = 'local-admin' "
-                    "WHERE created_by_user_id IS NULL OR created_by_user_id = ''"
+                connection.execute(
+                    text(
+                        "UPDATE repositories SET created_by_user_id = 'local-admin' "
+                        "WHERE created_by_user_id IS NULL OR created_by_user_id = ''"
+                    )
                 )
-            )
+        user_columns = (
+            {column["name"] for column in inspector.get_columns("users")}
+            if "users" in inspector.get_table_names()
+            else set()
+        )
+        if user_columns and "password_hash" not in user_columns:
+            with self.engine.begin() as connection:
+                connection.execute(text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(256)"))
 
     def _migrate_legacy_json(self) -> None:
         if not self.legacy_path.exists():
@@ -306,6 +538,75 @@ def _repo_dict(record: RepositoryRecord) -> dict[str, Any]:
         "repository_deleted_at": record.repository_deleted_at,
         "repository_retention_minutes": record.repository_retention_minutes,
     }
+
+
+def _user_dict(record: UserRecord) -> dict[str, Any]:
+    return {
+        "id": record.id,
+        "email": record.email,
+        "name": record.name,
+        "auth_provider": record.auth_provider,
+        "provider_subject": record.provider_subject,
+        "password_hash": record.password_hash,
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+    }
+
+
+def _org_dict(record: OrganizationRecord) -> dict[str, Any]:
+    return {
+        "id": record.id,
+        "slug": record.slug,
+        "name": record.name,
+        "plan": record.plan,
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+    }
+
+
+def _membership_dict(record: MembershipRecord) -> dict[str, Any]:
+    return {
+        "id": record.id,
+        "org_id": record.org_id,
+        "user_id": record.user_id,
+        "team_id": record.team_id,
+        "role": record.role,
+        "created_at": record.created_at,
+    }
+
+
+def _external_account_dict(record: ExternalAccountRecord) -> dict[str, Any]:
+    return {
+        "id": record.id,
+        "org_id": record.org_id,
+        "user_id": record.user_id,
+        "provider": record.provider,
+        "provider_subject": record.provider_subject,
+        "username": record.username,
+        "access_token_encrypted": record.access_token_encrypted,
+        "refresh_token_encrypted": record.refresh_token_encrypted,
+        "installation_id": record.installation_id,
+        "scopes": record.scopes or [],
+        "metadata": record.metadata_json or {},
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+    }
+
+
+def _oauth_state_dict(record: OAuthStateRecord) -> dict[str, Any]:
+    return {
+        "state": record.state,
+        "provider": record.provider,
+        "org_id": record.org_id,
+        "user_id": record.user_id,
+        "redirect_uri": record.redirect_uri,
+        "created_at": record.created_at,
+        "expires_at": record.expires_at,
+    }
+
+
+def _slug(value: str) -> str:
+    return "".join(ch.lower() if ch.isalnum() else "-" for ch in value).strip("-")[:80]
 
 
 def _json_safe(value: Any) -> Any:

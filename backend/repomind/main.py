@@ -3,20 +3,33 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import httpx
 from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
+from repomind.core.alerts import send_alert
+from repomind.core.auth import (
+    complete_github_oauth,
+    complete_google_oauth,
+    create_session,
+    current_identity,
+    decrypt_secret,
+    github_authorize_url,
+    google_authorize_url,
+    hash_password,
+    issue_oauth_state,
+    verify_password,
+)
 from repomind.core.cleanup import purge_repository, start_cleanup_scheduler
 from repomind.core.config import get_settings
-from repomind.core.jobs import cancel_analysis_job, start_analysis_job
-from repomind.core.observability import system_snapshot
+from repomind.core.jobs import cancel_analysis_job, queue_snapshot, start_analysis_job
+from repomind.core.observability import prometheus_metrics, system_snapshot
 from repomind.core.security import (
     RateLimitMiddleware,
     RequestTracingMiddleware,
     SecurityHeadersMiddleware,
     audit_event,
-    require_api_key,
 )
 from repomind.core.store import store
 from repomind.ingestion.ingestor import ingest_github, ingest_local_path, ingest_zip
@@ -31,10 +44,19 @@ from repomind.intelligence.pr_risk import analyze_pr_risk
 from repomind.llm.registry import local_model
 from repomind.rag.qa import answer_question
 from repomind.reports.generator import compare_summaries, export_bundle
-from repomind.schemas import ChatRequest, CloneRequest, LocalPathRequest, PRRiskRequest
+from repomind.schemas import (
+    ChatRequest,
+    CloneRequest,
+    GitHubAppCallbackRequest,
+    GitHubRepositoryImportRequest,
+    LocalPathRequest,
+    LoginRequest,
+    PRRiskRequest,
+    SignupRequest,
+)
 
 settings = get_settings()
-PROTECTED = [Depends(require_api_key)]
+PROTECTED = [Depends(current_identity)]
 
 
 @asynccontextmanager
@@ -93,6 +115,96 @@ def runtime_config() -> dict:
     }
 
 
+@app.post("/auth/signup")
+def signup(payload: SignupRequest, request: Request) -> dict:
+    try:
+        account = store.create_user_with_org(
+            email=payload.email,
+            name=payload.name,
+            password_hash=hash_password(payload.password),
+            org_name=payload.organization_name,
+        )
+    except ValueError as exc:
+        audit_event("signup_failed", request, reason=str(exc), status_code=400)
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    membership = account["membership"]
+    issued = create_session(
+        account["user"]["id"], account["organization"]["id"], [membership["role"]]
+    )
+    session = {
+        "access_token": issued["access_token"],
+        "expires_at": issued["expires_at"],
+        "token_type": "bearer",
+        "organization": account["organization"],
+        "user": {
+            "id": account["user"]["id"],
+            "email": account["user"]["email"],
+            "name": account["user"]["name"],
+        },
+        "roles": [membership["role"]],
+    }
+    audit_event(
+        "signup",
+        request,
+        user_id=account["user"]["id"],
+        org_id=account["organization"]["id"],
+        status_code=200,
+    )
+    return session
+
+
+@app.post("/auth/login")
+def login(payload: LoginRequest, request: Request) -> dict:
+    try:
+        user = store.get_user_by_email(payload.email)
+    except KeyError as exc:
+        audit_event("login_failed", request, email=payload.email, status_code=401)
+        raise HTTPException(status_code=401, detail="Invalid email or password.") from exc
+    if not verify_password(payload.password, user.get("password_hash")):
+        audit_event("login_failed", request, email=payload.email, status_code=401)
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+    memberships = store.memberships_for_user(user["id"])
+    if not memberships:
+        raise HTTPException(status_code=403, detail="User does not belong to a workspace.")
+    org_id = memberships[0]["org_id"]
+    roles = [item["role"] for item in memberships if item["org_id"] == org_id]
+    session = create_session(user["id"], org_id, roles)
+    audit_event("login", request, user_id=user["id"], org_id=org_id, status_code=200)
+    return {
+        **session,
+        "user": {"id": user["id"], "email": user["email"], "name": user["name"]},
+        "organization": {"id": org_id},
+    }
+
+
+@app.get("/auth/github/login")
+def github_login(request: Request, redirect_uri: str | None = None) -> dict:
+    redirect_uri = redirect_uri or f"{settings.public_app_url}/auth/github/callback"
+    state = issue_oauth_state("github", redirect_uri, request)
+    return {"authorize_url": github_authorize_url(state, redirect_uri), "state": state}
+
+
+@app.get("/auth/github/callback")
+async def github_callback(code: str, state: str, request: Request) -> dict:
+    result = await complete_github_oauth(code, state)
+    audit_event("github_oauth_login", request, user_id=result["user"]["id"], status_code=200)
+    return result
+
+
+@app.get("/auth/google/login")
+def google_login(request: Request, redirect_uri: str | None = None) -> dict:
+    redirect_uri = redirect_uri or f"{settings.public_app_url}/auth/google/callback"
+    state = issue_oauth_state("google", redirect_uri, request)
+    return {"authorize_url": google_authorize_url(state, redirect_uri), "state": state}
+
+
+@app.get("/auth/google/callback")
+async def google_callback(code: str, state: str, request: Request) -> dict:
+    result = await complete_google_oauth(code, state)
+    audit_event("google_oauth_login", request, user_id=result["user"]["id"], status_code=200)
+    return result
+
+
 @app.get("/repositories", dependencies=PROTECTED)
 def list_repositories(request: Request) -> list[dict]:
     return store.list(org_id=_org_id(request))
@@ -117,7 +229,131 @@ def tenant_context(request: Request) -> dict:
 
 @app.get("/admin/system", dependencies=PROTECTED)
 def admin_system() -> dict:
-    return system_snapshot(store)
+    return system_snapshot(store) | {"queue": queue_snapshot()}
+
+
+@app.get("/metrics")
+def metrics() -> Response:
+    payload, media_type = prometheus_metrics(store, queue_snapshot())
+    return Response(content=payload, media_type=media_type)
+
+
+@app.post("/admin/alerts/test", dependencies=PROTECTED)
+def test_alert(request: Request) -> dict:
+    result = send_alert(
+        "manual_test",
+        {"request_id": getattr(request.state, "request_id", None), "user_id": _user_id(request)},
+    )
+    audit_event(
+        "alert_tested", request, deliveries=len(result.get("deliveries", [])), status_code=200
+    )
+    return result
+
+
+@app.get("/github/repositories", dependencies=PROTECTED)
+async def github_repositories(request: Request) -> dict:
+    try:
+        account = store.get_external_account(_org_id(request), _user_id(request), "github")
+        token = decrypt_secret(account["access_token_encrypted"])
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(status_code=409, detail="GitHub OAuth is not connected.") from exc
+    async with httpx.AsyncClient(timeout=15) as client:
+        response = await client.get(
+            f"{settings.github_api_url}/user/repos",
+            headers={"authorization": f"Bearer {token}", "accept": "application/json"},
+            params={"affiliation": "owner,collaborator,organization_member", "per_page": 100},
+        )
+        response.raise_for_status()
+    repos = [
+        {
+            "id": item.get("id"),
+            "name": item.get("name"),
+            "full_name": item.get("full_name"),
+            "private": item.get("private"),
+            "default_branch": item.get("default_branch"),
+            "clone_url": item.get("clone_url"),
+            "updated_at": item.get("updated_at"),
+        }
+        for item in response.json()
+        if item.get("clone_url")
+    ]
+    audit_event("github_repositories_listed", request, count=len(repos), status_code=200)
+    return {"repositories": repos}
+
+
+@app.post("/github/repositories/import", dependencies=PROTECTED)
+def import_github_repository(payload: GitHubRepositoryImportRequest, request: Request) -> dict:
+    try:
+        repo = ingest_github(str(payload.clone_url))
+        repo = _assign_tenant(repo, request)
+        audit_event("github_repository_imported", request, repo_id=repo["id"], status_code=200)
+        return _public_repo(repo)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/github/app/install-url", dependencies=PROTECTED)
+def github_app_install_url(request: Request) -> dict:
+    if not settings.github_app_slug:
+        raise HTTPException(status_code=503, detail="GitHub App is not configured.")
+    state = issue_oauth_state(
+        "github_app",
+        f"{settings.public_app_url}/github/app/callback",
+        request,
+    )
+    return {
+        "install_url": f"https://github.com/apps/{settings.github_app_slug}/installations/new?state={state}",
+        "state": state,
+    }
+
+
+@app.post("/github/app/callback", dependencies=PROTECTED)
+def github_app_callback(payload: GitHubAppCallbackRequest, request: Request) -> dict:
+    try:
+        state = store.pop_oauth_state("github_app", payload.state)
+    except KeyError as exc:
+        audit_event("github_app_install_failed", request, reason="invalid_state", status_code=400)
+        raise HTTPException(status_code=400, detail="Invalid or expired GitHub App state.") from exc
+    if state.get("org_id") != _org_id(request) or state.get("user_id") != _user_id(request):
+        audit_event(
+            "github_app_install_failed", request, reason="state_identity_mismatch", status_code=403
+        )
+        raise HTTPException(
+            status_code=403, detail="GitHub App state does not match the current user."
+        )
+    account = store.upsert_external_account(
+        org_id=_org_id(request),
+        user_id=_user_id(request),
+        provider="github_app",
+        provider_subject=payload.installation_id,
+        installation_id=payload.installation_id,
+        metadata={"setup_action": payload.setup_action},
+    )
+    audit_event(
+        "github_app_installed",
+        request,
+        installation_id=payload.installation_id,
+        status_code=200,
+    )
+    return {"connected": True, "installation_id": account["installation_id"]}
+
+
+@app.delete("/account", dependencies=PROTECTED)
+def delete_account(request: Request) -> dict:
+    org_id = _org_id(request)
+    user_id = _user_id(request)
+    repos = list(store.list(org_id=org_id))
+    for repo in repos:
+        purge_repository(repo["id"], store)
+    deleted = store.delete_account(user_id, org_id)
+    audit_event("account_deleted", request, org_id=org_id, user_id=user_id, status_code=200)
+    return {
+        "deleted": {
+            "user_id": deleted["user_id"],
+            "org_id": deleted["org_id"],
+            "repositories": len(repos),
+        }
+    }
 
 
 @app.post("/repositories/upload", dependencies=PROTECTED)
@@ -397,11 +633,13 @@ def _summary(repo_id: str, request: Request) -> dict:
 
 
 def _org_id(request: Request) -> str:
-    return request.headers.get("x-org-id") or "default"
+    return getattr(request.state, "org_id", None) or request.headers.get("x-org-id") or "default"
 
 
 def _user_id(request: Request) -> str:
-    return request.headers.get("x-user-id") or "local-admin"
+    return (
+        getattr(request.state, "user_id", None) or request.headers.get("x-user-id") or "local-admin"
+    )
 
 
 def _compact_summary(summary: dict) -> dict:

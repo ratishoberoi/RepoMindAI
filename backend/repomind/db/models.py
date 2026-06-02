@@ -76,6 +76,7 @@ class UserRecord(Base):
     name: Mapped[str] = mapped_column(String(256), nullable=False)
     auth_provider: Mapped[str] = mapped_column(String(64), nullable=False, default="api_key")
     provider_subject: Mapped[str | None] = mapped_column(String(256), nullable=True, index=True)
+    password_hash: Mapped[str | None] = mapped_column(String(256), nullable=True)
     created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
     updated_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
 
@@ -118,3 +119,37 @@ class ApiKeyRecord(Base):
     scopes: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
     last_used_at: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+
+class ExternalAccountRecord(Base):
+    __tablename__ = "external_accounts"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    org_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    provider: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    provider_subject: Mapped[str] = mapped_column(String(256), nullable=False, index=True)
+    username: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    access_token_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
+    refresh_token_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
+    installation_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+    scopes: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    metadata_json: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+    updated_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_subject", name="uq_external_provider_subject"),
+    )
+
+
+class OAuthStateRecord(Base):
+    __tablename__ = "oauth_states"
+
+    state: Mapped[str] = mapped_column(String(128), primary_key=True)
+    provider: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    org_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    user_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    redirect_uri: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)
+    expires_at: Mapped[float] = mapped_column(Float, nullable=False, index=True)

@@ -1,5 +1,6 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
 const API_KEY = process.env.NEXT_PUBLIC_REPOMIND_API_KEY;
+const SESSION_KEY = "repomind_session_token";
 
 export type Repository = {
   id: string;
@@ -21,6 +22,84 @@ export type AnalysisJob = {
   created_at?: number;
   updated_at?: number;
 };
+
+export type AuthSession = {
+  access_token: string;
+  token_type: string;
+  expires_at?: number;
+  organization?: { id: string; name?: string; slug?: string };
+  user?: { id: string; email: string; name: string };
+  roles?: string[];
+};
+
+export async function signupAccount(email: string, name: string, password: string, organization_name?: string): Promise<AuthSession> {
+  const res = await fetch(`${API_BASE}/auth/signup`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email, name, password, organization_name })
+  });
+  if (!res.ok) throw new Error(await errorText(res));
+  const session = await res.json();
+  persistSession(session.access_token);
+  return session;
+}
+
+export async function loginAccount(email: string, password: string): Promise<AuthSession> {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  if (!res.ok) throw new Error(await errorText(res));
+  const session = await res.json();
+  persistSession(session.access_token);
+  return session;
+}
+
+export function logoutAccount() {
+  if (typeof window !== "undefined") window.localStorage.removeItem(SESSION_KEY);
+}
+
+export async function githubLoginUrl(): Promise<{ authorize_url: string; state: string }> {
+  const res = await fetch(`${API_BASE}/auth/github/login`, { cache: "no-store" });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function googleLoginUrl(): Promise<{ authorize_url: string; state: string }> {
+  const res = await fetch(`${API_BASE}/auth/google/login`, { cache: "no-store" });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function listGitHubRepositories() {
+  const res = await fetch(`${API_BASE}/github/repositories`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function importGitHubRepository(clone_url: string): Promise<Repository> {
+  const res = await fetch(`${API_BASE}/github/repositories/import`, {
+    method: "POST",
+    headers: jsonHeaders(),
+    body: JSON.stringify({ clone_url })
+  });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function githubAppInstallUrl(): Promise<{ install_url: string; state: string }> {
+  const res = await fetch(`${API_BASE}/github/app/install-url`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
+export async function deleteAccount() {
+  const res = await fetch(`${API_BASE}/account`, { method: "DELETE", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  logoutAccount();
+  return res.json();
+}
 
 export async function listRepositories(): Promise<Repository[]> {
   const res = await fetch(`${API_BASE}/repositories`, { cache: "no-store", headers: authHeaders() });
@@ -175,6 +254,8 @@ function jsonHeaders(): Record<string, string> {
 }
 
 function authHeaders(): Record<string, string> {
+  const token = sessionToken();
+  if (token) return { authorization: `Bearer ${token}` };
   return API_KEY ? { "x-api-key": API_KEY } : {};
 }
 
@@ -183,4 +264,13 @@ function withApiKey(url: string) {
   const next = new URL(url);
   next.searchParams.set("api_key", API_KEY);
   return next.toString();
+}
+
+function persistSession(token: string) {
+  if (typeof window !== "undefined") window.localStorage.setItem(SESSION_KEY, token);
+}
+
+function sessionToken() {
+  if (typeof window === "undefined") return "";
+  return window.localStorage.getItem(SESSION_KEY) ?? "";
 }

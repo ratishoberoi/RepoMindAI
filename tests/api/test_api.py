@@ -1,11 +1,21 @@
 import threading
 import time
 from pathlib import Path
+from typing import Any
 
 import pytest
+import repomind.core.auth as auth_module
 import repomind.core.jobs as jobs
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
+from repomind.core import alerts as alerts_module
+from repomind.core.auth import (
+    complete_github_oauth,
+    complete_google_oauth,
+    decrypt_secret,
+    encrypt_secret,
+    issue_oauth_state,
+)
 from repomind.core.config import get_settings
 from repomind.core.store import RepositoryStore, store
 from repomind.main import app, health, import_local_repository
@@ -44,6 +54,261 @@ def test_api_accepts_configured_key() -> None:
     assert response.headers["x-content-type-options"] == "nosniff"
 
 
+def test_user_can_signup_login_and_use_session() -> None:
+    signup = client.post(
+        "/auth/signup",
+        json={
+            "email": "founder@example.com",
+            "name": "Founder",
+            "password": "correct horse battery staple",
+            "organization_name": "Founder Workspace",
+        },
+    )
+    assert signup.status_code == 200
+    token = signup.json()["access_token"]
+    assert token
+
+    listed = client.get("/repositories", headers={"authorization": f"Bearer {token}"})
+    assert listed.status_code == 200
+
+    login = client.post(
+        "/auth/login",
+        json={"email": "founder@example.com", "password": "correct horse battery staple"},
+    )
+    assert login.status_code == 200
+    assert login.json()["organization"]["id"] == signup.json()["organization"]["id"]
+
+
+def test_session_tenant_cannot_be_overridden_with_headers(tmp_path: Path) -> None:
+    signup = client.post(
+        "/auth/signup",
+        json={
+            "email": "tenant-lock@example.com",
+            "name": "Tenant Lock",
+            "password": "tenant lock password",
+        },
+    ).json()
+    token = signup["access_token"]
+    source = tmp_path / "tenant_session"
+    source.mkdir()
+    (source / "README.md").write_text("# Tenant session\n")
+
+    imported = client.post(
+        "/repositories/local",
+        json={"path": str(source)},
+        headers={
+            "authorization": f"Bearer {token}",
+            "x-org-id": "attacker-controlled-org",
+            "x-user-id": "attacker",
+        },
+    )
+    assert imported.status_code == 200
+    repo = store.get(imported.json()["id"])
+    assert repo["org_id"] == signup["organization"]["id"]
+    assert repo["org_id"] != "attacker-controlled-org"
+
+
+def test_user_can_delete_account_and_repository_data(tmp_path: Path) -> None:
+    signup = client.post(
+        "/auth/signup",
+        json={
+            "email": "delete-me@example.com",
+            "name": "Delete Me",
+            "password": "delete account password",
+        },
+    ).json()
+    token = signup["access_token"]
+    source = tmp_path / "delete_repo"
+    source.mkdir()
+    (source / "README.md").write_text("# Delete\n")
+    imported = client.post(
+        "/repositories/local",
+        json={"path": str(source)},
+        headers={"authorization": f"Bearer {token}"},
+    ).json()
+    repo_path = Path(store.get(imported["id"])["path"])
+    assert repo_path.exists()
+
+    deleted = client.delete("/account", headers={"authorization": f"Bearer {token}"})
+    assert deleted.status_code == 200
+    assert deleted.json()["deleted"]["repositories"] == 1
+    assert not repo_path.exists()
+    with pytest.raises(KeyError):
+        store.get(imported["id"])
+    with pytest.raises(KeyError):
+        store.get_user(signup["user"]["id"])
+
+
+def test_secret_encryption_round_trips_without_plaintext() -> None:
+    encrypted = encrypt_secret("gho_secret_token")
+    assert "gho_secret_token" not in encrypted
+    assert decrypt_secret(encrypted) == "gho_secret_token"
+
+
+@pytest.mark.asyncio
+async def test_github_oauth_callback_creates_session_and_encrypted_external_account(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "github_oauth_client_id", "github-client")
+    monkeypatch.setattr(settings, "github_oauth_client_secret", "github-secret")
+    state = issue_oauth_state("github", "http://localhost/github/callback")
+    monkeypatch.setattr(auth_module.httpx, "AsyncClient", _fake_oauth_client("github-token"))
+
+    result = await complete_github_oauth("code", state)
+
+    assert result["access_token"]
+    account = store.get_external_account(
+        result["organization"]["id"], result["user"]["id"], "github"
+    )
+    assert "github-token" not in account["access_token_encrypted"]
+    assert decrypt_secret(account["access_token_encrypted"]) == "github-token"
+
+
+@pytest.mark.asyncio
+async def test_google_oauth_callback_creates_session_and_encrypted_external_account(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "google_oauth_client_id", "google-client")
+    monkeypatch.setattr(settings, "google_oauth_client_secret", "google-secret")
+    state = issue_oauth_state("google", "http://localhost/google/callback")
+    monkeypatch.setattr(auth_module.httpx, "AsyncClient", _fake_oauth_client("google-token"))
+
+    result = await complete_google_oauth("code", state)
+
+    assert result["access_token"]
+    account = store.get_external_account(
+        result["organization"]["id"], result["user"]["id"], "google"
+    )
+    assert "google-token" not in account["access_token_encrypted"]
+    assert decrypt_secret(account["access_token_encrypted"]) == "google-token"
+
+
+def test_github_app_installation_requires_valid_state(monkeypatch: pytest.MonkeyPatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "github_app_slug", "repomind-ai")
+    signup = client.post(
+        "/auth/signup",
+        json={
+            "email": "github-app@example.com",
+            "name": "GitHub App",
+            "password": "github app password",
+        },
+    ).json()
+    token = signup["access_token"]
+    install = client.get(
+        "/github/app/install-url",
+        headers={"authorization": f"Bearer {token}"},
+    )
+    assert install.status_code == 200
+    state = install.json()["state"]
+    invalid = client.post(
+        "/github/app/callback",
+        json={
+            "installation_id": "123",
+            "setup_action": "install",
+            "state": "wrong-state-that-is-long-enough",
+        },
+        headers={"authorization": f"Bearer {token}"},
+    )
+    assert invalid.status_code == 400
+    valid = client.post(
+        "/github/app/callback",
+        json={"installation_id": "123", "setup_action": "install", "state": state},
+        headers={"authorization": f"Bearer {token}"},
+    )
+    assert valid.status_code == 200
+    assert valid.json()["connected"] is True
+
+
+def _fake_oauth_client(access_token: str):
+    class FakeResponse:
+        def __init__(self, payload: Any, status_code: int = 200) -> None:
+            self._payload = payload
+            self.status_code = status_code
+
+        def json(self) -> Any:
+            return self._payload
+
+        def raise_for_status(self) -> None:
+            if self.status_code >= 400:
+                raise RuntimeError("HTTP error")
+
+    class FakeClient:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+        async def __aenter__(self) -> "FakeClient":
+            return self
+
+        async def __aexit__(self, *args: Any) -> None:
+            return None
+
+        async def post(self, url: str, **kwargs: Any) -> FakeResponse:
+            if "github.com" in url:
+                return FakeResponse({"access_token": access_token, "scope": "repo,user"})
+            return FakeResponse({"access_token": access_token, "refresh_token": "refresh-token"})
+
+        async def get(self, url: str, **kwargs: Any) -> FakeResponse:
+            if url.endswith("/user"):
+                return FakeResponse({"id": 4242, "login": "repomind-user", "name": "RepoMind User"})
+            if url.endswith("/user/emails"):
+                return FakeResponse(
+                    [{"email": "repomind-github@example.com", "primary": True, "verified": True}]
+                )
+            return FakeResponse(
+                {
+                    "sub": "google-subject",
+                    "email": "repomind-google@example.com",
+                    "name": "RepoMind Google",
+                }
+            )
+
+    return FakeClient
+
+
+def test_rate_limiting_is_enforced(monkeypatch: pytest.MonkeyPatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "rate_limit_requests", 2)
+    monkeypatch.setattr(settings, "rate_limit_window_seconds", 60)
+    path = "/config"
+    statuses = [
+        client.get(path, headers={"x-api-key": "test-api-key"}).status_code for _ in range(3)
+    ]
+    assert statuses[-1] == 429
+    monkeypatch.setattr(settings, "rate_limit_requests", 120)
+
+
+def test_metrics_endpoint_exports_prometheus_text() -> None:
+    response = client.get("/metrics")
+    assert response.status_code == 200
+    assert "repomind_" in response.text
+
+
+def test_alert_webhook_delivery_reports_actual_status(monkeypatch: pytest.MonkeyPatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "alert_webhook_url", "https://alerts.example.test")
+
+    class FakeResponse:
+        status_code = 200
+        is_success = True
+
+    calls = []
+
+    def fake_post(url: str, json: dict, timeout: int) -> FakeResponse:
+        calls.append({"url": url, "json": json, "timeout": timeout})
+        return FakeResponse()
+
+    monkeypatch.setattr(alerts_module.httpx, "post", fake_post)
+
+    result = alerts_module.send_alert("test_event", {"repo_id": "repo"})
+
+    assert calls[0]["url"] == "https://alerts.example.test"
+    assert result["deliveries"][0]["ok"] is True
+    monkeypatch.setattr(settings, "alert_webhook_url", None)
+
+
 def test_admin_system_reports_operational_snapshot() -> None:
     response = client.get("/admin/system", headers={"x-api-key": "test-api-key"})
     assert response.status_code == 200
@@ -51,6 +316,7 @@ def test_admin_system_reports_operational_snapshot() -> None:
     assert "requests" in payload
     assert "repositories" in payload
     assert "tenancy" in payload
+    assert "queue" in payload
     assert payload["tenancy"]["organizations"] >= 1
 
 
@@ -182,6 +448,40 @@ def test_analysis_runs_as_background_job(tmp_path: Path, monkeypatch: pytest.Mon
         status["analysis_job"]["stage"] == "completion"
         or status["analysis_job"]["status"] == "complete"
     )
+
+
+def test_rq_backend_enqueues_durable_job_without_running_inline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source = tmp_path / "rq_repo"
+    source.mkdir()
+    (source / "README.md").write_text("# RQ\n")
+    repo = import_local_repository(LocalPathRequest(path=str(source)))
+    settings = get_settings()
+    monkeypatch.setattr(settings, "analysis_queue_backend", "rq")
+    monkeypatch.setattr(settings, "redis_url", "redis://localhost:6379/0")
+
+    class FakeQueue:
+        def __init__(self) -> None:
+            self.enqueued = []
+
+        def enqueue(self, func, *args, **kwargs):
+            self.enqueued.append({"func": func, "args": args, "kwargs": kwargs})
+
+        def __len__(self) -> int:
+            return len(self.enqueued)
+
+    fake_queue = FakeQueue()
+    monkeypatch.setattr(jobs, "_redis_queue", lambda: fake_queue)
+    monkeypatch.setattr(jobs, "_rq_retry", lambda: None)
+
+    job = jobs.start_analysis_job(repo["id"])
+
+    assert job["status"] == "queued"
+    assert fake_queue.enqueued[0]["args"] == (repo["id"], job["id"])
+    assert store.get(repo["id"])["status"] == "queued"
+    monkeypatch.setattr(settings, "analysis_queue_backend", "local")
+    monkeypatch.setattr(settings, "redis_url", None)
 
 
 def test_running_analysis_can_be_cancelled(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

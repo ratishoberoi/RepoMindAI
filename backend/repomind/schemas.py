@@ -24,6 +24,28 @@ class PRRiskRequest(BaseModel):
     pr_number: int | None = Field(default=None, ge=1)
 
 
+class SignupRequest(BaseModel):
+    email: str = Field(min_length=5, max_length=320)
+    name: str = Field(min_length=1, max_length=256)
+    password: str = Field(min_length=12, max_length=256)
+    organization_name: str | None = Field(default=None, max_length=256)
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(min_length=5, max_length=320)
+    password: str = Field(min_length=1, max_length=256)
+
+
+class GitHubRepositoryImportRequest(BaseModel):
+    clone_url: HttpUrl
+
+
+class GitHubAppCallbackRequest(BaseModel):
+    installation_id: str = Field(min_length=1, max_length=128)
+    setup_action: str = Field(default="", max_length=64)
+    state: str = Field(min_length=16, max_length=128)
+
+
 class RepositoryResponse(BaseModel):
     id: str
     name: str

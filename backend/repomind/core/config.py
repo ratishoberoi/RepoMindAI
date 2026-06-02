@@ -70,8 +70,25 @@ class Settings(BaseSettings):
     database_url: str | None = None
     api_key: str | None = None
     require_api_key: bool = True
+    auth_secret: str | None = None
+    secret_key: str | None = None
+    session_ttl_seconds: int = 60 * 60 * 24 * 7
     rate_limit_requests: int = 120
     rate_limit_window_seconds: int = 60
+    redis_url: str | None = None
+    analysis_queue_backend: str = "local"
+    analysis_job_timeout_seconds: int = 60 * 60
+    analysis_job_retries: int = 2
+    queue_backlog_alert_threshold: int = 25
+    latency_alert_p95_ms: int = 5000
+    alert_webhook_url: str | None = None
+    alert_slack_webhook_url: str | None = None
+    alert_email_to: str | None = None
+    alert_email_from: str | None = None
+    alert_smtp_host: str | None = None
+    alert_smtp_port: int = 587
+    alert_smtp_username: str | None = None
+    alert_smtp_password: str | None = None
 
     model_path: Path = Field(
         default_factory=lambda: _project_path("models", "qwen-judge"),
@@ -103,6 +120,13 @@ class Settings(BaseSettings):
     github_token: str | None = None
     github_api_url: str = "https://api.github.com"
     github_graphql_url: str = "https://api.github.com/graphql"
+    github_oauth_client_id: str | None = None
+    github_oauth_client_secret: str | None = None
+    github_app_slug: str | None = None
+    github_app_id: str | None = None
+    google_oauth_client_id: str | None = None
+    google_oauth_client_secret: str | None = None
+    public_app_url: str = "http://localhost:3000"
     neo4j_uri: str | None = None
     neo4j_user: str = "neo4j"
     neo4j_password: str | None = None
@@ -127,6 +151,17 @@ class Settings(BaseSettings):
             self.database_url
         ).startswith("sqlite"):
             raise ValueError("SQLite is not allowed as primary storage in production.")
+        if self.env.lower() in {"production", "prod", "docker"}:
+            if not self.auth_secret or len(self.auth_secret) < 32:
+                raise ValueError(
+                    "REPOMIND_AUTH_SECRET must be at least 32 characters in production."
+                )
+            if not self.secret_key:
+                raise ValueError("REPOMIND_SECRET_KEY must be configured in production.")
+            if not self.redis_url:
+                raise ValueError("REPOMIND_REDIS_URL must be configured in production.")
+            if self.analysis_queue_backend != "rq":
+                raise ValueError("REPOMIND_ANALYSIS_QUEUE_BACKEND=rq is required in production.")
         return self
 
     @property

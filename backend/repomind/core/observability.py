@@ -10,10 +10,55 @@ from typing import Any
 
 from repomind.core.config import get_settings
 
+try:
+    from prometheus_client import (
+        CONTENT_TYPE_LATEST,
+        CollectorRegistry,
+        Counter,
+        Gauge,
+        Histogram,
+        generate_latest,
+    )
+except ImportError:  # pragma: no cover - dependency is installed in production images
+    CONTENT_TYPE_LATEST = "text/plain; version=0.0.4"
+    CollectorRegistry = Counter = Gauge = Histogram = None
+    generate_latest = None
+
 _LOCK = Lock()
 _REQUESTS: deque[dict[str, Any]] = deque(maxlen=5000)
 _COUNTS: dict[str, int] = defaultdict(int)
 _STARTED_AT = time.time()
+_REGISTRY = CollectorRegistry() if CollectorRegistry else None
+_REQUEST_COUNTER = (
+    Counter(
+        "repomind_http_requests_total",
+        "Total HTTP requests.",
+        ["method", "path", "status"],
+        registry=_REGISTRY,
+    )
+    if Counter
+    else None
+)
+_REQUEST_LATENCY = (
+    Histogram(
+        "repomind_http_request_duration_ms",
+        "HTTP request latency in milliseconds.",
+        ["method", "path"],
+        registry=_REGISTRY,
+    )
+    if Histogram
+    else None
+)
+_JOB_GAUGE = (
+    Gauge("repomind_analysis_jobs", "Analysis jobs by status.", ["status"], registry=_REGISTRY)
+    if Gauge
+    else None
+)
+_QUEUE_GAUGE = (
+    Gauge("repomind_queue_depth", "Durable analysis queue depth.", ["backend"], registry=_REGISTRY)
+    if Gauge
+    else None
+)
 
 
 def record_request(path: str, method: str, status_code: int, duration_ms: float) -> None:
@@ -29,6 +74,10 @@ def record_request(path: str, method: str, status_code: int, duration_ms: float)
         )
         _COUNTS[f"status:{status_code}"] += 1
         _COUNTS[f"route:{method}:{path}"] += 1
+    if _REQUEST_COUNTER:
+        _REQUEST_COUNTER.labels(method=method, path=path, status=str(status_code)).inc()
+    if _REQUEST_LATENCY:
+        _REQUEST_LATENCY.labels(method=method, path=path).observe(duration_ms)
 
 
 def system_snapshot(store: Any) -> dict[str, Any]:
@@ -64,6 +113,27 @@ def system_snapshot(store: Any) -> dict[str, Any]:
         "workers": {"configured": settings.analysis_workers},
         "active_users": _active_users_estimate(),
     }
+
+
+def prometheus_metrics(store: Any, queue: dict[str, Any] | None = None) -> tuple[bytes, str]:
+    if _JOB_GAUGE:
+        _JOB_GAUGE.clear()
+        for status, count in store.job_counts().items():
+            if status != "total":
+                _JOB_GAUGE.labels(status=status).set(count)
+    if _QUEUE_GAUGE and queue:
+        _QUEUE_GAUGE.labels(backend=str(queue.get("backend", "unknown"))).set(
+            int(queue.get("queued", 0) or 0)
+        )
+    if generate_latest and _REGISTRY:
+        return generate_latest(_REGISTRY), CONTENT_TYPE_LATEST
+    snapshot = system_snapshot(store)
+    lines = [
+        f"repomind_requests_last_5m {snapshot['requests']['last_5m']}",
+        f"repomind_request_p95_ms {snapshot['requests']['p95_ms']}",
+        f"repomind_queue_depth {snapshot['jobs']['queue_depth']}",
+    ]
+    return ("\n".join(lines) + "\n").encode(), CONTENT_TYPE_LATEST
 
 
 def _recent_requests() -> list[dict[str, Any]]:
