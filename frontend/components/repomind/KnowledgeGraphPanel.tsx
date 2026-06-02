@@ -48,7 +48,7 @@ export function KnowledgeGraphPanel({ summary }: { summary: RepositorySummary | 
   return (
     <div className="space-y-5">
       <section className="overflow-hidden rounded-3xl border border-cyan-300/15 bg-[linear-gradient(135deg,rgba(56,189,248,0.16),rgba(255,255,255,0.045)_38%,rgba(52,211,153,0.08))] shadow-panel">
-        <div className="grid gap-0 xl:grid-cols-[280px_1fr_330px]">
+        <div className="grid gap-0 xl:grid-cols-[300px_1fr_330px]">
           <div className="grid place-items-center border-b border-white/10 bg-black/25 p-5 xl:border-b-0 xl:border-r">
             <ScoreOrb label="Graph IQ" score={model.graphScore} size="medium" sublabel="Evidence density" />
           </div>
@@ -61,7 +61,7 @@ export function KnowledgeGraphPanel({ summary }: { summary: RepositorySummary | 
               </div>
             </div>
             <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-300">A force-laid intelligence map of domains, files, symbols, dependencies, security findings, and blast-radius edges.</p>
-            <div className="mt-5 grid gap-3 md:grid-cols-5">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
               <GraphMetric label="Nodes" value={model.nodes.length} />
               <GraphMetric label="Edges" value={model.edges.length} />
               <GraphMetric label="Risks" value={model.findings.length} />
@@ -96,7 +96,7 @@ export function KnowledgeGraphPanel({ summary }: { summary: RepositorySummary | 
             </label>
           </div>
           {flow.nodes.length ? (
-            <div className="h-[720px] overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#070b12] shadow-[inset_0_0_90px_rgba(56,189,248,0.07)]">
+            <div className="h-[520px] overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#070b12] shadow-[inset_0_0_90px_rgba(56,189,248,0.07)] sm:h-[640px] xl:h-[720px]">
               <ReactFlow
                 nodes={flow.nodes}
                 edges={flow.edges}
@@ -365,7 +365,7 @@ function InspectorBlock({ title, items, icon }: { title: string; items: string[]
 }
 
 function GraphMetric({ label, value }: { label: string; value: number }) {
-  return <div className="rounded-xl border border-white/10 bg-black/20 p-3"><p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">{label}</p><p className="mt-2 text-2xl font-semibold text-white">{value}</p></div>;
+  return <div className="rounded-xl border border-white/10 bg-black/20 p-3"><p className="break-words text-[10px] uppercase leading-tight tracking-[0.12em] text-slate-500">{label}</p><p className="mt-2 text-2xl font-semibold text-white">{value}</p></div>;
 }
 
 function Insight({ label, value, tone }: { label: string; value?: string; tone: "cyan" | "emerald" | "rose" | "amber" }) {

@@ -127,7 +127,7 @@ function PrRiskResultView({ result }: { result: PrRiskResult }) {
         <div className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] p-3">
           <ScoreOrb label="PR Risk" score={100 - score} size="medium" sublabel={result.risk_level ?? "risk"} />
         </div>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-3">
           <MetricCard label="Files" value={result.changed_files?.length ?? 0} detail="Changed paths analyzed" icon={<GitPullRequest size={18} />} />
           <MetricCard label="Domains" value={result.impacted_domains?.length ?? 0} detail="Potential blast radius" icon={<Target size={18} />} />
           <MetricCard label="Deploy Risk" value={String(result.deployment_risk?.level ?? "--")} detail={`Score ${String(result.deployment_risk?.score ?? "--")}`} icon={<AlertOctagon size={18} />} />
@@ -155,7 +155,7 @@ function PrRiskResultView({ result }: { result: PrRiskResult }) {
           <PacketItem label="Source" value={String(result.changed_files_source ?? "manual")} />
         </div>
       </Panel>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 2xl:grid-cols-3">
         <Panel title="Review Complexity" eyebrow="GitHub + diff evidence">
           <MetricCard label="Complexity" value={String(result.review_complexity?.level ?? "--")} score={100 - Number(result.review_complexity?.score ?? 0)} detail={`${String(result.review_complexity?.line_delta ?? 0)} changed lines`} />
         </Panel>
@@ -169,7 +169,7 @@ function PrRiskResultView({ result }: { result: PrRiskResult }) {
           </div>
         </Panel>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 2xl:grid-cols-3">
         <SignalList title="Dependency Changes" items={result.dependency_changes} labelKey="path" />
         <SignalList title="API Changes" items={result.api_changes} labelKey="path" />
         <SignalList title="Security-Sensitive Changes" items={result.security_sensitive_changes} labelKey="path" />

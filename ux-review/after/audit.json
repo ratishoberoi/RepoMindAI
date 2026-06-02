@@ -1,0 +1,63 @@
+{
+  "desktop": {
+    "executive": [],
+    "architecture": [],
+    "timeline": [],
+    "portfolio": [],
+    "knowledge": [
+      {
+        "type": "small-target",
+        "view": "knowledge",
+        "text": "React Flow",
+        "detail": "54x11"
+      }
+    ],
+    "security": [
+      {
+        "type": "small-target",
+        "view": "security",
+        "text": "React Flow",
+        "detail": "54x11"
+      }
+    ],
+    "pr-risk": [
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Changed paths analyzed",
+        "detail": "63/57px"
+      }
+    ],
+    "drift": [
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Changed paths analyzed",
+        "detail": "63/57px"
+      }
+    ],
+    "diligence": [],
+    "reports": [],
+    "chat": [],
+    "admin": []
+  },
+  "mobile": {
+    "executive": [],
+    "knowledge": [
+      {
+        "type": "small-target",
+        "view": "mobile-knowledge",
+        "text": "React Flow",
+        "detail": "54x11"
+      }
+    ],
+    "reports": [],
+    "chat": []
+  },
+  "console": [
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    }
+  ]
+}

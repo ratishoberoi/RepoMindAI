@@ -160,7 +160,7 @@ export function RepoMindDashboard() {
 
   return (
     <main className="min-h-screen bg-[#080b10] text-slate-100">
-      <div className="mx-auto grid min-h-screen max-w-[1800px] grid-cols-1 gap-4 p-4 lg:grid-cols-[330px_1fr]">
+      <div className="mx-auto grid min-h-screen max-w-[1800px] grid-cols-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:grid-cols-[330px_1fr]">
         <RepositoryRail
           repositories={repositories}
           activeRepo={activeRepo}
@@ -181,7 +181,7 @@ export function RepoMindDashboard() {
 
         <section className="min-w-0 space-y-4">
           <TopCommandBar activeRepo={activeRepo} view={view} setView={setView} stats={commandStats} />
-          <nav className="grid gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl md:grid-cols-3 xl:grid-cols-12">
+          <nav className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-12">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = view === item.id || (item.id === "drift" && view === "pr-risk");
@@ -189,13 +189,13 @@ export function RepoMindDashboard() {
                 <button
                   key={item.id}
                   onClick={() => setView(item.id)}
-                  className={`rounded-xl border px-3 py-3 text-left transition ${
+                  className={`min-h-[74px] rounded-xl border px-2.5 py-3 text-left transition sm:px-3 ${
                     active ? "border-cyan-300/35 bg-cyan-300/10 text-white" : "border-transparent text-slate-400 hover:border-white/10 hover:bg-white/[0.045] hover:text-slate-100"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
-                  <p className="mt-2 text-sm font-semibold">{item.label}</p>
-                  <p className="mt-0.5 text-[10px] uppercase tracking-[0.14em] opacity-70">{item.eyebrow}</p>
+                  <p className="mt-2 break-words text-sm font-semibold leading-tight">{item.label}</p>
+                  <p className="mt-1 break-words text-[10px] uppercase leading-tight tracking-[0.12em] opacity-70">{item.eyebrow}</p>
                 </button>
               );
             })}
@@ -260,15 +260,15 @@ function TopCommandBar({
           <Badge className="border-white/10 bg-white/[0.04] text-slate-300">{view}</Badge>
         </div>
       </div>
-      <div className="grid gap-2 md:grid-cols-[1fr_auto] xl:min-w-[680px]">
+      <div className="grid min-w-0 gap-2 md:grid-cols-[minmax(220px,1fr)_auto] xl:min-w-[640px]">
         <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-slate-300">
           <Search size={15} className="text-slate-500" />
           <input className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-600" placeholder="Command search: graph, reports, risk, citations" onFocus={() => setView("knowledge")} />
         </label>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-3 gap-2 md:flex">
           {stats.map(([label, value]) => (
-            <div key={label} className="min-w-20 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-slate-500">{label}</p>
+            <div key={label} className="min-w-0 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-2 md:min-w-20">
+              <p className="truncate text-[10px] uppercase tracking-[0.12em] text-slate-500">{label}</p>
               <p className="mt-1 text-sm font-semibold text-white">{value}</p>
             </div>
           ))}

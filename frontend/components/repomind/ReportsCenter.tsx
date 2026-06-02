@@ -75,7 +75,7 @@ export function ReportsCenter({
             <ReportSignal icon={<FileText size={17} />} label="Artifact type" value={activeReport.split(".").pop()?.toUpperCase() ?? "MD"} />
           </div>
           {repo ? (
-            <a href={reportUrl(repo.id, activeReport)} target="_blank" className="mt-4 inline-flex text-sm font-medium text-cyan-200 hover:text-cyan-100">
+            <a href={reportUrl(repo.id, activeReport)} target="_blank" className="mt-4 inline-flex min-h-9 items-center text-sm font-medium text-cyan-200 hover:text-cyan-100">
               Open raw artifact
             </a>
           ) : null}

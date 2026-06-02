@@ -74,7 +74,7 @@ export function RepositoryRail(props: Props) {
   };
 
   return (
-    <aside className={`flex min-h-[calc(100vh-32px)] flex-col rounded-3xl border border-white/10 bg-slate-950/[0.86] shadow-panel backdrop-blur-xl ${compact ? "lg:w-[92px]" : ""}`}>
+    <aside className={`flex max-h-[72vh] flex-col rounded-3xl border border-white/10 bg-slate-950/[0.86] shadow-panel backdrop-blur-xl lg:max-h-none lg:min-h-[calc(100vh-32px)] ${compact ? "lg:w-[92px]" : ""}`}>
       <div className="border-b border-white/10 p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -158,7 +158,7 @@ export function RepositoryRail(props: Props) {
             return (
               <section key={group.id}>
                 {!compact ? (
-                  <button onClick={() => setCollapsed((current) => ({ ...current, [group.id]: !closed }))} className="mb-2 flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 hover:bg-white/[0.04]">
+                  <button onClick={() => setCollapsed((current) => ({ ...current, [group.id]: !closed }))} className="mb-2 flex min-h-9 w-full items-center justify-between rounded-lg px-2 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 hover:bg-white/[0.04]">
                     <span className="flex items-center gap-2"><Icon size={13} />{group.label}</span>
                     <span className="flex items-center gap-2">{group.repos.length}{closed ? <ChevronRight size={13} /> : <ChevronDown size={13} />}</span>
                   </button>

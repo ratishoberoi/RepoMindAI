@@ -55,7 +55,7 @@ export function ChatExperience({
           />
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3">
             <div className="flex flex-wrap gap-2">
-              {suggestions.slice(0, 2).map((item) => <button key={item} onClick={() => setQuestion(item)} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-slate-300 hover:bg-white/[0.08]">{item}</button>)}
+              {suggestions.slice(0, 2).map((item) => <button key={item} onClick={() => setQuestion(item)} className="min-h-9 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-slate-300 hover:bg-white/[0.08]">{item}</button>)}
             </div>
             <div className="flex items-center gap-2">
               {error ? <Button variant="secondary" onClick={() => ask()} disabled={busy || !question.trim()}><RefreshCw size={15} /> Retry</Button> : null}

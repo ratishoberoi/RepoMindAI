@@ -49,13 +49,13 @@ export function ExecutiveOverview({ summary, onNavigate }: { summary: Repository
               </div>
               <Badge className="border-emerald-300/25 bg-emerald-300/10 text-emerald-100">Investor demo mode</Badge>
             </div>
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-4">
               <ExecutiveSignalCard label="Security Posture" value={asScore(scores.security)} detail={`${securityCount} findings mapped to impact`} icon={ShieldCheck} delta={asScore(scores.security) > 75 ? "up" : "down"} />
               <ExecutiveSignalCard label="Architecture Health" value={asScore(scores.production_readiness ?? scores.architecture)} detail="Boundary, runtime, and scaling confidence" icon={Network} delta="stable" />
               <ExecutiveSignalCard label="Technical Debt" value={debtCount} detail="Debt signals requiring triage" icon={Wrench} delta={debtCount > 8 ? "down" : "stable"} />
               <ExecutiveSignalCard label="Investment Readiness" value={asScore(scores.cto)} detail="Diligence and acquisition confidence" icon={Landmark} delta={asScore(scores.cto) > 70 ? "up" : "stable"} />
             </div>
-            <div className="mt-5 grid gap-3 md:grid-cols-4">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
               <InsightStat label="Files analyzed" value={compactNumber(stats.files ?? summary.files?.length)} />
               <InsightStat label="Graph entities" value={compactNumber(graphMetrics.entities)} />
               <InsightStat label="Routes" value={compactNumber(summary.architecture?.routes?.length)} />

@@ -1,0 +1,1886 @@
+{
+  "desktop": {
+    "executive": [
+      {
+        "type": "small-target",
+        "view": "executive",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "executive",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "executive",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "executive",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "SECURITY POSTURE",
+        "detail": "81/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "2 findings mapped to impact",
+        "detail": "58/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "ARCHITECTURE HEALTH",
+        "detail": "125/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Boundary, runtime, and scaling confidence",
+        "detail": "77/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "TECHNICAL DEBT",
+        "detail": "93/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Debt signals requiring triage",
+        "detail": "63/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "INVESTMENT READINESS",
+        "detail": "106/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "Diligence and acquisition confidence",
+        "detail": "77/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "FILES ANALYZED",
+        "detail": "76/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "GRAPH ENTITIES",
+        "detail": "67/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "ROUTES",
+        "detail": "59/42px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "executive",
+        "text": "DATA MODELS",
+        "detail": "61/42px"
+      }
+    ],
+    "architecture": [
+      {
+        "type": "small-target",
+        "view": "architecture",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "architecture",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "architecture",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "architecture",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "architecture",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      }
+    ],
+    "timeline": [
+      {
+        "type": "small-target",
+        "view": "timeline",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "timeline",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "timeline",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "timeline",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "timeline",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      }
+    ],
+    "portfolio": [
+      {
+        "type": "small-target",
+        "view": "portfolio",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "portfolio",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "portfolio",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "portfolio",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "portfolio",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      }
+    ],
+    "knowledge": [
+      {
+        "type": "small-target",
+        "view": "knowledge",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "knowledge",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "knowledge",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "knowledge",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "knowledge",
+        "text": "DEPENDENCIES",
+        "detail": "95/46px"
+      },
+      {
+        "type": "small-target",
+        "view": "knowledge",
+        "text": "React Flow",
+        "detail": "54x11"
+      }
+    ],
+    "security": [
+      {
+        "type": "small-target",
+        "view": "security",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "security",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "security",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "security",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "security",
+        "text": "DEPENDENCIES",
+        "detail": "95/46px"
+      },
+      {
+        "type": "small-target",
+        "view": "security",
+        "text": "React Flow",
+        "detail": "54x11"
+      }
+    ],
+    "pr-risk": [
+      {
+        "type": "small-target",
+        "view": "pr-risk",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "pr-risk",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "pr-risk",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "pr-risk",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "Changed paths analyzed",
+        "detail": "63/57px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "pr-risk",
+        "text": "0 related tests detected | 1 dependency surfaces changed | 1 API surfaces changed",
+        "detail": "86/73px"
+      }
+    ],
+    "drift": [
+      {
+        "type": "small-target",
+        "view": "drift",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "drift",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "drift",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "drift",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "Changed paths analyzed",
+        "detail": "63/57px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "drift",
+        "text": "0 related tests detected | 1 dependency surfaces changed | 1 API surfaces changed",
+        "detail": "86/73px"
+      }
+    ],
+    "diligence": [
+      {
+        "type": "small-target",
+        "view": "diligence",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "diligence",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "diligence",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "diligence",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "diligence",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      }
+    ],
+    "reports": [
+      {
+        "type": "small-target",
+        "view": "reports",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "reports",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "reports",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "reports",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "reports",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      },
+      {
+        "type": "small-target",
+        "view": "reports",
+        "text": "Open raw artifact",
+        "detail": "123x20"
+      }
+    ],
+    "chat": [
+      {
+        "type": "small-target",
+        "view": "chat",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "chat",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "chat",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "chat",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "chat",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      },
+      {
+        "type": "small-target",
+        "view": "chat",
+        "text": "What are the riskiest files to change?",
+        "detail": "250x30"
+      },
+      {
+        "type": "small-target",
+        "view": "chat",
+        "text": "Explain the architecture in executive terms.",
+        "detail": "289x30"
+      }
+    ],
+    "admin": [
+      {
+        "type": "small-target",
+        "view": "admin",
+        "text": "FAVORITES 0",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "admin",
+        "text": "RECENT 6",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "admin",
+        "text": "LOCAL 26",
+        "detail": "304x28"
+      },
+      {
+        "type": "small-target",
+        "view": "admin",
+        "text": "GITHUB 19",
+        "detail": "304x28"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Executive SCORES",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Executive",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Architecture FLOWS",
+        "detail": "110/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Architecture",
+        "detail": "98/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Timeline",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "EVOLUTION",
+        "detail": "70/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Portfolio",
+        "detail": "68/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Knowledge GRAPH",
+        "detail": "99/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Knowledge",
+        "detail": "87/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Security OWASP/CWE",
+        "detail": "88/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Security",
+        "detail": "65/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "OWASP/CWE",
+        "detail": "76/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "BASELINE",
+        "detail": "60/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Diligence BOARD PACK",
+        "detail": "85/78px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Diligence",
+        "detail": "73/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "Reports",
+        "detail": "62/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "ARTIFACTS",
+        "detail": "66/54px"
+      },
+      {
+        "type": "unmanaged-clipped-text",
+        "view": "admin",
+        "text": "CITATIONS",
+        "detail": "65/54px"
+      }
+    ]
+  },
+  "mobile": {
+    "executive": [
+      {
+        "type": "small-target",
+        "view": "mobile-executive",
+        "text": "FAVORITES 0",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-executive",
+        "text": "RECENT 6",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-executive",
+        "text": "LOCAL 26",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-executive",
+        "text": "GITHUB 19",
+        "detail": "332x28"
+      }
+    ],
+    "knowledge": [
+      {
+        "type": "small-target",
+        "view": "mobile-knowledge",
+        "text": "FAVORITES 0",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-knowledge",
+        "text": "RECENT 6",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-knowledge",
+        "text": "LOCAL 26",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-knowledge",
+        "text": "GITHUB 19",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-knowledge",
+        "text": "React Flow",
+        "detail": "54x11"
+      }
+    ],
+    "reports": [
+      {
+        "type": "small-target",
+        "view": "mobile-reports",
+        "text": "FAVORITES 0",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-reports",
+        "text": "RECENT 6",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-reports",
+        "text": "LOCAL 26",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-reports",
+        "text": "GITHUB 19",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-reports",
+        "text": "Open raw artifact",
+        "detail": "123x20"
+      }
+    ],
+    "chat": [
+      {
+        "type": "small-target",
+        "view": "mobile-chat",
+        "text": "FAVORITES 0",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-chat",
+        "text": "RECENT 6",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-chat",
+        "text": "LOCAL 26",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-chat",
+        "text": "GITHUB 19",
+        "detail": "332x28"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-chat",
+        "text": "What are the riskiest files to change?",
+        "detail": "250x30"
+      },
+      {
+        "type": "small-target",
+        "view": "mobile-chat",
+        "text": "Explain the architecture in executive terms.",
+        "detail": "289x30"
+      }
+    ]
+  },
+  "console": [
+    {
+      "type": "info",
+      "text": "%cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold"
+    }
+  ]
+}
