@@ -7,6 +7,7 @@ from repomind.intelligence.acquisition import build_acquisition_intelligence
 from repomind.intelligence.architecture_explorer import build_architecture_explorer
 from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.evidence import build_score_evidence
+from repomind.intelligence.evolution import build_repository_evolution
 from repomind.intelligence.executive_reports import build_executive_report_pack
 from repomind.intelligence.graph_store import build_graph_projection, query_repository_graph
 from repomind.intelligence.knowledge_graph import build_repository_knowledge_graph
@@ -110,6 +111,24 @@ def test_architecture_explorer_traces_login_flow() -> None:
     assert explorer["ai_architect_review"]
     assert explorer["ai_architect_review"][0]["confidence"] > 0
     assert explorer["ai_architect_review"][0]["evidence"]
+    assert explorer["service_dependency_explorer"]["nodes"]
+    assert explorer["blast_radius_explorer"]
+    assert explorer["ownership_explorer"]["domains"]
+    assert explorer["impact_explorer"]
+    assert "architecture_timeline" in explorer
+
+
+def test_repository_evolution_uses_snapshot_when_git_history_unavailable() -> None:
+    summary = sample_summary()
+    summary["repository"]["path"] = "/path/that/does/not/exist"
+
+    evolution = build_repository_evolution(summary)
+
+    assert evolution["history_available"] is False
+    assert evolution["risk_evolution"]
+    assert evolution["current_snapshot"]["security_findings"] == 1
+    assert evolution["hot_files"]
+    assert evolution["limitations"]
 
 
 def test_score_evidence_explains_scores_with_citations() -> None:

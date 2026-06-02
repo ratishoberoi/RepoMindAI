@@ -27,6 +27,10 @@ def build_architecture_explorer(summary: dict[str, Any]) -> dict[str, Any]:
         for name, tokens in FLOW_INTENTS.items()
     ]
     dependency_flows = _dependency_flows(graph, files)
+    service_dependencies = _service_dependency_explorer(services, graph, summary)
+    blast_radius = _blast_radius_explorer(summary, service_dependencies)
+    ownership = _ownership_explorer(summary, services)
+    impact = _impact_explorer(summary, service_dependencies, blast_radius)
     return {
         "repository": summary.get("repository", {}),
         "entry_points": routes[:40],
@@ -35,6 +39,11 @@ def build_architecture_explorer(summary: dict[str, Any]) -> dict[str, Any]:
         "external_integrations": external,
         "request_flows": flows,
         "dependency_flows": dependency_flows,
+        "service_dependency_explorer": service_dependencies,
+        "blast_radius_explorer": blast_radius,
+        "ownership_explorer": ownership,
+        "impact_explorer": impact,
+        "architecture_timeline": _architecture_timeline(summary),
         "architecture_review": _architecture_review(summary, services, dependency_flows),
         "ai_architect_review": _ai_architect_review(summary, services, dependency_flows),
         "narratives": _narratives(summary, flows, dependency_flows),
@@ -428,6 +437,276 @@ def _related_dependencies(
         for edge in graph.get("edges", [])
         if edge.get("source") in anchors or edge.get("target") in anchors
     ][:20]
+
+
+def _service_dependency_explorer(
+    services: list[dict[str, Any]], graph: dict[str, Any], summary: dict[str, Any]
+) -> dict[str, Any]:
+    service_paths = {service.get("file") for service in services if service.get("file")}
+    related_paths = set(service_paths)
+    for item in summary.get("knowledge_graph", {}).get("hotspots", []):
+        if item.get("path"):
+            related_paths.add(item["path"])
+    nodes = []
+    for path in sorted(related_paths):
+        service = next((item for item in services if item.get("file") == path), {})
+        nodes.append(
+            {
+                "id": path,
+                "label": path.rsplit("/", 1)[-1],
+                "domain": service.get("domain") or _domain(path),
+                "layer": service.get("layer") or _layer(path),
+                "routes": service.get("routes", 0),
+                "symbols": service.get("symbols", 0),
+                "risk_score": _path_risk(summary, path),
+                "evidence": _path_evidence(summary, path),
+            }
+        )
+    edges = []
+    for edge in graph.get("edges", []):
+        source = edge.get("source")
+        target = edge.get("target")
+        if source in related_paths or target in related_paths:
+            edges.append(
+                {
+                    "source": source,
+                    "target": target,
+                    "relation": edge.get("relation", "depends_on"),
+                    "risk": max(
+                        _path_risk(summary, source or ""), _path_risk(summary, target or "")
+                    ),
+                }
+            )
+    high_risk = sorted(nodes, key=lambda item: item["risk_score"], reverse=True)[:8]
+    return {
+        "nodes": nodes[:120],
+        "edges": edges[:240],
+        "high_risk_services": high_risk,
+        "summary": (
+            f"Mapped {len(nodes)} service-relevant nodes and {len(edges)} dependency edges "
+            "from parser and dependency graph evidence."
+        ),
+    }
+
+
+def _blast_radius_explorer(
+    summary: dict[str, Any], service_dependencies: dict[str, Any]
+) -> list[dict[str, Any]]:
+    adjacency: dict[str, set[str]] = defaultdict(set)
+    reverse: dict[str, set[str]] = defaultdict(set)
+    for edge in service_dependencies.get("edges", []):
+        source = edge.get("source")
+        target = edge.get("target")
+        if not source or not target:
+            continue
+        adjacency[source].add(target)
+        reverse[target].add(source)
+    candidates = [
+        item.get("id")
+        for item in service_dependencies.get("high_risk_services", [])
+        if item.get("id")
+    ]
+    if not candidates:
+        candidates = [
+            item.get("path")
+            for item in summary.get("knowledge_graph", {}).get("hotspots", [])[:8]
+            if item.get("path")
+        ]
+    rows = []
+    for path in candidates[:10]:
+        downstream = _walk(path, adjacency, 2)
+        upstream = _walk(path, reverse, 2)
+        rows.append(
+            {
+                "source": path,
+                "upstream": sorted(upstream)[:20],
+                "downstream": sorted(downstream)[:20],
+                "affected_domains": sorted(
+                    {_domain(item) for item in upstream | downstream | {path}}
+                ),
+                "affected_files": len(upstream | downstream | {path}),
+                "risk_score": min(100, _path_risk(summary, path) + len(upstream | downstream) * 5),
+                "evidence": _path_evidence(summary, path),
+            }
+        )
+    return rows
+
+
+def _ownership_explorer(summary: dict[str, Any], services: list[dict[str, Any]]) -> dict[str, Any]:
+    domains: dict[str, dict[str, Any]] = {}
+    for service in services:
+        domain = str(service.get("domain") or _domain(str(service.get("file", ""))))
+        item = domains.setdefault(
+            domain,
+            {
+                "domain": domain,
+                "owner": _owner_for_domain(domain),
+                "services": [],
+                "routes": 0,
+                "symbols": 0,
+                "risk_score": 0,
+                "bus_factor": 1 if _owner_for_domain(domain) == "Core Engineering" else 2,
+            },
+        )
+        item["services"].append(service.get("file"))
+        item["routes"] += int(service.get("routes", 0))
+        item["symbols"] += int(service.get("symbols", 0))
+        item["risk_score"] = max(
+            item["risk_score"], _path_risk(summary, str(service.get("file", "")))
+        )
+    orphaned = [
+        item
+        for item in domains.values()
+        if item["owner"] == "Core Engineering" and item["risk_score"] >= 35
+    ]
+    return {
+        "domains": sorted(domains.values(), key=lambda item: item["risk_score"], reverse=True),
+        "orphaned_or_low_confidence": orphaned,
+        "summary": f"Mapped {len(domains)} ownership domains from service and path evidence.",
+    }
+
+
+def _impact_explorer(
+    summary: dict[str, Any],
+    service_dependencies: dict[str, Any],
+    blast_radius: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    rows = []
+    for item in service_dependencies.get("high_risk_services", [])[:10]:
+        path = str(item.get("id", ""))
+        blast = next((entry for entry in blast_radius if entry.get("source") == path), {})
+        rows.append(
+            {
+                "file": path,
+                "domain": item.get("domain"),
+                "layer": item.get("layer"),
+                "risk_score": item.get("risk_score", 0),
+                "business_impact": _business_impact(path, item.get("layer")),
+                "engineering_impact": (
+                    f"{blast.get('affected_files', 1)} files across "
+                    f"{len(blast.get('affected_domains', []))} domains may need review."
+                ),
+                "recommended_action": _impact_action(summary, path),
+                "evidence": item.get("evidence", []),
+            }
+        )
+    return rows
+
+
+def _architecture_timeline(summary: dict[str, Any]) -> list[dict[str, Any]]:
+    evolution = summary.get("evolution", {})
+    risk = evolution.get("risk_evolution") or []
+    architecture = evolution.get("architectural_drift_over_time") or []
+    security = evolution.get("security_evolution") or []
+    by_date: dict[str, dict[str, Any]] = {}
+    for series, key in ((risk, "risk"), (architecture, "architecture"), (security, "security")):
+        for item in series:
+            date = str(item.get("date", "current"))
+            row = by_date.setdefault(date, {"date": date, "evidence": item.get("evidence", "")})
+            row[key] = item.get("value", 0)
+            row["label"] = item.get("label", row.get("label", "Architecture event"))
+    if by_date:
+        return [by_date[key] for key in sorted(by_date)][-20:]
+    return summary.get("knowledge_graph", {}).get("timeline", [])[:20]
+
+
+def _walk(source: str, adjacency: dict[str, set[str]], depth: int) -> set[str]:
+    seen: set[str] = set()
+    queue: deque[tuple[str, int]] = deque([(source, 0)])
+    while queue:
+        node, level = queue.popleft()
+        if level >= depth:
+            continue
+        for target in adjacency.get(node, set()):
+            if target in seen:
+                continue
+            seen.add(target)
+            queue.append((target, level + 1))
+    return seen
+
+
+def _path_risk(summary: dict[str, Any], path: str) -> int:
+    if not path:
+        return 0
+    score = 0
+    for finding in summary.get("security", {}).get("findings", []):
+        if finding.get("path") == path:
+            score += {"critical": 35, "high": 25, "medium": 14, "low": 6}.get(
+                str(finding.get("severity", "")).lower(),
+                8,
+            )
+    for hotspot in summary.get("knowledge_graph", {}).get("hotspots", []):
+        if hotspot.get("path") == path:
+            score += int(hotspot.get("risk_score", 0)) * 3
+    for item in summary.get("technical_debt", {}).get("items", []):
+        if item.get("path") == path or item.get("file") == path:
+            score += 8
+    return min(100, score)
+
+
+def _path_evidence(summary: dict[str, Any], path: str) -> list[dict[str, Any]]:
+    evidence = []
+    for finding in summary.get("security", {}).get("findings", []):
+        if finding.get("path") == path:
+            evidence.append(
+                {
+                    "type": "security",
+                    "file": path,
+                    "line": finding.get("line", 1),
+                    "detail": finding.get("message") or finding.get("title"),
+                }
+            )
+    for hotspot in summary.get("knowledge_graph", {}).get("hotspots", []):
+        if hotspot.get("path") == path:
+            evidence.append(
+                {
+                    "type": "architecture_hotspot",
+                    "file": path,
+                    "line": 1,
+                    "detail": hotspot.get("reason"),
+                }
+            )
+    return evidence[:8]
+
+
+def _owner_for_domain(domain: str) -> str:
+    lower = domain.lower()
+    if any(token in lower for token in ("auth", "security", "session")):
+        return "Security Platform"
+    if any(token in lower for token in ("db", "model", "data", "store")):
+        return "Data Platform"
+    if any(token in lower for token in ("front", "ui", "component", "page")):
+        return "Product Experience"
+    if any(token in lower for token in ("infra", "deploy", "docker", "ci")):
+        return "Infrastructure"
+    return "Core Engineering"
+
+
+def _business_impact(path: str, layer: Any) -> str:
+    lower = path.lower()
+    if any(token in lower for token in ("auth", "security", "session")):
+        return "Trust boundary changes can affect account access, tenant isolation, and incident exposure."
+    if any(token in lower for token in ("payment", "billing", "checkout")):
+        return "Revenue workflow changes can affect conversion, billing correctness, and refunds."
+    if layer == "Database" or any(token in lower for token in ("db", "model", "store")):
+        return "Persistence changes can affect data integrity, migrations, and rollback safety."
+    if layer == "API" or any(token in lower for token in ("api", "route")):
+        return "API changes can affect clients, integrations, and deployment compatibility."
+    return "Architecture hotspot changes can affect engineering velocity and regression risk."
+
+
+def _impact_action(summary: dict[str, Any], path: str) -> str:
+    if any(
+        finding.get("path") == path for finding in summary.get("security", {}).get("findings", [])
+    ):
+        return "Require security review, targeted regression tests, and secret/data exposure validation."
+    if path in {
+        item.get("path") for item in summary.get("knowledge_graph", {}).get("hotspots", [])
+    }:
+        return (
+            "Add ownership, tests, and architecture decision notes before expanding this hotspot."
+        )
+    return "Review dependency edges and add tests covering affected domains."
 
 
 def _narratives(

@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowRight, BookOpen, Database, GitBranch, Network, Route, Sparkles } from "lucide-react";
-import { Badge, Button, EmptyState, LoadingInline, Panel } from "./ui";
-import { Heatmap } from "./visuals";
+import { AlertTriangle, ArrowRight, Database, GitBranch, Network, Route, ShieldAlert } from "lucide-react";
+import { Badge, Button, EmptyState, LoadingInline, Panel, ScoreBar, Timeline } from "./ui";
+import { Heatmap, RiskMatrix } from "./visuals";
 import type { ArchitectureExplorerResult } from "./types";
 
 export function ArchitectureExplorerPanel({
@@ -22,6 +22,11 @@ export function ArchitectureExplorerPanel({
   const onboarding = data?.onboarding_markdown ?? "";
   const review = data?.architecture_review ?? {};
   const architectFindings = data?.ai_architect_review ?? [];
+  const serviceExplorer = data?.service_dependency_explorer;
+  const blastRadius = data?.blast_radius_explorer ?? [];
+  const ownership = data?.ownership_explorer;
+  const impact = data?.impact_explorer ?? [];
+  const architectureTimeline = data?.architecture_timeline ?? [];
   const heat = useMemo(
     () =>
       flows.map((flow) => ({
@@ -141,6 +146,89 @@ export function ArchitectureExplorerPanel({
         <Panel title="Auto-generated ONBOARDING.md" eyebrow="developer ramp">
           <div className="max-h-[460px] overflow-auto rounded-xl border border-white/10 bg-black/25 p-4 font-mono text-xs leading-5 text-slate-300">
             {onboarding ? onboarding : "Generate architecture explorer to create onboarding documentation."}
+          </div>
+        </Panel>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+        <Panel title="Service Dependency Explorer" eyebrow="service nodes, dependency edges, evidence-backed risk">
+          <p className="mb-4 text-sm leading-6 text-slate-400">{serviceExplorer?.summary ?? "No service dependency explorer payload was returned."}</p>
+          <div className="grid gap-3 md:grid-cols-3">
+            <Signal icon={<Network size={16} />} label="Service nodes" value={serviceExplorer?.nodes?.length ?? 0} />
+            <Signal icon={<GitBranch size={16} />} label="Dependency edges" value={serviceExplorer?.edges?.length ?? 0} />
+            <Signal icon={<ShieldAlert size={16} />} label="High risk" value={serviceExplorer?.high_risk_services?.length ?? 0} />
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {(serviceExplorer?.high_risk_services ?? []).slice(0, 8).map((node, index) => (
+              <div key={`${String(node.id)}-${index}`} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">{String(node.id)}</p>
+                    <p className="mt-1 text-xs text-slate-500">{String(node.layer)} / {String(node.domain)}</p>
+                  </div>
+                  <Badge className="border-amber-300/25 bg-amber-500/10 text-amber-100">{String(node.risk_score ?? 0)}</Badge>
+                </div>
+                <div className="mt-3"><ScoreBar label="Service risk" value={Number(node.risk_score ?? 0)} /></div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Architecture Timeline" eyebrow="time-machine signal">
+          <Timeline
+            items={architectureTimeline.slice(-8).map((item, index) => ({
+              title: `${String(item.date ?? `Event ${index + 1}`)} - risk ${String(item.risk ?? item.architecture ?? "--")}`,
+              text: String(item.evidence ?? item.label ?? "Architecture evolution evidence.")
+            }))}
+          />
+          {!architectureTimeline.length ? <EmptyState title="No timeline evidence" text="No git-derived architecture timeline is available for this repository." /> : null}
+        </Panel>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-3">
+        <Panel title="Blast Radius Explorer" eyebrow="upstream, downstream, affected domains">
+          <RiskMatrix items={blastRadius.map((item, index) => ({ label: String(item.source ?? `Node ${index}`), severity: Number(item.risk_score ?? 0) > 70 ? "high" : "medium", impact: Math.min(5, Number(item.affected_files ?? 1)), likelihood: Math.min(5, 2 + (index % 4)) }))} />
+          <div className="mt-4 space-y-3">
+            {blastRadius.slice(0, 5).map((item, index) => (
+              <div key={`${String(item.source)}-${index}`} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="min-w-0 truncate text-sm font-semibold text-white">{String(item.source)}</p>
+                  <Badge>{String(item.affected_files ?? 0)} files</Badge>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-slate-400">{((item.affected_domains as string[] | undefined) ?? []).join(" | ")}</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Ownership Explorer" eyebrow="domain owners and orphan risk">
+          <p className="mb-4 text-sm leading-6 text-slate-400">{ownership?.summary ?? "No ownership mapping returned."}</p>
+          <div className="space-y-3">
+            {(ownership?.domains ?? []).slice(0, 8).map((domain, index) => (
+              <div key={`${String(domain.domain)}-${index}`} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{String(domain.domain)}</p>
+                    <p className="mt-1 text-xs text-slate-500">{String(domain.owner)}</p>
+                  </div>
+                  <Badge className="border-cyan-300/25 bg-cyan-500/10 text-cyan-100">BF {String(domain.bus_factor ?? "--")}</Badge>
+                </div>
+                <div className="mt-3"><ScoreBar label="Ownership risk" value={Number(domain.risk_score ?? 0)} /></div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Impact Explorer" eyebrow="business and engineering impact">
+          <div className="space-y-3">
+            {impact.slice(0, 8).map((item, index) => (
+              <div key={`${String(item.file)}-${index}`} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="min-w-0 truncate text-sm font-semibold text-white">{String(item.file)}</p>
+                  <Badge className="border-rose-300/25 bg-rose-500/10 text-rose-100">{String(item.risk_score ?? 0)}</Badge>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-slate-400">{String(item.business_impact ?? "")}</p>
+                <p className="mt-2 text-xs leading-5 text-cyan-100">{String(item.recommended_action ?? "")}</p>
+              </div>
+            ))}
+            {!impact.length ? <EmptyState title="No impact findings" text="No high-risk service impact signals were detected." /> : null}
           </div>
         </Panel>
       </div>

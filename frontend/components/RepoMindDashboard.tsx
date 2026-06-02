@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Building2, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Route, Search, ShieldAlert, ShieldCheck, Activity } from "lucide-react";
+import { Building2, Clock3, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Route, Search, ShieldAlert, ShieldCheck, Activity } from "lucide-react";
 import {
   analyze,
   architectureExplorer,
@@ -15,6 +15,7 @@ import {
   listRepositories,
   portfolioIntelligence,
   prRisk,
+  repositoryEvolution,
   repositoryStatus,
   summary,
   systemStatus,
@@ -29,17 +30,19 @@ import { ExecutiveOverview } from "@/components/repomind/ExecutiveOverview";
 import { KnowledgeGraphPanel } from "@/components/repomind/KnowledgeGraphPanel";
 import { PortfolioPanel } from "@/components/repomind/PortfolioPanel";
 import { RepositoryRail } from "@/components/repomind/RepositoryRail";
+import { RepositoryEvolutionPanel } from "@/components/repomind/RepositoryEvolutionPanel";
 import { RiskAndDriftCenter } from "@/components/repomind/RiskAndDriftCenter";
 import { ReportsCenter } from "@/components/repomind/ReportsCenter";
 import { SecurityCenter } from "@/components/repomind/SecurityCenter";
 import { SystemAdminPanel } from "@/components/repomind/SystemAdminPanel";
 import { Badge, Button, EmptyState, Panel, SkeletonGrid } from "@/components/repomind/ui";
-import type { ArchitectureExplorerResult, ChatResult, DiligenceResult, DriftResult, NavItem, PortfolioIntelligence, PrRiskResult, RepositorySummary, SystemStatus } from "@/components/repomind/types";
+import type { ArchitectureExplorerResult, ChatResult, DiligenceResult, DriftResult, NavItem, PortfolioIntelligence, PrRiskResult, RepositoryEvolution, RepositorySummary, SystemStatus } from "@/components/repomind/types";
 import { asScore, compactNumber, executiveScore } from "@/components/repomind/utils";
 
 const navItems: NavItem[] = [
   { id: "overview", label: "Executive", eyebrow: "scores", icon: LayoutDashboard },
   { id: "architecture", label: "Architecture", eyebrow: "flows", icon: Route },
+  { id: "timeline", label: "Timeline", eyebrow: "evolution", icon: Clock3 },
   { id: "portfolio", label: "Portfolio", eyebrow: "multi-repo", icon: Building2 },
   { id: "knowledge", label: "Knowledge", eyebrow: "graph", icon: Network },
   { id: "security", label: "Security", eyebrow: "owasp/cwe", icon: ShieldAlert },
@@ -60,6 +63,7 @@ export function RepoMindDashboard() {
   const [localPath, setLocalPath] = useState("sample_repos/python_fastapi_example");
   const [portfolio, setPortfolio] = useState<PortfolioIntelligence | null>(null);
   const [architectureData, setArchitectureData] = useState<ArchitectureExplorerResult | null>(null);
+  const [evolutionData, setEvolutionData] = useState<RepositoryEvolution | null>(null);
   const [prResult, setPrResult] = useState<PrRiskResult | null>(null);
   const [driftResult, setDriftResult] = useState<DriftResult | null>(null);
   const [diligenceResult, setDiligenceResult] = useState<DiligenceResult | null>(null);
@@ -177,7 +181,7 @@ export function RepoMindDashboard() {
 
         <section className="min-w-0 space-y-4">
           <TopCommandBar activeRepo={activeRepo} view={view} setView={setView} stats={commandStats} />
-          <nav className="grid gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl md:grid-cols-3 xl:grid-cols-11">
+          <nav className="grid gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl md:grid-cols-3 xl:grid-cols-12">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = view === item.id || (item.id === "drift" && view === "pr-risk");
@@ -211,6 +215,7 @@ export function RepoMindDashboard() {
     }
     if (view === "overview") return <ExecutiveOverview summary={repoSummary} onNavigate={setView} />;
     if (view === "architecture") return <ArchitectureExplorerPanel data={architectureData} busy={busy === "architecture"} onGenerate={() => activeRepo && run("architecture", async () => setArchitectureData(await architectureExplorer(activeRepo.id)))} />;
+    if (view === "timeline") return <RepositoryEvolutionPanel data={evolutionData} busy={busy === "timeline"} onGenerate={() => activeRepo && run("timeline", async () => setEvolutionData(await repositoryEvolution(activeRepo.id)))} />;
     if (view === "portfolio") return <PortfolioPanel data={portfolio} busy={busy === "portfolio"} onRefresh={() => run("portfolio", async () => setPortfolio(await portfolioIntelligence()))} />;
     if (view === "knowledge") return <KnowledgeGraphPanel summary={repoSummary} />;
     if (view === "security") return <SecurityCenter summary={repoSummary} />;

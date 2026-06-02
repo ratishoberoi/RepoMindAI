@@ -180,6 +180,12 @@ export async function architectureExplorer(repoId: string) {
   return res.json();
 }
 
+export async function repositoryEvolution(repoId: string) {
+  const res = await fetch(`${API_BASE}/repositories/${repoId}/evolution`, { cache: "no-store", headers: authHeaders() });
+  if (!res.ok) throw new Error(await errorText(res));
+  return res.json();
+}
+
 export async function chat(repoId: string, question: string) {
   const res = await fetch(`${API_BASE}/repositories/${repoId}/chat`, {
     method: "POST",

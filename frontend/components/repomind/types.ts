@@ -204,10 +204,42 @@ export type ArchitectureExplorerResult = {
   external_integrations?: Array<Record<string, unknown>>;
   request_flows?: Array<Record<string, unknown>>;
   dependency_flows?: Array<Record<string, unknown>>;
+  service_dependency_explorer?: {
+    nodes?: Array<Record<string, unknown>>;
+    edges?: Array<Record<string, unknown>>;
+    high_risk_services?: Array<Record<string, unknown>>;
+    summary?: string;
+  };
+  blast_radius_explorer?: Array<Record<string, unknown>>;
+  ownership_explorer?: {
+    domains?: Array<Record<string, unknown>>;
+    orphaned_or_low_confidence?: Array<Record<string, unknown>>;
+    summary?: string;
+  };
+  impact_explorer?: Array<Record<string, unknown>>;
+  architecture_timeline?: Array<Record<string, unknown>>;
   architecture_review?: Record<string, unknown>;
   ai_architect_review?: Array<Record<string, unknown>>;
   narratives?: Record<string, string>;
   onboarding_markdown?: string;
+};
+
+export type RepositoryEvolution = {
+  repository?: Record<string, unknown>;
+  history_available?: boolean;
+  commit_count_analyzed?: number;
+  time_window?: Record<string, unknown>;
+  current_snapshot?: Record<string, unknown>;
+  architectural_drift_over_time?: Array<Record<string, unknown>>;
+  dependency_evolution?: Array<Record<string, unknown>>;
+  risk_evolution?: Array<Record<string, unknown>>;
+  security_evolution?: Array<Record<string, unknown>>;
+  complexity_evolution?: Array<Record<string, unknown>>;
+  hot_files?: Array<Record<string, unknown>>;
+  change_coupling?: Array<Record<string, unknown>>;
+  evidence?: Array<Record<string, unknown>>;
+  limitations?: string[];
+  summary?: string;
 };
 
 export type ExecutiveReportPack = {

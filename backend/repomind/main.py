@@ -37,6 +37,7 @@ from repomind.intelligence.acquisition import build_acquisition_intelligence
 from repomind.intelligence.architecture_explorer import build_architecture_explorer
 from repomind.intelligence.drift import detect_architecture_drift
 from repomind.intelligence.due_diligence import build_cto_due_diligence
+from repomind.intelligence.evolution import build_repository_evolution
 from repomind.intelligence.executive_reports import build_executive_report_pack
 from repomind.intelligence.graph_store import query_repository_graph
 from repomind.intelligence.portfolio import build_multi_repository_intelligence
@@ -486,6 +487,12 @@ def repository_graph_query(
 @app.get("/repositories/{repo_id}/architecture-explorer", dependencies=PROTECTED)
 def repository_architecture_explorer(repo_id: str, request: Request) -> dict:
     return build_architecture_explorer(_summary(repo_id, request))
+
+
+@app.get("/repositories/{repo_id}/evolution", dependencies=PROTECTED)
+def repository_evolution(repo_id: str, request: Request) -> dict:
+    summary = _summary(repo_id, request)
+    return summary.get("evolution") or build_repository_evolution(summary)
 
 
 @app.post("/repositories/{repo_id}/pr-risk", dependencies=PROTECTED)
