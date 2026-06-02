@@ -30,7 +30,7 @@ export function RepositoryRail(props: Props) {
   const [query, setQuery] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [compact, setCompact] = useState(false);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({ local: true, github: true, imported: true });
   const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
@@ -155,6 +155,9 @@ export function RepositoryRail(props: Props) {
           {groups.map((group) => {
             const Icon = group.icon;
             const closed = collapsed[group.id];
+            const visibleLimit = compact ? 14 : 7;
+            const visibleRepos = group.repos.slice(0, visibleLimit);
+            const hiddenCount = Math.max(0, group.repos.length - visibleRepos.length);
             return (
               <section key={group.id}>
                 {!compact ? (
@@ -165,9 +168,14 @@ export function RepositoryRail(props: Props) {
                 ) : null}
                 {!closed ? (
                   <div className="space-y-1.5">
-                    {group.repos.slice(0, compact ? 18 : 24).map((repo) => (
+                    {visibleRepos.map((repo) => (
                       <RepositoryCard key={`${group.id}-${repo.id}`} repo={repo} active={props.activeRepo?.id === repo.id} compact={compact} favorite={favorites.includes(repo.id)} onSelect={() => props.onSelect(repo)} onFavorite={() => toggleFavorite(repo.id)} />
                     ))}
+                    {!compact && hiddenCount ? (
+                      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-xs font-medium text-slate-500">
+                        +{hiddenCount} more repositories. Use search or filters to narrow.
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
               </section>

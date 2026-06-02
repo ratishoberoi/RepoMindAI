@@ -34,7 +34,7 @@ export function ExecutiveOverview({ summary, onNavigate }: { summary: Repository
   return (
     <div className="space-y-5">
       <section className="overflow-hidden rounded-3xl border border-white/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.035)_48%,rgba(56,189,248,0.08))] shadow-panel">
-        <div className="grid gap-0 xl:grid-cols-[360px_1fr_320px]">
+        <div className="grid gap-0 xl:grid-cols-[280px_1fr] 2xl:grid-cols-[320px_1fr_300px]">
           <div className="grid place-items-center border-b border-white/10 bg-black/20 p-5 xl:border-b-0 xl:border-r">
             <ScoreOrb label="Repo Health" score={overall} sublabel={`${riskLevel(overall)} risk posture`} />
           </div>
@@ -62,7 +62,7 @@ export function ExecutiveOverview({ summary, onNavigate }: { summary: Repository
               <InsightStat label="Data models" value={compactNumber(summary.architecture?.data_models?.length)} />
             </div>
           </div>
-          <div className="border-t border-white/10 bg-black/20 p-5 xl:border-l xl:border-t-0">
+          <div className="border-t border-white/10 bg-black/20 p-5 xl:col-span-2 2xl:col-span-1 2xl:border-l 2xl:border-t-0">
             <RadarChart axes={axes} />
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button onClick={() => onNavigate("knowledge")} className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-left text-sm font-semibold text-cyan-50 hover:bg-cyan-300/15"><Network className="mb-2 h-4 w-4" />Graph</button>
@@ -74,7 +74,7 @@ export function ExecutiveOverview({ summary, onNavigate }: { summary: Repository
         </div>
       </section>
 
-      <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr_0.9fr]">
+      <div className="grid gap-5 2xl:grid-cols-[0.85fr_1.15fr_0.9fr]">
         <Panel title="Executive Insights" eyebrow="What matters now">
           <InsightTicker
             insights={[

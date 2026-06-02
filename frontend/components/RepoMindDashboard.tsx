@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Clock3, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Route, Search, ShieldAlert, ShieldCheck, Activity } from "lucide-react";
+import { Building2, Clock3, FileText, GitCompareArrows, GitPullRequest, LayoutDashboard, MessageSquare, Network, Route, Search, ShieldAlert, ShieldCheck } from "lucide-react";
 import {
   analyze,
   architectureExplorer,
@@ -39,20 +39,57 @@ import { Badge, Button, EmptyState, Panel, SkeletonGrid } from "@/components/rep
 import type { ArchitectureExplorerResult, ChatResult, DiligenceResult, DriftResult, NavItem, PortfolioIntelligence, PrRiskResult, RepositoryEvolution, RepositorySummary, SystemStatus } from "@/components/repomind/types";
 import { asScore, compactNumber, executiveScore } from "@/components/repomind/utils";
 
-const navItems: NavItem[] = [
-  { id: "overview", label: "Executive", eyebrow: "scores", icon: LayoutDashboard },
-  { id: "architecture", label: "Architecture", eyebrow: "flows", icon: Route },
-  { id: "timeline", label: "Timeline", eyebrow: "evolution", icon: Clock3 },
-  { id: "portfolio", label: "Portfolio", eyebrow: "multi-repo", icon: Building2 },
-  { id: "knowledge", label: "Knowledge", eyebrow: "graph", icon: Network },
-  { id: "security", label: "Security", eyebrow: "owasp/cwe", icon: ShieldAlert },
-  { id: "pr-risk", label: "PR Risk", eyebrow: "blast radius", icon: GitPullRequest },
-  { id: "drift", label: "Drift", eyebrow: "baseline", icon: GitCompareArrows },
-  { id: "diligence", label: "Diligence", eyebrow: "board pack", icon: ShieldCheck },
-  { id: "reports", label: "Reports", eyebrow: "artifacts", icon: FileText },
-  { id: "chat", label: "Chat", eyebrow: "citations", icon: MessageSquare },
-  { id: "admin", label: "Admin", eyebrow: "ops", icon: Activity }
+type PrimaryNavItem = NavItem & { target: string };
+
+const primaryNavItems: PrimaryNavItem[] = [
+  { id: "executive", target: "overview", label: "Executive", eyebrow: "cockpit", icon: LayoutDashboard },
+  { id: "architecture", target: "architecture", label: "Architecture", eyebrow: "flows", icon: Route },
+  { id: "knowledge", target: "knowledge", label: "Knowledge Graph", eyebrow: "map", icon: Network },
+  { id: "risk", target: "security", label: "Risk Center", eyebrow: "security + PR", icon: ShieldAlert },
+  { id: "diligence", target: "diligence", label: "Diligence", eyebrow: "board pack", icon: ShieldCheck },
+  { id: "chat", target: "chat", label: "Chat", eyebrow: "citations", icon: MessageSquare }
 ];
+
+const secondaryNavGroups: Record<string, NavItem[]> = {
+  executive: [
+    { id: "overview", label: "Overview", eyebrow: "scorecard", icon: LayoutDashboard },
+    { id: "timeline", label: "Timeline", eyebrow: "evolution", icon: Clock3 },
+    { id: "portfolio", label: "Portfolio", eyebrow: "multi-repo", icon: Building2 }
+  ],
+  architecture: [
+    { id: "architecture", label: "Explorer", eyebrow: "flows", icon: Route },
+    { id: "timeline", label: "Time Machine", eyebrow: "evolution", icon: Clock3 }
+  ],
+  knowledge: [
+    { id: "knowledge", label: "Graph", eyebrow: "relationships", icon: Network },
+    { id: "architecture", label: "Explorer", eyebrow: "flows", icon: Route }
+  ],
+  risk: [
+    { id: "security", label: "Security", eyebrow: "OWASP/CWE", icon: ShieldAlert },
+    { id: "pr-risk", label: "PR Risk", eyebrow: "blast radius", icon: GitPullRequest },
+    { id: "drift", label: "Drift", eyebrow: "baseline", icon: GitCompareArrows }
+  ],
+  diligence: [
+    { id: "diligence", label: "Due Diligence", eyebrow: "board pack", icon: ShieldCheck },
+    { id: "reports", label: "Reports", eyebrow: "artifacts", icon: FileText },
+    { id: "portfolio", label: "Portfolio", eyebrow: "multi-repo", icon: Building2 }
+  ],
+  chat: [{ id: "chat", label: "Chat", eyebrow: "citations", icon: MessageSquare }]
+};
+
+function primaryForView(view: string) {
+  if (["architecture"].includes(view)) return "architecture";
+  if (["knowledge"].includes(view)) return "knowledge";
+  if (["security", "pr-risk", "drift"].includes(view)) return "risk";
+  if (["diligence", "reports"].includes(view)) return "diligence";
+  if (view === "chat") return "chat";
+  return "executive";
+}
+
+function viewLabel(view: string) {
+  const allItems = [...primaryNavItems, ...Object.values(secondaryNavGroups).flat()];
+  return allItems.find((item) => item.id === view || ("target" in item && item.target === view))?.label ?? view;
+}
 
 export function RepoMindDashboard() {
   const [repositories, setRepositories] = useState<Repository[]>([]);
@@ -118,6 +155,8 @@ export function RepoMindDashboard() {
       ["Files", compactNumber(repoSummary?.statistics?.files ?? repoSummary?.files?.length)]
     ] satisfies Array<[string, string | number]>;
   }, [repoSummary]);
+  const activePrimary = primaryForView(view);
+  const secondaryNav = secondaryNavGroups[activePrimary] ?? [];
 
   async function refreshRepositories(preferredId?: string) {
     const items = await listRepositories();
@@ -181,21 +220,46 @@ export function RepoMindDashboard() {
 
         <section className="min-w-0 space-y-4">
           <TopCommandBar activeRepo={activeRepo} view={view} setView={setView} stats={commandStats} />
-          <nav className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl sm:grid-cols-4 md:grid-cols-6 xl:grid-cols-12">
-            {navItems.map((item) => {
+          <nav aria-label="Primary navigation" className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-panel backdrop-blur-xl md:grid-cols-3 xl:grid-cols-6">
+            {primaryNavItems.map((item) => {
               const Icon = item.icon;
-              const active = view === item.id || (item.id === "drift" && view === "pr-risk");
+              const active = activePrimary === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setView(item.id)}
-                  className={`min-h-[74px] rounded-xl border px-2.5 py-3 text-left transition sm:px-3 ${
+                  onClick={() => setView(item.target)}
+                  className={`min-h-[86px] rounded-xl border px-3 py-3 text-left transition ${
                     active ? "border-cyan-300/35 bg-cyan-300/10 text-white" : "border-transparent text-slate-400 hover:border-white/10 hover:bg-white/[0.045] hover:text-slate-100"
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
-                  <p className="mt-2 break-words text-sm font-semibold leading-tight">{item.label}</p>
-                  <p className="mt-1 break-words text-[10px] uppercase leading-tight tracking-[0.12em] opacity-70">{item.eyebrow}</p>
+                  <div className="flex h-full flex-col justify-between gap-2">
+                    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg border ${active ? "border-cyan-200/30 bg-cyan-200/10 text-cyan-100" : "border-white/10 bg-white/[0.035] text-slate-400"}`}>
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block whitespace-normal text-sm font-semibold leading-tight sm:text-[15px]">{item.label}</span>
+                      <span className="mt-1 block truncate text-[10px] uppercase leading-tight tracking-[0.12em] opacity-70">{item.eyebrow}</span>
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </nav>
+          <nav aria-label="Context navigation" className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/55 p-2 shadow-panel backdrop-blur-xl">
+            <span className="hidden px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 md:inline">{primaryNavItems.find((item) => item.id === activePrimary)?.label}</span>
+            {secondaryNav.map((item) => {
+              const Icon = item.icon;
+              const active = view === item.id;
+              return (
+                <button
+                  key={`${activePrimary}-${item.id}`}
+                  onClick={() => setView(item.id)}
+                  className={`inline-flex min-h-9 items-center gap-2 rounded-full border px-3 text-sm font-medium transition ${
+                    active ? "border-white/15 bg-white/[0.09] text-white" : "border-transparent text-slate-400 hover:border-white/10 hover:bg-white/[0.05] hover:text-slate-100"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{item.label}</span>
                 </button>
               );
             })}
@@ -257,13 +321,13 @@ function TopCommandBar({
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200/75">Premium repository intelligence</p>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h2 className="truncate text-2xl font-semibold tracking-tight text-white">{activeRepo?.name ?? "Command workspace"}</h2>
-          <Badge className="border-white/10 bg-white/[0.04] text-slate-300">{view}</Badge>
+          <Badge className="border-white/10 bg-white/[0.04] text-slate-300">{viewLabel(view)}</Badge>
         </div>
       </div>
       <div className="grid min-w-0 gap-2 md:grid-cols-[minmax(220px,1fr)_auto] xl:min-w-[640px]">
         <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-slate-300">
           <Search size={15} className="text-slate-500" />
-          <input className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-600" placeholder="Command search: graph, reports, risk, citations" onFocus={() => setView("knowledge")} />
+          <input className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-600" placeholder="Search graph, reports, risk, citations" onFocus={() => setView("knowledge")} />
         </label>
         <div className="grid grid-cols-3 gap-2 md:flex">
           {stats.map(([label, value]) => (
