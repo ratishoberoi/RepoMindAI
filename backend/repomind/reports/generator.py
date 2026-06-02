@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 from collections.abc import Callable as CollectionsCallable
+from datetime import date, datetime
 from html import escape
 from pathlib import Path
 from typing import Any
@@ -99,7 +100,7 @@ def generate_reports(
         path.write_text(redact_text(writer(summary, ai)))
         paths[name] = str(path)
     sarif_path = out_dir / "SECURITY.sarif"
-    sarif_path.write_text(json.dumps(_sarif(summary), indent=2))
+    sarif_path.write_text(_json_dumps(_sarif(summary), indent=2))
     paths[sarif_path.name] = str(sarif_path)
     html_path = out_dir / "EXECUTIVE_SUMMARY.html"
     html_path.write_text(_html_summary(summary, "Executive Summary"))
@@ -117,7 +118,7 @@ def generate_reports(
         path = out_dir / report_name
         path.write_bytes(_pdf_summary(summary, report_title))
         paths[path.name] = str(path)
-    (out_dir / "analysis-summary.json").write_text(redact_text(json.dumps(summary, indent=2)))
+    (out_dir / "analysis-summary.json").write_text(redact_text(_json_dumps(summary, indent=2)))
     paths["analysis-summary.json"] = str(out_dir / "analysis-summary.json")
     return paths
 
@@ -723,7 +724,7 @@ def _evidence_only_model_fallback(summary: dict[str, Any], exc: RuntimeError) ->
 
 
 def _redacted_summary(summary: dict[str, Any]) -> dict[str, Any]:
-    payload = json.loads(json.dumps(summary))
+    payload = json.loads(_json_dumps(summary))
     for finding in payload.get("security", {}).get("findings", []):
         if "message" in finding:
             finding["message"] = redact_text(str(finding["message"]))
@@ -731,6 +732,16 @@ def _redacted_summary(summary: dict[str, Any]) -> dict[str, Any]:
         if "text" in todo:
             todo["text"] = redact_text(str(todo["text"]))
     return payload
+
+
+def _json_dumps(payload: Any, **kwargs: Any) -> str:
+    return json.dumps(payload, default=_json_default, **kwargs)
+
+
+def _json_default(value: Any) -> str:
+    if isinstance(value, datetime | date):
+        return value.isoformat()
+    return str(value)
 
 
 def _evidence_files(summary: dict[str, Any]) -> str:

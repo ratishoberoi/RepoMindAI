@@ -382,13 +382,15 @@ def _source_quality_boost(path: str, query_terms: set[str]) -> float:
         part in lower.split("/")
         for part in ("test", "tests", "docs", "doc", "docs_src", "examples", "scripts")
     ):
-        boost -= 0.18
+        boost -= 0.24
     if lower.startswith(("docs_src/", "tests/", "test/", "scripts/", ".github/")):
-        boost -= 0.16
+        boost -= 0.22
     if lower.endswith((".md", ".rst", ".txt")):
-        boost -= 0.14
-    if lower.endswith((".py", ".ts", ".tsx", ".js", ".jsx", ".java", ".go", ".rs")):
-        boost += 0.08
+        boost -= 0.22
+    if lower.endswith(
+        (".py", ".ts", ".tsx", ".js", ".jsx", ".java", ".go", ".rs", ".cs", ".kt", ".kts", ".php")
+    ):
+        boost += 0.16
     return boost
 
 

@@ -1,0 +1,164 @@
+{
+  "repositories_attempted": 100,
+  "repositories_passed": 100,
+  "repositories_failed": 0,
+  "failure_rate": 0.0,
+  "language_mix": {
+    "Rust": 13,
+    "C#": 13,
+    "Kotlin": 13,
+    "PHP": 13,
+    "Python": 12,
+    "TypeScript": 12,
+    "Java": 12,
+    "Go": 12
+  },
+  "size_mix": {
+    "tiny": 82,
+    "small": 18
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.794,
+  "mean_retrieval_accuracy": 0.794,
+  "mean_answer_accuracy": 0.84,
+  "mean_architecture_correctness": 0.969,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 252.363
+    },
+    {
+      "stage": "security",
+      "seconds": 125.126
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 113.307
+    },
+    {
+      "stage": "indexing",
+      "seconds": 107.544
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 99.798
+    },
+    {
+      "stage": "embedding",
+      "seconds": 53.942
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 9.838
+    },
+    {
+      "stage": "reports",
+      "seconds": 5.157
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 0.729
+    },
+    {
+      "stage": "scan_files",
+      "seconds": 0.004
+    }
+  ],
+  "failures": [],
+  "batch_number": 4,
+  "baseline": {
+    "failure_rate": 0.0,
+    "mean_citation_accuracy": 0.775,
+    "mean_retrieval_accuracy": 0.775,
+    "mean_architecture_correctness": 0.848
+  },
+  "regression_gates": {
+    "mean_citation_accuracy": 0.75,
+    "mean_retrieval_accuracy": 0.75,
+    "mean_architecture_correctness": 0.8
+  },
+  "memory": {
+    "max_rss_mb_peak": 2280.95,
+    "max_rss_mb_mean": 2047.233,
+    "cpu_seconds_total": 225.412
+  },
+  "timings": {
+    "ingestion_seconds": 226.614,
+    "analysis_seconds": 504.726,
+    "indexing_seconds": 107.544,
+    "chroma_upsert_seconds": 99.798,
+    "embedding_seconds": 53.942,
+    "security_seconds": 125.126,
+    "parse_files_seconds": 9.838,
+    "reports_seconds": 5.157,
+    "technical_debt_seconds": 0.729,
+    "scan_files_seconds": 0.004
+  },
+  "bottleneck_delta": [
+    {
+      "stage": "analysis",
+      "seconds": 252.363,
+      "previous_seconds": 453.132,
+      "delta_seconds": -200.769
+    },
+    {
+      "stage": "security",
+      "seconds": 125.126,
+      "previous_seconds": 192.796,
+      "delta_seconds": -67.67
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 113.307,
+      "previous_seconds": 113.683,
+      "delta_seconds": -0.376
+    },
+    {
+      "stage": "indexing",
+      "seconds": 107.544,
+      "previous_seconds": 238.468,
+      "delta_seconds": -130.924
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 99.798,
+      "previous_seconds": 228.118,
+      "delta_seconds": -128.32
+    },
+    {
+      "stage": "embedding",
+      "seconds": 53.942,
+      "previous_seconds": 173.276,
+      "delta_seconds": -119.334
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 9.838,
+      "previous_seconds": 11.236,
+      "delta_seconds": -1.398
+    },
+    {
+      "stage": "reports",
+      "seconds": 5.157,
+      "previous_seconds": 4.866,
+      "delta_seconds": 0.291
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 0.729,
+      "previous_seconds": 1.693,
+      "delta_seconds": -0.964
+    },
+    {
+      "stage": "scan_files",
+      "seconds": 0.004,
+      "previous_seconds": 0.158,
+      "delta_seconds": -0.154
+    }
+  ]
+}

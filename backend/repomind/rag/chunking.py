@@ -9,7 +9,11 @@ from repomind.core.config import get_settings
 
 SYMBOL_RE = re.compile(
     r"^(?P<indent>\s*)(?:async\s+def|def|class)\s+(?P<python>[A-Za-z_][A-Za-z0-9_]*)|"
-    r"^(?:export\s+)?(?:async\s+)?(?:function|class)\s+(?P<js>[A-Za-z_][A-Za-z0-9_]*)",
+    r"^(?:export\s+)?(?:async\s+)?(?:function|class)\s+(?P<js>[A-Za-z_][A-Za-z0-9_]*)|"
+    r"^\s*(?:public|private|protected|internal)?\s*(?:class|interface|record|struct)\s+(?P<csharp>[A-Za-z_][A-Za-z0-9_]*)|"
+    r"^\s*(?:data\s+|sealed\s+|open\s+)?(?:class|interface|object)\s+(?P<kotlin>[A-Za-z_][A-Za-z0-9_]*)|"
+    r"^\s*(?:abstract\s+|final\s+)?(?:class|interface|trait|enum)\s+(?P<php>[A-Za-z_][A-Za-z0-9_]*)|"
+    r"^\s*(?:public|private|protected)?\s*function\s+(?P<php_fn>[A-Za-z_][A-Za-z0-9_]*)",
     re.MULTILINE,
 )
 TREE_SITTER_NODE_TYPES = {
@@ -55,6 +59,19 @@ TREE_SITTER_NODE_TYPES = {
         "enum_item",
         "trait_item",
         "mod_item",
+    },
+    "kotlin": {
+        "class_declaration",
+        "object_declaration",
+        "function_declaration",
+        "property_declaration",
+    },
+    "php": {
+        "class_declaration",
+        "interface_declaration",
+        "trait_declaration",
+        "function_definition",
+        "method_declaration",
     },
 }
 
@@ -107,7 +124,7 @@ def _ast_chunks(text: str, path: str) -> list[dict]:
     suffix = Path(path).suffix.lower()
     if suffix == ".py":
         return _python_ast_chunks(text, path)
-    if suffix in {".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs"}:
+    if suffix in {".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs", ".kt", ".kts", ".php"}:
         return _tree_sitter_chunks(text, path, _tree_sitter_language(path))
     return []
 
@@ -242,7 +259,14 @@ def _symbol_chunks(text: str, path: str) -> list[dict]:
         body = text[start:end].strip("\n")
         if not body:
             continue
-        symbol = match.group("python") or match.group("js")
+        symbol = (
+            match.group("python")
+            or match.group("js")
+            or match.group("csharp")
+            or match.group("kotlin")
+            or match.group("php")
+            or match.group("php_fn")
+        )
         line_start = text.count("\n", 0, start) + 1
         line_end = text.count("\n", 0, end) + 1
         chunks.append(
@@ -272,6 +296,10 @@ def _tree_sitter_language(path: str) -> str:
         return "go"
     if suffix == ".rs":
         return "rust"
+    if suffix in {".kt", ".kts"}:
+        return "kotlin"
+    if suffix == ".php":
+        return "php"
     return "javascript"
 
 

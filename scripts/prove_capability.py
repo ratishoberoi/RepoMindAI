@@ -169,7 +169,10 @@ SOURCE_EXTENSIONS = {
     ".java",
     ".go",
     ".rs",
+    ".cs",
     ".kt",
+    ".kts",
+    ".php",
     ".scala",
 }
 
@@ -296,7 +299,9 @@ def inspect_repository(root: Path) -> dict[str, Any]:
             "Cargo.toml",
             "pnpm-lock.yaml",
             "yarn.lock",
+            "composer.json",
         }
+        or path.name.endswith((".csproj", ".sln"))
     ]
     text_by_token = {key: [] for key in QUESTIONS}
     broad_text_by_token = {key: [] for key in QUESTIONS}
@@ -331,8 +336,13 @@ def inspect_repository(root: Path) -> dict[str, Any]:
         "source_file_count": len(source_files),
         "extension_counts": extension_counts.most_common(12),
         "manifest_files": sorted(manifests),
-        "expected_files": {key: values[:50] for key, values in text_by_token.items()},
-        "broad_expected_files": {key: values[:50] for key, values in broad_text_by_token.items()},
+        "expected_files": {
+            key: _rank_expected_files(key, values)[:50] for key, values in text_by_token.items()
+        },
+        "broad_expected_files": {
+            key: _rank_expected_files(key, values)[:50]
+            for key, values in broad_text_by_token.items()
+        },
         "security_signals": security_signals[:50],
     }
 
@@ -359,33 +369,46 @@ def _is_validation_noise_path(path: str) -> bool:
     )
 
 
+def _rank_expected_files(key: str, paths: list[str]) -> list[str]:
+    unique = [path for index, path in enumerate(paths) if path and path not in paths[:index]]
+    return sorted(unique, key=lambda path: (_expected_path_rank(key, path), path))
+
+
+def _expected_path_rank(key: str, path: str) -> tuple[int, int, int]:
+    lower = path.lower()
+    rank = 10
+    if key == "authentication" and any(
+        token in lower for token in ("auth", "login", "jwt", "oauth", "session", "security")
+    ):
+        rank -= 6
+    if key == "database" and any(
+        token in lower
+        for token in ("db", "database", "repository", "migration", "schema", "model", "store")
+    ):
+        rank -= 6
+    if key == "routes" and any(
+        token in lower for token in ("route", "router", "server", "controller", "handler")
+    ):
+        rank -= 6
+    if lower.endswith(
+        (".py", ".ts", ".tsx", ".js", ".jsx", ".java", ".go", ".rs", ".cs", ".kt", ".kts", ".php")
+    ):
+        rank -= 2
+    if _is_validation_noise_path(path):
+        rank += 8
+    return (rank, path.count("/"), len(path))
+
+
 def _high_confidence_expected_file(key: str, rel: str, text: str) -> bool:
     lower = f"{rel}\n{text}".lower()
     path = rel.lower()
     if key == "authentication":
-        return any(
-            token in lower
-            for token in (
-                "authenticate",
-                "authentication",
-                "authorization",
-                "jwt",
-                "oauth",
-                "session",
-                "login",
-                "password_hash",
-                "bcrypt",
-                "argon2",
-            )
-        ) and any(
-            token in path or token in lower
-            for token in ("auth", "login", "jwt", "oauth", "session", "password")
-        )
+        return _contains_auth_signal(lower) and _path_or_text_auth_signal(path, lower)
     if key == "database":
         return any(token in path for token in ("db", "database", "storage", "repository")) or bool(
             re.search(
                 r"\b(from|import)\s+(sqlalchemy|django\.db|sqlmodel|prisma|mongoose|sequelize|typeorm|gorm|sqlx|diesel)\b|"
-                r"\b(create_engine|sessionmaker|db\.query|redis\.|sqlite3\.connect|psycopg|mysql)\b",
+                r"\b(create_engine|sessionmaker|db\.query|redis\.|sqlite3\.connect|psycopg|mysql|dbcontext|dbset|eloquent|doctrine\\orm|entityframework)\b",
                 lower,
             )
         )
@@ -401,11 +424,42 @@ def _high_confidence_expected_file(key: str, rel: str, text: str) -> bool:
                 re.compile(
                     r"@(GetMapping|PostMapping|PutMapping|PatchMapping|DeleteMapping|RequestMapping)"
                 ),
+                re.compile(r"\[(HttpGet|HttpPost|HttpPut|HttpPatch|HttpDelete|Route)\s*(?:\(|\])"),
                 re.compile(r"\.(GET|POST|PUT|PATCH|DELETE|HandleFunc)\s*\(\s*['\"]/"),
                 re.compile(r"#\[(get|post|put|patch|delete|route)\s*\("),
+                re.compile(r"Route::(get|post|put|patch|delete|any)\s*\(\s*['\"]/"),
+                re.compile(r"#\[Route\(\s*['\"]/"),
             )
         )
     return False
+
+
+def _contains_auth_signal(value: str) -> bool:
+    return bool(
+        re.search(
+            r"\b(auth|authenticate|authentication|authorization|authorize|jwt|oauth|session|login|"
+            r"password_hash|bcrypt|argon2)\b",
+            value,
+        )
+    )
+
+
+def _path_or_text_auth_signal(path: str, value: str) -> bool:
+    path_signal = bool(
+        re.search(
+            r"(^|[/_.-])(auth|login|jwt|oauth|session|password|security)"
+            r"([/_.-]|$|controller|service|middleware|guard|provider|handler)",
+            path,
+        )
+    )
+    text_signal = bool(
+        re.search(
+            r"\b(authenticate|authentication|authorization|authorize|jwt|oauth|session|login|"
+            r"password_hash|bcrypt|argon2)\b",
+            value,
+        )
+    )
+    return path_signal or text_signal
 
 
 def _looks_like_security_signal(line_lower: str) -> bool:
@@ -470,6 +524,10 @@ def validate_accuracy(summary: dict[str, Any], independent: dict[str, Any]) -> d
         expected_managers.add("Go modules")
     if any(path.endswith("Cargo.toml") for path in manifests):
         expected_managers.add("Cargo")
+    if any(path.endswith("composer.json") for path in manifests):
+        expected_managers.add("Composer")
+    if any(path.endswith((".csproj", ".sln")) for path in manifests):
+        expected_managers.add("NuGet")
     manager_hits = len(expected_managers & detected_managers)
     missing_dependencies = sorted(expected_managers - detected_managers)
     hallucinated_dependencies = sorted(detected_managers - expected_managers)
@@ -483,14 +541,49 @@ def validate_accuracy(summary: dict[str, Any], independent: dict[str, Any]) -> d
     route_expected = set(independent.get("expected_files", {}).get("routes", []))
     route_files = set(summary.get("architecture", {}).get("route_files", []))
     route_hits = len(route_expected & route_files)
+    benchmark_signal_count = (
+        len(expected_managers) + min(10, len(route_expected)) + min(10, len(security_signal_paths))
+    )
+    if benchmark_signal_count == 0:
+        no_signal_correctness = bool(
+            stats.get("files", 0)
+            and summary.get("architecture", {}).get("summary")
+            and "findings" in summary.get("security", {})
+            and not hallucinated_dependencies
+        )
+        return {
+            "correctness": 1.0 if no_signal_correctness else 0.0,
+            "applicability": "no_independent_signals",
+            "dependency_expected": sorted(expected_managers),
+            "dependency_detected": sorted(detected_managers),
+            "missing_findings": {
+                "dependencies": missing_dependencies,
+                "security_signal_paths": sorted(security_signal_paths - security_finding_paths)[
+                    :20
+                ],
+                "route_signal_paths": sorted(route_expected - route_files)[:20],
+            },
+            "hallucinated_findings": {
+                "dependencies": hallucinated_dependencies,
+                "primary_language_mismatch": summary.get("languages", {}).get("primary")
+                not in expected_languages(independent),
+            },
+            "summary_present": {
+                "architecture": bool(summary.get("architecture", {}).get("summary")),
+                "security": "findings" in summary.get("security", {}),
+                "dependencies": bool(stack.get("package_managers") or stack.get("frameworks")),
+                "files_analyzed": stats.get("files", 0),
+            },
+        }
     denominator = max(
         1,
-        len(expected_managers) + min(10, len(route_expected)) + min(10, len(security_signal_paths)),
+        benchmark_signal_count,
     )
     numerator = manager_hits + min(10, route_hits) + min(10, security_hits)
     hallucinations = hallucinated_dependencies
     return {
         "correctness": round(numerator / denominator, 3),
+        "applicability": "independent_signals",
         "dependency_expected": sorted(expected_managers),
         "dependency_detected": sorted(detected_managers),
         "missing_findings": {
@@ -570,6 +663,10 @@ def expected_languages(independent: dict[str, Any]) -> set[str]:
         ".java": "Java",
         ".go": "Go",
         ".rs": "Rust",
+        ".cs": "C#",
+        ".kt": "Kotlin",
+        ".kts": "Kotlin",
+        ".php": "PHP",
     }
     return {mapping.get(ext, ext) for ext, _ in independent.get("extension_counts", [])}
 

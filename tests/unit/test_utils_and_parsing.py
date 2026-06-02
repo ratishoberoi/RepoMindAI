@@ -1,7 +1,8 @@
+from datetime import date
 from pathlib import Path
 
 import pytest
-from repomind.analysis.classifier import classify_file
+from repomind.analysis.classifier import classify_file, detect_stack, language_summary
 from repomind.analysis.graph import build_dependency_graph
 from repomind.analysis.parser import parse_file
 from repomind.core import cleanup
@@ -17,7 +18,8 @@ from repomind.llm.adapters import detect_model
 from repomind.rag.chunking import chunk_file, chunk_text
 from repomind.rag.embeddings import BGEEmbedder
 from repomind.rag.qa import _enforce_cited_references
-from repomind.reports.generator import compare_summaries, generate_reports
+from repomind.rag.retriever import _source_quality_boost
+from repomind.reports.generator import _redacted_summary, compare_summaries, generate_reports
 from repomind.security.redaction import redact_text
 from repomind.utils.hashing import file_sha256
 from repomind.utils.ignore import should_ignore
@@ -34,6 +36,29 @@ def test_hash_generation(tmp_path: Path) -> None:
     path = tmp_path / "a.py"
     path.write_text("print('x')")
     assert file_sha256(path) == file_sha256(path)
+
+
+def test_repository_store_sanitizes_json_fields(tmp_path: Path) -> None:
+    store = RepositoryStore(database_url=f"sqlite:///{tmp_path / 'metadata.db'}")
+    repo = store.create_repository("demo", "local", tmp_path, str(tmp_path))
+
+    updated = store.update(
+        repo["id"],
+        status="complete",
+        summary={"timeline": [{"date": date(2026, 1, 1)}]},
+        reports={"analysis-summary.json": tmp_path / "analysis-summary.json"},
+        analysis_job={
+            "id": "job-1",
+            "status": "complete",
+            "progress": 100,
+            "message": "done",
+            "finished_on": date(2026, 1, 2),
+        },
+    )
+
+    assert updated["summary"]["timeline"][0]["date"] == "2026-01-01"
+    assert updated["analysis_job"]["finished_on"] == "2026-01-02"
+    assert updated["reports"]["analysis-summary.json"].endswith("analysis-summary.json")
 
 
 def test_python_parser_extracts_symbols(tmp_path: Path) -> None:
@@ -254,6 +279,87 @@ def test_java_go_rust_parsers_extract_architecture_signals(tmp_path: Path) -> No
     assert any(item["name"] == "health" for item in rust_parsed["functions"])
 
 
+def test_csharp_kotlin_php_parsers_extract_architecture_signals(tmp_path: Path) -> None:
+    csharp = tmp_path / "UsersController.cs"
+    csharp.write_text(
+        "using Microsoft.AspNetCore.Mvc;\n"
+        "public class UsersController {\n"
+        '  [HttpGet("/users")]\n'
+        "  public async Task<IActionResult> ListUsers() => Ok();\n"
+        "}\n"
+        "public class AppDbContext : DbContext { public DbSet<User> Users { get; set; } }\n"
+        "public class User { public string Id { get; set; } }\n"
+    )
+    kotlin = tmp_path / "Routes.kt"
+    kotlin.write_text(
+        "import io.ktor.server.routing.get\n"
+        "class UserEntity\n"
+        'fun Application.routes() { routing { get("/health") { } } }\n'
+    )
+    php = tmp_path / "routes.php"
+    php.write_text(
+        "<?php\n"
+        "use Illuminate\\Support\\Facades\\Route;\n"
+        "class User extends Model {}\n"
+        "Route::get('/users', [UserController::class, 'index']);\n"
+        "function helper() {}\n"
+    )
+    csharp_parsed = parse_file(csharp, "Controllers/UsersController.cs", "C#")
+    kotlin_parsed = parse_file(kotlin, "src/Routes.kt", "Kotlin")
+    php_parsed = parse_file(php, "routes/web.php", "PHP")
+    assert "Microsoft.AspNetCore.Mvc" in csharp_parsed["imports"]
+    assert csharp_parsed["routes"][0]["path"] == "/users"
+    assert any(item["name"] == "AppDbContext" for item in csharp_parsed["database_models"])
+    assert kotlin_parsed["routes"][0]["path"] == "/health"
+    assert any(item["name"] == "routes" for item in kotlin_parsed["functions"])
+    assert php_parsed["routes"][0]["path"] == "/users"
+    assert any(item["name"] == "User" for item in php_parsed["database_models"])
+
+
+def test_stack_detection_reports_maven_and_gradle_as_package_managers(tmp_path: Path) -> None:
+    service = tmp_path / "service"
+    service.mkdir()
+    (tmp_path / "pom.xml").write_text("<project><artifactId>demo</artifactId></project>")
+    (service / "build.gradle.kts").write_text('plugins { id("org.springframework.boot") }')
+    files = [
+        {"relative_path": "pom.xml"},
+        {"relative_path": "service/build.gradle.kts"},
+    ]
+
+    stack = detect_stack(tmp_path, files)
+
+    assert "Maven" in stack["package_managers"]
+    assert "Gradle" in stack["package_managers"]
+    assert "Maven" in stack["build_tools"]
+    assert "Gradle" in stack["build_tools"]
+    assert "Spring" in stack["frameworks"]
+
+
+def test_language_summary_prefers_source_languages() -> None:
+    summary = language_summary(
+        [
+            {"language": "Markdown"},
+            {"language": "Text"},
+            {"language": "Text"},
+            {"language": "C#"},
+        ]
+    )
+
+    assert summary["primary"] == "C#"
+
+
+def test_report_summary_redaction_serializes_dates() -> None:
+    summary = {
+        "security": {"findings": []},
+        "technical_debt": {"todos": []},
+        "knowledge_graph": {"timeline": [{"date": date(2026, 1, 1), "files": []}]},
+    }
+
+    redacted = _redacted_summary(summary)
+
+    assert redacted["knowledge_graph"]["timeline"][0]["date"] == "2026-01-01"
+
+
 def test_java_go_rust_chunking_uses_language_ast_when_available(tmp_path: Path) -> None:
     samples = {
         "src/App.java": "class App { public void run() {} }\n",
@@ -292,6 +398,23 @@ def test_tree_sitter_js_ts_parser_extracts_routes_and_exports(tmp_path: Path) ->
     assert "express" in parsed["imports"]
     assert any(item["name"] == "UserModel" for item in parsed["classes"])
     assert any(route["path"] == "/health" for route in parsed["routes"])
+
+
+def test_json_metadata_parser_accepts_dependency_lists(tmp_path: Path) -> None:
+    path = tmp_path / "config.json"
+    path.write_text('{"dependencies": ["androidx.core"], "devDependencies": {"vitest": "^1"}}')
+
+    parsed = parse_file(path, "config.json", "JSON")
+
+    assert parsed["metadata"]["dependencies"] == ["androidx.core"]
+    assert parsed["metadata"]["dev_dependencies"] == ["vitest"]
+
+
+def test_source_quality_boost_prefers_source_for_implementation_queries() -> None:
+    query_terms = {"authentication", "auth", "login"}
+
+    assert _source_quality_boost("src/AuthController.php", query_terms) > 0
+    assert _source_quality_boost("README.md", query_terms) < 0
 
 
 def test_secret_redaction_masks_sensitive_values() -> None:

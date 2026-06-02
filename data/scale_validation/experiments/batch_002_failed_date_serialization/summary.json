@@ -1,0 +1,160 @@
+{
+  "repositories_attempted": 24,
+  "repositories_passed": 23,
+  "repositories_failed": 1,
+  "failure_rate": 0.042,
+  "language_mix": {
+    "Rust": 3,
+    "C#": 3,
+    "Kotlin": 3,
+    "PHP": 3,
+    "Python": 3,
+    "TypeScript": 3,
+    "Java": 3,
+    "Go": 3
+  },
+  "size_mix": {
+    "tiny": 22,
+    "small": 2
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.825,
+  "mean_retrieval_accuracy": 0.825,
+  "mean_answer_accuracy": 0.843,
+  "mean_architecture_correctness": 0.972,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 140.752
+    },
+    {
+      "stage": "indexing",
+      "seconds": 113.497
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 111.461
+    },
+    {
+      "stage": "embedding",
+      "seconds": 101.619
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 25.97
+    },
+    {
+      "stage": "security",
+      "seconds": 22.985
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 2.185
+    },
+    {
+      "stage": "reports",
+      "seconds": 0.954
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 0.317
+    }
+  ],
+  "failures": [
+    {
+      "url": "https://github.com/microsoft/slngen",
+      "language": "C#",
+      "stage": "analysis",
+      "error": "Object of type date is not JSON serializable"
+    }
+  ],
+  "batch_number": 2,
+  "baseline": {
+    "failure_rate": 0.0,
+    "mean_citation_accuracy": 0.775,
+    "mean_retrieval_accuracy": 0.775,
+    "mean_architecture_correctness": 0.848
+  },
+  "regression_gates": {
+    "mean_citation_accuracy": 0.75,
+    "mean_retrieval_accuracy": 0.75,
+    "mean_architecture_correctness": 0.8
+  },
+  "memory": {
+    "max_rss_mb_peak": 1913.86,
+    "max_rss_mb_mean": 1801.249,
+    "cpu_seconds_total": 58.741
+  },
+  "timings": {
+    "ingestion_seconds": 51.94,
+    "analysis_seconds": 281.504,
+    "indexing_seconds": 113.497,
+    "chroma_upsert_seconds": 111.461,
+    "embedding_seconds": 101.619,
+    "security_seconds": 22.985,
+    "parse_files_seconds": 2.185,
+    "reports_seconds": 0.954,
+    "technical_debt_seconds": 0.317
+  },
+  "bottleneck_delta": [
+    {
+      "stage": "analysis",
+      "seconds": 140.752,
+      "previous_seconds": 353.443,
+      "delta_seconds": -212.691
+    },
+    {
+      "stage": "indexing",
+      "seconds": 113.497,
+      "previous_seconds": 193.252,
+      "delta_seconds": -79.755
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 111.461,
+      "previous_seconds": 184.065,
+      "delta_seconds": -72.604
+    },
+    {
+      "stage": "embedding",
+      "seconds": 101.619,
+      "previous_seconds": 132.689,
+      "delta_seconds": -31.07
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 25.97,
+      "previous_seconds": 107.821,
+      "delta_seconds": -81.851
+    },
+    {
+      "stage": "security",
+      "seconds": 22.985,
+      "previous_seconds": 136.781,
+      "delta_seconds": -113.796
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 2.185,
+      "previous_seconds": 12.454,
+      "delta_seconds": -10.269
+    },
+    {
+      "stage": "reports",
+      "seconds": 0.954,
+      "previous_seconds": 4.948,
+      "delta_seconds": -3.994
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 0.317,
+      "previous_seconds": 1.915,
+      "delta_seconds": -1.598
+    }
+  ]
+}

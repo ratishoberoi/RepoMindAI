@@ -12,6 +12,8 @@ LANGUAGE_BY_SUFFIX = {
     ".java": "Java",
     ".go": "Go",
     ".rs": "Rust",
+    ".kt": "Kotlin",
+    ".kts": "Kotlin",
     ".rb": "Ruby",
     ".php": "PHP",
     ".cs": "C#",
@@ -27,6 +29,8 @@ LANGUAGE_BY_SUFFIX = {
     ".dockerfile": "Dockerfile",
 }
 
+NON_SOURCE_LANGUAGES = {"Text", "Markdown", "JSON", "YAML", "Dockerfile", "SQL"}
+
 
 def classify_file(path: Path) -> str:
     if path.name == "Dockerfile" or path.name.endswith(".Dockerfile"):
@@ -36,7 +40,15 @@ def classify_file(path: Path) -> str:
 
 def language_summary(files: list[dict]) -> dict:
     counts = Counter(item["language"] for item in files)
-    primary = counts.most_common(1)[0][0] if counts else "Unknown"
+    source_counts = Counter(
+        {
+            language: count
+            for language, count in counts.items()
+            if language not in NON_SOURCE_LANGUAGES
+        }
+    )
+    primary_counts = source_counts or counts
+    primary = primary_counts.most_common(1)[0][0] if primary_counts else "Unknown"
     return {"primary": primary, "all": dict(counts)}
 
 
@@ -60,6 +72,25 @@ def detect_stack(root: Path, files: list[dict]) -> dict:
             frameworks.add("Vue")
         if "express" in text:
             frameworks.add("Express")
+    if "composer.json" in names:
+        package_managers.add("Composer")
+        composer = root / "composer.json"
+        text = composer.read_text(errors="ignore").lower() if composer.exists() else ""
+        if "laravel/framework" in text:
+            frameworks.add("Laravel")
+        if "symfony/" in text:
+            frameworks.add("Symfony")
+    if any(name.endswith((".csproj", ".sln")) for name in names):
+        package_managers.add("NuGet")
+        build_tools.add(".NET")
+        dotnet_text = "\n".join(
+            (root / item["relative_path"]).read_text(errors="ignore")
+            for item in files[:2000]
+            if item["relative_path"].endswith((".csproj", ".sln"))
+            and (root / item["relative_path"]).exists()
+        ).lower()
+        if "microsoft.aspnetcore" in dotnet_text or "sdk.web" in dotnet_text:
+            frameworks.add("ASP.NET Core")
     if "pnpm-lock.yaml" in names:
         package_managers.add("pnpm")
     if "yarn.lock" in names:
@@ -78,18 +109,19 @@ def detect_stack(root: Path, files: list[dict]) -> dict:
         if "flask" in pytext.lower():
             frameworks.add("Flask")
     if "pom.xml" in names:
+        package_managers.add("Maven")
         build_tools.add("Maven")
-        pom = root / "pom.xml"
-        text = pom.read_text(errors="ignore").lower() if pom.exists() else ""
+        text = _read_matching_manifests(root, files, ("pom.xml",)).lower()
         if "spring-boot" in text or "springframework" in text:
             frameworks.add("Spring")
     if "build.gradle" in names or "build.gradle.kts" in names:
+        package_managers.add("Gradle")
         build_tools.add("Gradle")
-        for gradle_name in ("build.gradle", "build.gradle.kts"):
-            gradle = root / gradle_name
-            text = gradle.read_text(errors="ignore").lower() if gradle.exists() else ""
-            if "spring-boot" in text or "springframework" in text:
-                frameworks.add("Spring")
+        text = _read_matching_manifests(root, files, ("build.gradle", "build.gradle.kts")).lower()
+        if "spring-boot" in text or "springframework" in text:
+            frameworks.add("Spring")
+        if "ktor" in text:
+            frameworks.add("Ktor")
     if "go.mod" in names:
         package_managers.add("Go modules")
         go_mod = root / "go.mod"
@@ -126,3 +158,16 @@ def detect_stack(root: Path, files: list[dict]) -> dict:
         "ci_cd": sorted(ci),
         "docker": "Docker" in build_tools,
     }
+
+
+def _read_matching_manifests(root: Path, files: list[dict], names: tuple[str, ...]) -> str:
+    chunks = []
+    for item in files[:5000]:
+        relative_path = item["relative_path"]
+        if Path(relative_path).name not in names:
+            continue
+        path = root / relative_path
+        if not path.exists():
+            continue
+        chunks.append(path.read_text(errors="ignore"))
+    return "\n".join(chunks)

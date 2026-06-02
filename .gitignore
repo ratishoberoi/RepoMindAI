@@ -24,6 +24,7 @@ data/*.sqlite3
 data/*.db
 data/*.json
 data/proof/runtime/
+data/scale_validation/runtime/
 
 # Reports
 reports/generated/

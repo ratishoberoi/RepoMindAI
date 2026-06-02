@@ -1,0 +1,171 @@
+{
+  "repositories_attempted": 67,
+  "repositories_passed": 66,
+  "repositories_failed": 1,
+  "failure_rate": 0.015,
+  "language_mix": {
+    "Rust": 9,
+    "C#": 9,
+    "Kotlin": 9,
+    "PHP": 8,
+    "Python": 8,
+    "TypeScript": 8,
+    "Java": 8,
+    "Go": 8
+  },
+  "size_mix": {
+    "tiny": 63,
+    "small": 4
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.784,
+  "mean_retrieval_accuracy": 0.784,
+  "mean_answer_accuracy": 0.844,
+  "mean_architecture_correctness": 0.959,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 298.658
+    },
+    {
+      "stage": "indexing",
+      "seconds": 184.536
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 178.739
+    },
+    {
+      "stage": "embedding",
+      "seconds": 145.355
+    },
+    {
+      "stage": "security",
+      "seconds": 102.218
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 72.337
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 5.372
+    },
+    {
+      "stage": "reports",
+      "seconds": 2.797
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 1.391
+    },
+    {
+      "stage": "scan_files",
+      "seconds": 0.002
+    }
+  ],
+  "failures": [
+    {
+      "url": "https://github.com/microsoft/slngen",
+      "language": "C#",
+      "stage": "unknown",
+      "error": "(raised as a result of Query-invoked autoflush; consider using a session.no_autoflush block if this flush is occurring prematurely)\n(builtins.TypeError) Object of type date is not JSON serializable\n[SQL: UPDATE repositories SET status=?, updated_at=?, summary=?, reports=? WHERE repositories.id = ?]\n[parameters: [{'summary': {'repository': {'id': '145276c4c5054371a90f187a3a49fe5e', 'name': 'slngen', 'path': '/home/ratish/RepoMindAI/data/scale_validation/runtime ... (882799 characters truncated) ... ports/generated/145276c4c5054371a90f187a3a49fe5e/analysis-summary.json'}, 'status': 'complete', 'repositories_id': '145276c4c5054371a90f187a3a49fe5e'}]]"
+    }
+  ],
+  "batch_number": 2,
+  "baseline": {
+    "failure_rate": 0.0,
+    "mean_citation_accuracy": 0.775,
+    "mean_retrieval_accuracy": 0.775,
+    "mean_architecture_correctness": 0.848
+  },
+  "regression_gates": {
+    "mean_citation_accuracy": 0.75,
+    "mean_retrieval_accuracy": 0.75,
+    "mean_architecture_correctness": 0.8
+  },
+  "memory": {
+    "max_rss_mb_peak": 2134.85,
+    "max_rss_mb_mean": 1938.892,
+    "cpu_seconds_total": 163.645
+  },
+  "timings": {
+    "ingestion_seconds": 144.674,
+    "analysis_seconds": 597.316,
+    "indexing_seconds": 184.536,
+    "chroma_upsert_seconds": 178.739,
+    "embedding_seconds": 145.355,
+    "security_seconds": 102.218,
+    "parse_files_seconds": 5.372,
+    "reports_seconds": 2.797,
+    "technical_debt_seconds": 1.391,
+    "scan_files_seconds": 0.002
+  },
+  "bottleneck_delta": [
+    {
+      "stage": "analysis",
+      "seconds": 298.658,
+      "previous_seconds": 353.443,
+      "delta_seconds": -54.785
+    },
+    {
+      "stage": "indexing",
+      "seconds": 184.536,
+      "previous_seconds": 193.252,
+      "delta_seconds": -8.716
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 178.739,
+      "previous_seconds": 184.065,
+      "delta_seconds": -5.326
+    },
+    {
+      "stage": "embedding",
+      "seconds": 145.355,
+      "previous_seconds": 132.689,
+      "delta_seconds": 12.666
+    },
+    {
+      "stage": "security",
+      "seconds": 102.218,
+      "previous_seconds": 136.781,
+      "delta_seconds": -34.563
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 72.337,
+      "previous_seconds": 107.821,
+      "delta_seconds": -35.484
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 5.372,
+      "previous_seconds": 12.454,
+      "delta_seconds": -7.082
+    },
+    {
+      "stage": "reports",
+      "seconds": 2.797,
+      "previous_seconds": 4.948,
+      "delta_seconds": -2.151
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 1.391,
+      "previous_seconds": 1.915,
+      "delta_seconds": -0.524
+    },
+    {
+      "stage": "scan_files",
+      "seconds": 0.002,
+      "previous_seconds": 0.005,
+      "delta_seconds": -0.003
+    }
+  ]
+}

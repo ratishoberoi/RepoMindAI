@@ -1,0 +1,103 @@
+{
+  "repositories_attempted": 100,
+  "repositories_passed": 100,
+  "repositories_failed": 0,
+  "failure_rate": 0.0,
+  "language_mix": {
+    "Python": 13,
+    "TypeScript": 13,
+    "Java": 13,
+    "Go": 13,
+    "Rust": 12,
+    "C#": 12,
+    "Kotlin": 12,
+    "PHP": 12
+  },
+  "size_mix": {
+    "tiny": 88,
+    "small": 12
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.825,
+  "mean_retrieval_accuracy": 0.825,
+  "mean_answer_accuracy": 0.842,
+  "mean_architecture_correctness": 0.956,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 353.443
+    },
+    {
+      "stage": "indexing",
+      "seconds": 193.252
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 184.065
+    },
+    {
+      "stage": "security",
+      "seconds": 136.781
+    },
+    {
+      "stage": "embedding",
+      "seconds": 132.689
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 107.821
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 12.454
+    },
+    {
+      "stage": "reports",
+      "seconds": 4.948
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 1.915
+    },
+    {
+      "stage": "scan_files",
+      "seconds": 0.005
+    }
+  ],
+  "failures": [],
+  "batch_number": 1,
+  "baseline": {
+    "failure_rate": 0.0,
+    "mean_citation_accuracy": 0.775,
+    "mean_retrieval_accuracy": 0.775,
+    "mean_architecture_correctness": 0.848
+  },
+  "regression_gates": {
+    "mean_citation_accuracy": 0.75,
+    "mean_retrieval_accuracy": 0.75,
+    "mean_architecture_correctness": 0.8
+  },
+  "memory": {
+    "max_rss_mb_peak": 2358.88,
+    "max_rss_mb_mean": 2119.064,
+    "cpu_seconds_total": 256.219
+  },
+  "timings": {
+    "ingestion_seconds": 215.642,
+    "analysis_seconds": 706.886,
+    "indexing_seconds": 193.252,
+    "chroma_upsert_seconds": 184.065,
+    "embedding_seconds": 132.689,
+    "security_seconds": 136.781,
+    "technical_debt_seconds": 1.915,
+    "parse_files_seconds": 12.454,
+    "reports_seconds": 4.948,
+    "scan_files_seconds": 0.005
+  },
+  "bottleneck_delta": []
+}

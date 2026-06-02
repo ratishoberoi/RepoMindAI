@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import time
+from datetime import date, datetime
 from pathlib import Path
 from threading import RLock
 from typing import Any
@@ -79,14 +80,18 @@ class RepositoryStore:
             record = session.get(RepositoryRecord, repo_id)
             if record is None:
                 raise KeyError(repo_id)
+            normalized_fields: dict[str, Any] = {}
             for key, value in fields.items():
                 if hasattr(record, key):
+                    if key in {"summary", "reports", "analysis_job"}:
+                        value = _json_safe(value)
+                    normalized_fields[key] = value
                     setattr(record, key, value)
             record.updated_at = time.time()
-            if "analysis_job" in fields and fields["analysis_job"]:
-                _upsert_job(session, repo_id, fields["analysis_job"])
-            if "reports" in fields and fields["reports"]:
-                _sync_artifacts(session, repo_id, fields["reports"])
+            if "analysis_job" in normalized_fields and normalized_fields["analysis_job"]:
+                _upsert_job(session, repo_id, normalized_fields["analysis_job"])
+            if "reports" in normalized_fields and normalized_fields["reports"]:
+                _sync_artifacts(session, repo_id, normalized_fields["reports"])
             session.commit()
             session.refresh(record)
             return _repo_dict(record)
@@ -301,6 +306,16 @@ def _repo_dict(record: RepositoryRecord) -> dict[str, Any]:
         "repository_deleted_at": record.repository_deleted_at,
         "repository_retention_minutes": record.repository_retention_minutes,
     }
+
+
+def _json_safe(value: Any) -> Any:
+    return json.loads(json.dumps(value, default=_json_default))
+
+
+def _json_default(value: Any) -> str:
+    if isinstance(value, datetime | date):
+        return value.isoformat()
+    return str(value)
 
 
 def _upsert_job(session: Session, repo_id: str, job: dict[str, Any]) -> None:

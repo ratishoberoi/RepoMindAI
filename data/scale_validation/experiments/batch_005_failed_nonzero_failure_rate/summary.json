@@ -1,0 +1,171 @@
+{
+  "repositories_attempted": 100,
+  "repositories_passed": 99,
+  "repositories_failed": 1,
+  "failure_rate": 0.01,
+  "language_mix": {
+    "Python": 13,
+    "TypeScript": 13,
+    "Java": 13,
+    "Go": 13,
+    "Rust": 12,
+    "C#": 12,
+    "Kotlin": 12,
+    "PHP": 12
+  },
+  "size_mix": {
+    "tiny": 89,
+    "small": 11
+  },
+  "feature_success_rates": {
+    "graph_generation": 1.0,
+    "report_generation": 1.0,
+    "security_scan": 1.0
+  },
+  "retrieval_success_rate": 1.0,
+  "mean_citation_accuracy": 0.857,
+  "mean_retrieval_accuracy": 0.857,
+  "mean_answer_accuracy": 0.852,
+  "mean_architecture_correctness": 0.981,
+  "top_bottlenecks": [
+    {
+      "stage": "analysis",
+      "seconds": 255.007
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 152.123
+    },
+    {
+      "stage": "indexing",
+      "seconds": 119.716
+    },
+    {
+      "stage": "security",
+      "seconds": 108.991
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 89.805
+    },
+    {
+      "stage": "embedding",
+      "seconds": 45.59
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 18.141
+    },
+    {
+      "stage": "reports",
+      "seconds": 3.963
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 0.621
+    },
+    {
+      "stage": "scan_files",
+      "seconds": 0.059
+    }
+  ],
+  "failures": [
+    {
+      "url": "https://github.com/yunsmall/Android-Usbipdcpp",
+      "language": "Kotlin",
+      "stage": "analysis",
+      "error": "'list' object has no attribute 'keys'"
+    }
+  ],
+  "batch_number": 5,
+  "baseline": {
+    "failure_rate": 0.0,
+    "mean_citation_accuracy": 0.775,
+    "mean_retrieval_accuracy": 0.775,
+    "mean_architecture_correctness": 0.848
+  },
+  "regression_gates": {
+    "mean_citation_accuracy": 0.75,
+    "mean_retrieval_accuracy": 0.75,
+    "mean_architecture_correctness": 0.8
+  },
+  "memory": {
+    "max_rss_mb_peak": 2676.31,
+    "max_rss_mb_mean": 2492.397,
+    "cpu_seconds_total": 242.534
+  },
+  "timings": {
+    "ingestion_seconds": 304.246,
+    "analysis_seconds": 510.014,
+    "security_seconds": 108.991,
+    "indexing_seconds": 119.716,
+    "chroma_upsert_seconds": 89.805,
+    "embedding_seconds": 45.59,
+    "reports_seconds": 3.963,
+    "parse_files_seconds": 18.141,
+    "technical_debt_seconds": 0.621,
+    "scan_files_seconds": 0.059
+  },
+  "bottleneck_delta": [
+    {
+      "stage": "analysis",
+      "seconds": 255.007,
+      "previous_seconds": 252.363,
+      "delta_seconds": 2.644
+    },
+    {
+      "stage": "ingestion",
+      "seconds": 152.123,
+      "previous_seconds": 113.307,
+      "delta_seconds": 38.816
+    },
+    {
+      "stage": "indexing",
+      "seconds": 119.716,
+      "previous_seconds": 107.544,
+      "delta_seconds": 12.172
+    },
+    {
+      "stage": "security",
+      "seconds": 108.991,
+      "previous_seconds": 125.126,
+      "delta_seconds": -16.135
+    },
+    {
+      "stage": "chroma_upsert",
+      "seconds": 89.805,
+      "previous_seconds": 99.798,
+      "delta_seconds": -9.993
+    },
+    {
+      "stage": "embedding",
+      "seconds": 45.59,
+      "previous_seconds": 53.942,
+      "delta_seconds": -8.352
+    },
+    {
+      "stage": "parse_files",
+      "seconds": 18.141,
+      "previous_seconds": 9.838,
+      "delta_seconds": 8.303
+    },
+    {
+      "stage": "reports",
+      "seconds": 3.963,
+      "previous_seconds": 5.157,
+      "delta_seconds": -1.194
+    },
+    {
+      "stage": "technical_debt",
+      "seconds": 0.621,
+      "previous_seconds": 0.729,
+      "delta_seconds": -0.108
+    },
+    {
+      "stage": "scan_files",
+      "seconds": 0.059,
+      "previous_seconds": 0.004,
+      "delta_seconds": 0.055
+    }
+  ]
+}

@@ -44,6 +44,45 @@ RUST_ITEM_RE = re.compile(
 RUST_ROUTE_RE = re.compile(
     r"#\[(?P<method>get|post|put|patch|delete|route)\s*\(\s*\"(?P<path>/[^\"]*)\""
 )
+CSHARP_USING_RE = re.compile(r"(?m)^\s*using\s+([\w.]+)\s*;")
+CSHARP_TYPE_RE = re.compile(
+    r"(?m)^\s*(?:public|internal|private|protected)?\s*(?:partial\s+)?"
+    r"(?P<kind>class|interface|record|struct|enum)\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+)
+CSHARP_METHOD_RE = re.compile(
+    r"(?m)^\s*(?:public|private|protected|internal)?\s*(?:static\s+)?(?:async\s+)?"
+    r"[\w<>\[\], ?]+\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*\("
+)
+CSHARP_ROUTE_RE = re.compile(
+    r"\[(?P<method>HttpGet|HttpPost|HttpPut|HttpPatch|HttpDelete|Route)"
+    r"(?:\((?P<args>[^\)]*)\))?\]"
+)
+KOTLIN_IMPORT_RE = re.compile(r"(?m)^\s*import\s+([\w.*]+)")
+KOTLIN_TYPE_RE = re.compile(
+    r"(?m)^\s*(?:data\s+|sealed\s+|open\s+|abstract\s+)?"
+    r"(?P<kind>class|interface|object|enum\s+class)\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+)
+KOTLIN_FUN_RE = re.compile(
+    r"(?m)^\s*(?:suspend\s+)?fun\s+(?:(?:[A-Za-z_][A-Za-z0-9_.<>]*)\.)?(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*\("
+)
+KOTLIN_ROUTE_RE = re.compile(
+    r"(?P<method>get|post|put|patch|delete|route)\s*\(\s*['\"](?P<path>/[^'\"]*)['\"]"
+    r"|@(?P<ann>GetMapping|PostMapping|PutMapping|PatchMapping|DeleteMapping|RequestMapping)"
+    r"(?:\((?P<args>[^\)]*)\))?"
+)
+PHP_USE_RE = re.compile(r"(?m)^\s*use\s+([^;]+);")
+PHP_CLASS_RE = re.compile(
+    r"(?m)^\s*(?:abstract\s+|final\s+)?(?P<kind>class|interface|trait|enum)\s+"
+    r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+)
+PHP_FUNC_RE = re.compile(
+    r"(?m)^\s*(?:public|private|protected)?\s*function\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*\("
+)
+PHP_ROUTE_RE = re.compile(
+    r"(?:Route::(?P<method>get|post|put|patch|delete|any|match)|->(?P<chain>get|post|put|patch|delete))"
+    r"\s*\(\s*['\"](?P<path>/[^'\"]*)['\"]"
+    r"|#\[Route\(\s*['\"](?P<attr_path>/[^'\"]*)['\"]"
+)
 
 
 def parse_file(path: Path, relative_path: str, language: str) -> dict[str, Any]:
@@ -74,6 +113,12 @@ def parse_file(path: Path, relative_path: str, language: str) -> dict[str, Any]:
         result.update(_parse_go(text))
     elif language == "Rust":
         result.update(_parse_rust(text))
+    elif language == "C#":
+        result.update(_parse_csharp(text))
+    elif language == "Kotlin":
+        result.update(_parse_kotlin(text))
+    elif language == "PHP":
+        result.update(_parse_php(text))
     elif language == "JSON":
         result["metadata"] = _parse_json_metadata(text)
     elif language == "YAML":
@@ -91,6 +136,131 @@ def parse_file(path: Path, relative_path: str, language: str) -> dict[str, Any]:
         for m in TODO_RE.finditer(text)
     ]
     return result
+
+
+def _parse_csharp(text: str) -> dict[str, Any]:
+    imports = sorted(set(CSHARP_USING_RE.findall(text)))
+    classes = [
+        {"name": match.group("name"), "line": _line_for_offset(text, match.start())}
+        for match in CSHARP_TYPE_RE.finditer(text)
+    ]
+    functions = [
+        {
+            "name": match.group("name"),
+            "line": _line_for_offset(text, match.start()),
+            "async": "async" in text[max(0, match.start() - 80) : match.start()],
+        }
+        for match in CSHARP_METHOD_RE.finditer(text)
+        if match.group("name") not in {"if", "for", "while", "switch", "catch"}
+    ]
+    routes = []
+    for match in CSHARP_ROUTE_RE.finditer(text):
+        method = match.group("method").replace("Http", "").upper()
+        if method == "ROUTE":
+            method = "ROUTE"
+        routes.append(
+            {
+                "method": method,
+                "path": _quoted_route_path(match.group("args") or "") or "/",
+                "handler": _next_csharp_method_name(text, match.end()),
+                "line": _line_for_offset(text, match.start()),
+            }
+        )
+    database_models = [
+        item | {"orm": "Entity Framework/.NET"}
+        for item in classes
+        if _has_csharp_db_signal(text, item["name"])
+    ]
+    return {
+        "imports": imports,
+        "exports": [],
+        "classes": classes,
+        "functions": functions,
+        "methods": [],
+        "routes": _unique_routes(routes),
+        "database_models": database_models,
+        "parser": "regex-csharp",
+    }
+
+
+def _parse_kotlin(text: str) -> dict[str, Any]:
+    imports = sorted(set(KOTLIN_IMPORT_RE.findall(text)))
+    classes = [
+        {"name": match.group("name"), "line": _line_for_offset(text, match.start())}
+        for match in KOTLIN_TYPE_RE.finditer(text)
+    ]
+    functions = [
+        {
+            "name": match.group("name"),
+            "line": _line_for_offset(text, match.start()),
+            "async": "suspend" in text[max(0, match.start() - 20) : match.start()],
+        }
+        for match in KOTLIN_FUN_RE.finditer(text)
+    ]
+    routes = []
+    for match in KOTLIN_ROUTE_RE.finditer(text):
+        method = (match.group("method") or match.group("ann") or "ROUTE").replace("Mapping", "")
+        routes.append(
+            {
+                "method": method.upper(),
+                "path": match.group("path") or _quoted_route_path(match.group("args") or "") or "/",
+                "handler": _next_kotlin_function_name(text, match.end()),
+                "line": _line_for_offset(text, match.start()),
+            }
+        )
+    database_models = [
+        item | {"orm": "JPA/Exposed/Kotlin"}
+        for item in classes
+        if _has_kotlin_db_signal(text, item["name"])
+    ]
+    return {
+        "imports": imports,
+        "exports": [],
+        "classes": classes,
+        "functions": functions,
+        "methods": [],
+        "routes": _unique_routes(routes),
+        "database_models": database_models,
+        "parser": "regex-kotlin",
+    }
+
+
+def _parse_php(text: str) -> dict[str, Any]:
+    imports = sorted(set(PHP_USE_RE.findall(text)))
+    classes = [
+        {"name": match.group("name"), "line": _line_for_offset(text, match.start())}
+        for match in PHP_CLASS_RE.finditer(text)
+    ]
+    functions = [
+        {"name": match.group("name"), "line": _line_for_offset(text, match.start()), "async": False}
+        for match in PHP_FUNC_RE.finditer(text)
+    ]
+    routes = []
+    for match in PHP_ROUTE_RE.finditer(text):
+        method = match.group("method") or match.group("chain") or "ROUTE"
+        routes.append(
+            {
+                "method": method.upper(),
+                "path": match.group("path") or match.group("attr_path") or "/",
+                "handler": _next_php_function_name(text, match.end()),
+                "line": _line_for_offset(text, match.start()),
+            }
+        )
+    database_models = [
+        item | {"orm": "Eloquent/Doctrine/PHP"}
+        for item in classes
+        if _has_php_db_signal(text, item["name"])
+    ]
+    return {
+        "imports": imports,
+        "exports": [],
+        "classes": classes,
+        "functions": functions,
+        "methods": [],
+        "routes": _unique_routes(routes),
+        "database_models": database_models,
+        "parser": "regex-php",
+    }
 
 
 def _parse_java(text: str) -> dict[str, Any]:
@@ -714,6 +884,50 @@ def _has_rust_db_signal(text: str, name: str) -> bool:
     return bool(pattern.search(text))
 
 
+def _next_csharp_method_name(text: str, offset: int) -> str:
+    match = CSHARP_METHOD_RE.search(text, offset)
+    return match.group("name") if match else ""
+
+
+def _next_kotlin_function_name(text: str, offset: int) -> str:
+    match = KOTLIN_FUN_RE.search(text, offset)
+    return match.group("name") if match else ""
+
+
+def _next_php_function_name(text: str, offset: int) -> str:
+    match = PHP_FUNC_RE.search(text, offset)
+    return match.group("name") if match else ""
+
+
+def _has_csharp_db_signal(text: str, name: str) -> bool:
+    if name.lower().endswith(("dbcontext", "context")):
+        return "dbcontext" in text.lower() or "dbset<" in text.lower()
+    pattern = re.compile(
+        rf"(DbContext|DbSet<\s*{re.escape(name)}\s*>|Entity<\s*{re.escape(name)}\s*>|"
+        rf"{re.escape(name)}.*?\[(?:Key|Table|Column)\])",
+        re.DOTALL,
+    )
+    return bool(pattern.search(text))
+
+
+def _has_kotlin_db_signal(text: str, name: str) -> bool:
+    pattern = re.compile(
+        rf"(@Entity|@Table|Table\(|IntIdTable|LongIdTable|EntityClass).*?{re.escape(name)}|"
+        rf"{re.escape(name)}.*?(@Entity|@Table|Table\(|IntIdTable|LongIdTable|EntityClass)",
+        re.DOTALL,
+    )
+    return bool(pattern.search(text))
+
+
+def _has_php_db_signal(text: str, name: str) -> bool:
+    pattern = re.compile(
+        rf"(extends\s+Model|Doctrine\\ORM|ORM\\Entity|@ORM\\Entity|#[\w\\]*Entity).*?{re.escape(name)}|"
+        rf"{re.escape(name)}.*?(extends\s+Model|Doctrine\\ORM|ORM\\Entity|@ORM\\Entity|#[\w\\]*Entity)",
+        re.DOTALL,
+    )
+    return bool(pattern.search(text))
+
+
 def _parse_json_metadata(text: str) -> dict[str, Any]:
     try:
         data = json.loads(text)
@@ -722,11 +936,19 @@ def _parse_json_metadata(text: str) -> dict[str, Any]:
     if isinstance(data, dict):
         return {
             "name": data.get("name"),
-            "dependencies": sorted((data.get("dependencies") or {}).keys()),
-            "dev_dependencies": sorted((data.get("devDependencies") or {}).keys()),
-            "scripts": sorted((data.get("scripts") or {}).keys()),
+            "dependencies": _metadata_keys(data.get("dependencies")),
+            "dev_dependencies": _metadata_keys(data.get("devDependencies")),
+            "scripts": _metadata_keys(data.get("scripts")),
         }
     return {}
+
+
+def _metadata_keys(value: Any) -> list[str]:
+    if isinstance(value, dict):
+        return sorted(str(key) for key in value)
+    if isinstance(value, list):
+        return sorted(str(item) for item in value if isinstance(item, str))
+    return []
 
 
 def _parse_yaml_metadata(text: str) -> dict[str, Any]:
