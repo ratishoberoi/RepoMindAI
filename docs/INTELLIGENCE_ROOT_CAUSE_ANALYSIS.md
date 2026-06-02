@@ -5,8 +5,8 @@ Evidence sources:
 - `data/proof/raw_evidence.jsonl`
 - `data/proof/summary.json`
 - `data/proof/improvement_loop.json`
-- `FAILURE_REPORT.md`
-- `PROOF_OF_CAPABILITY.md`
+- `docs/evidence/FAILURE_REPORT.md`
+- `docs/evidence/PROOF_OF_CAPABILITY.md`
 
 ## Baseline
 
